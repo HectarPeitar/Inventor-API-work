@@ -22,3 +22,6 @@ Thumbs.db
 # CadFiles: folder only
 CadFiles/*
 !CadFiles/.gitkeep
+
+# Example files
+Docs/Examples

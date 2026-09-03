@@ -6,9 +6,23 @@
 '   1. Open het onderdeel/de assembly in Inventor
 '   2. Ga naar iLogic-paneel > External Rules > voeg dit bestand toe
 '   3. Of kopieer de inhoud naar een nieuwe interne regel
+'
+' Deze regel voert twee controles uit op de parameter 'Thickness':
+'   - Controle 1: Als de dikte kleiner is dan 5 mm, wordt een waarschuwing getoond
+'     (onderdeel Mogelijk te dun voor productie)
+'   - Controle 2: Als de dikter groter is dan 50 mm, wordt een waarschuwing getoond
+'     (onderdeel Mogelijk te dik voor productie)
 
+' Haal de huidige waarde van de parameter 'Thickness' op uit het document
 Dim thickness As Double = Parameter("Thickness")
 
+' Controle 1: Check of de dikte kleiner is dan 5 mm
 If thickness < 5 Then
-    MessageBox.Show("Thickness is smaller then 5 mm, check design.", "Waarschuwing")
+    MessageBox.Show("Thickness is smaller than 5 mm, check design.", "Waarschuwing")
+End If
+
+' Controle 2: Check of de dikte groter is dan 50 mm
+' Dit kan duiden op een te dik ontwerp dat moeilijk te produceren is
+If thickness > 50 Then
+    MessageBox.Show("Thickness is greater than 50 mm, part may be too thick for production.", "Waarschuwing")
 End If

@@ -35,13 +35,39 @@ Example:
 
 ## Active Development
 
-Files in this directory represent active development work.
+- Files in this directory represent active development work.
+- Cline/AI may modify these files when explicitly asked to implement, debug, refactor, or extend an Add-in.
+- Changes should therefore be treated as real code changes.
+- Do not assume that files in this directory are disposable.
 
-Cline/AI may modify these files when explicitly asked to implement, debug, refactor, or extend an Add-in.
+---
 
-Changes should therefore be treated as real code changes.
+## Development Environment
 
-Do not assume that files in this directory are disposable.
+Add-in source code is maintained through the VS Code/Cline workspace.
+
+Visual Studio is used for:
+
+- building;
+- debugging;
+- managing .NET project references;
+- configuring the Inventor Interop reference;
+- attaching to Autodesk Inventor;
+- runtime testing.
+
+Typical workflow:
+
+    VS Code / Cline
+        ->
+    Edit Add-in
+        ->
+    Visual Studio
+        ->
+    Build
+        ->
+    Autodesk Inventor
+        ->
+    Test
 
 ---
 

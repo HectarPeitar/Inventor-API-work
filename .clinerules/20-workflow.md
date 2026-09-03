@@ -28,7 +28,79 @@ For a new task:
 
 ---
 
-## 2. Programming Context
+## 2. Development Environment Workflow
+
+Use the appropriate environment for each type of work.
+
+### VS Code + Cline
+
+Use VS Code/Cline for:
+
+- planning;
+- code generation;
+- code editing;
+- repository navigation;
+- knowledge lookup;
+- documentation;
+- refactoring;
+- reviewing existing code;
+- maintaining examples;
+- maintaining tested implementations;
+- maintaining templates;
+- project file preparation.
+
+### Visual Studio
+
+Use Visual Studio for .NET Inventor Add-ins when:
+
+- creating or opening a Visual Studio solution;
+- building an Add-in;
+- resolving project/reference issues;
+- debugging C#;
+- debugging VB.NET;
+- attaching to Inventor;
+- inspecting runtime state;
+- debugging Inventor API calls.
+
+### Autodesk Inventor
+
+Use Autodesk Inventor for:
+
+- executing iLogic rules;
+- loading Add-ins;
+- testing Add-in commands;
+- testing UI;
+- testing events;
+- testing model modifications;
+- validating actual Inventor API behavior.
+
+---
+
+## Environment Handoff
+
+When a task requires Visual Studio or Inventor, Cline should prepare the required files and explain the next manual step.
+
+For example:
+
+    Cline / VS Code
+        ->
+    Create or modify Add-in
+        ->
+    Open solution in Visual Studio
+        ->
+    Build
+        ->
+    Start or attach to Inventor
+        ->
+    Test
+        ->
+    Report result back to Cline
+
+Do not claim that an Add-in has been successfully built or tested unless that has actually been verified.
+
+---
+
+## 3. Programming Context
 
 Before writing code, establish whether the task is:
 
@@ -44,7 +116,7 @@ If the context is unclear and materially affects the solution, determine it befo
 
 ---
 
-## 3. Document Context
+## 4. Document Context
 
 Establish:
 
@@ -68,7 +140,7 @@ Do not skip context merely because a shorter API call appears possible.
 
 ---
 
-## 4. Knowledge Lookup
+## 5. Knowledge Lookup
 
 Use the most specific knowledge file available.
 
@@ -83,7 +155,7 @@ Do not load or reproduce the entire knowledge base when only one topic is releva
 
 ---
 
-## 5. Tested Examples
+## 6. Tested Examples
 
 Before creating new code:
 
@@ -96,7 +168,7 @@ Before creating new code:
 
 ---
 
-## 6. API Verification
+## 7. API Verification
 
 When an API member is unfamiliar:
 
@@ -113,7 +185,7 @@ Do not substitute a guessed API member merely because the name appears plausible
 
 ---
 
-## 7. Implementation Strategy
+## 8. Implementation Strategy
 
 Prefer the smallest implementation that:
 
@@ -128,7 +200,7 @@ Do not add architecture that the task does not require.
 
 ---
 
-## 8. Bug-Fixing Workflow
+## 9. Bug-Fixing Workflow
 
 When debugging:
 
@@ -166,7 +238,7 @@ When debugging:
 
 ---
 
-## 9. Compile Errors
+## 10. Compile Errors
 
 For compile errors:
 
@@ -182,7 +254,7 @@ Do not rewrite unrelated code to solve a single compile error.
 
 ---
 
-## 10. Runtime Errors
+## 11. Runtime Errors
 
 For runtime errors, check:
 
@@ -198,7 +270,7 @@ For runtime errors, check:
 
 ---
 
-## 11. Old Code Migration
+## 12. Old Code Migration
 
 For old code:
 
@@ -235,29 +307,46 @@ Do not assume that old Autodesk training code is directly suitable for Inventor 
 
 ---
 
-## 12. Add-in Development Workflow
+## 13. Add-in Development Workflow
 
-For a new Add-in:
+## Add-in Development Workflow
+
+For a new or modified .NET Inventor Add-in:
 
 1. Establish Inventor version.
 2. Establish .NET version.
-3. Use the appropriate Autodesk template.
-4. Configure Inventor Interop references.
-5. Implement Add-in lifecycle.
-6. Implement commands.
-7. Implement UI.
-8. Implement events where required.
-9. Implement business logic.
-10. Implement cleanup.
-11. Build.
-12. Install.
-13. Test inside Inventor.
+3. Determine the target language.
+4. Check `knowledge/addins.md`.
+5. Check `knowledge/api-compatibility.md`.
+6. Check `templates/` for an appropriate starting point.
+7. Check `tested/` for proven API patterns.
+8. Create or modify the project in `addins/`.
+9. Prepare the Visual Studio solution and project files.
+10. Configure the required Inventor Interop references.
+11. Implement the Add-in lifecycle.
+12. Implement commands.
+13. Implement UI where required.
+14. Implement events where required.
+15. Implement business logic.
+16. Implement cleanup and lifecycle handling.
+17. Review error handling.
+18. Review version compatibility.
+19. Build the Add-in in Visual Studio.
+20. Test the Add-in inside Autodesk Inventor.
+21. Use files from `cadfiles/` for safe CAD testing.
+22. Record successful patterns in `tested/`.
+23. Update `knowledge/` when a general technical insight has been established.
 
-A successful compilation does not prove that an Add-in loads correctly.
+### Important
+
+- Cline may create and modify the Add-in source code and project files.
+- Cline should not claim that the Add-in builds, loads, or works correctly unless the result has actually been verified.
+- A successful code-generation step is not equivalent to a successful build.
+- A successful build is not equivalent to a successful Inventor runtime test.
 
 ---
 
-## 13. iLogic Workflow
+## 14. iLogic Workflow
 
 For a new iLogic rule:
 
@@ -273,7 +362,7 @@ For a new iLogic rule:
 
 ---
 
-## 14. Assembly Workflow
+## 15. Assembly Workflow
 
 For Assembly tasks:
 
@@ -291,7 +380,7 @@ For Assembly tasks:
 
 ---
 
-## 15. Parameter Workflow
+## 16. Parameter Workflow
 
 For parameter tasks:
 
@@ -309,7 +398,7 @@ For parameter tasks:
 
 ---
 
-## 16. Unit-Sensitive Workflow
+## 17. Unit-Sensitive Workflow
 
 For physical values:
 
@@ -337,7 +426,7 @@ Never silently assume millimeters or degrees.
 
 ---
 
-## 17. Testing
+## 18. Testing
 
 When testing code, record:
 
@@ -356,7 +445,7 @@ Do not label untested code as verified.
 
 ---
 
-## 18. Updating the Workspace
+## 19. Updating the Workspace
 
 When new work or information is created, determine what type of material it is.
 
@@ -418,7 +507,7 @@ Use this only for disposable Inventor test documents.
 
 ---
 
-## 19. Avoid Duplication
+## 20. Avoid Duplication
 
 Do not copy the same information into multiple directories without a clear reason.
 
@@ -450,7 +539,7 @@ Use the following principle:
 
 ---
 
-## 20. Completion Checklist
+## 21. Completion Checklist
 
 Before considering a task complete:
 
@@ -469,7 +558,7 @@ Before considering a task complete:
 
 ---
 
-## 21. Core Principle
+## 22. Core Principle
 
 The AI should prefer:
 

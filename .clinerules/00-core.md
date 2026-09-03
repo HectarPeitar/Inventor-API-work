@@ -26,6 +26,48 @@ Primary target:
 
 ---
 
+## Development Environment
+
+This workspace is primarily operated through:
+
+- VS Code
+- Cline
+
+VS Code/Cline is the primary environment for:
+
+- AI-assisted development;
+- repository navigation;
+- editing source code;
+- editing Markdown knowledge;
+- managing project files;
+- reviewing examples;
+- maintaining tested implementations;
+- managing templates;
+- coordinating development tasks.
+
+Visual Studio is the primary environment for:
+
+- building .NET Inventor Add-ins;
+- debugging C# and VB.NET Add-ins;
+- managing .NET project references;
+- working with Autodesk Inventor Interop;
+- attaching the debugger to Inventor;
+- runtime debugging and validation.
+
+Autodesk Inventor is the runtime and primary test environment for:
+
+- iLogic rules;
+- Inventor Add-ins;
+- API behavior;
+- CAD document operations;
+- UI behavior;
+- events;
+- model changes.
+
+Do not assume that VS Code replaces Visual Studio for Inventor .NET Add-in build and debugging tasks.
+
+---
+
 ## 1. Source Hierarchy
 
 Use technical information according to this priority:

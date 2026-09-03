@@ -1,88 +1,79 @@
 # ============================================================
-# Git Ignore
+# Git Attributes
 # Autodesk Inventor AI Workspace
 # ============================================================
 
 
 # ------------------------------------------------------------
-# Build output
+# Default text handling
 # ------------------------------------------------------------
 
-**/bin/
-**/obj/
-
-*.dll
-*.exe
-*.pdb
+* text=auto
 
 
 # ------------------------------------------------------------
-# Autodesk Inventor CAD files
-# ------------------------------------------------------------
-# CAD files are test/project assets and should not normally
-# be committed to this AI development repository.
+# Markdown / documentation
 # ------------------------------------------------------------
 
-*.ipt
-*.iam
-*.idw
-*.ipn
-*.ipj
+*.md text eol=lf
 
 
 # ------------------------------------------------------------
-# Inventor temporary / lock / backup files
+# C# / .NET
 # ------------------------------------------------------------
 
-~$*
-*.lck
-*.old
-*.bak
-*.tmp
-
-
-# ------------------------------------------------------------
-# Visual Studio / IDE
-# ------------------------------------------------------------
-
-.vs/
-.vscode/*
-!.vscode/settings.json
-
-*.user
-*.suo
+*.cs text eol=crlf
+*.csproj text eol=crlf
+*.sln text eol=crlf
+*.props text eol=crlf
+*.targets text eol=crlf
+*.config text eol=crlf
 
 
 # ------------------------------------------------------------
-# Operating system files
+# VB.NET
 # ------------------------------------------------------------
 
-.DS_Store
-Thumbs.db
-
-
-# ------------------------------------------------------------
-# Cline / AI agent local state
-# ------------------------------------------------------------
-
-.clinerules-local
+*.vb text eol=crlf
 
 
 # ------------------------------------------------------------
-# CAD sandbox
-# ------------------------------------------------------------
-# The entire sandbox is excluded from Git.
-# Test CAD files should remain local.
+# XML / configuration
 # ------------------------------------------------------------
 
-cadfiles/
+*.xml text eol=crlf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
 
 
 # ------------------------------------------------------------
-# External reference material
-# ------------------------------------------------------------
-# Autodesk DevTech training material is kept locally but
-# should not be committed to the repository.
+# Scripts
 # ------------------------------------------------------------
 
-reference/ADN-DevTech-Inventor-Training/
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+
+# ------------------------------------------------------------
+# Git / configuration files
+# ------------------------------------------------------------
+
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+
+# ------------------------------------------------------------
+# Binary files
+# ------------------------------------------------------------
+
+*.dll binary
+*.exe binary
+*.pdb binary
+
+*.ipt binary
+*.iam binary
+*.idw binary
+*.ipn binary
+*.ipj binary

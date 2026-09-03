@@ -1,115 +1,132 @@
-# tested
+# Tested
 
 ## Purpose
 
-This directory contains implementations that have been tested against a real Autodesk Inventor environment.
+The `tested/` directory contains small, reusable patterns and API
+behaviors that have been actually verified in Autodesk Inventor.
 
-Tested code has a higher confidence level than generic examples or model-generated code.
-
----
-
-## What belongs here?
-
-Store code that has been actually tested.
-
-Examples:
-
-- working iLogic rules;
-- working C# Add-in components;
-- working VB.NET code;
-- verified API patterns;
-- tested Assembly operations;
-- tested parameter operations;
-- tested UI functionality.
+The purpose is to give the AI a collection of proven implementations
+that can be reused in future tasks.
 
 ---
 
-## Required Context
+## What Belongs Here
 
-Whenever practical, record:
+Examples include:
+
+- verified Inventor API usage;
+- verified iLogic techniques;
+- verified parameter operations;
+- verified assembly operations;
+- verified document operations;
+- documented Inventor-specific behavior;
+- small reusable implementation patterns.
+
+Each item should clearly state the environment in which it was tested.
+
+Where relevant, include:
 
 - Inventor version;
 - programming environment;
-- language;
 - document type;
-- test scenario;
-- expected result;
-- actual result;
-- known limitations.
-
-Example:
-
-    Inventor:
-    2026
-
-    Environment:
-    iLogic
-
-    Document:
-    Part (.ipt)
-
-    Purpose:
-    Update a User Parameter
-
-    Status:
-    VERIFIED
+- expected behavior;
+- actual behavior;
+- important limitations.
 
 ---
 
-## Confidence Levels
+## What Does Not Belong Here
 
-Use clear status labels where useful:
+Do not use this directory for:
 
-### VERIFIED
+- temporary experiments;
+- unfinished code;
+- backup copies;
+- complete Add-in projects;
+- copies of projects from `addins/`;
+- unverified API assumptions.
 
-Successfully tested against the stated Inventor version.
+Temporary experiments belong in:
 
-### PARTIALLY VERIFIED
+    scratch/
 
-The main functionality works, but not all scenarios have been tested.
+Complete Add-in projects belong in:
 
-### LEGACY VERIFIED
-
-Successfully tested, but against an older Inventor version.
-
-### EXPERIMENTAL
-
-Tested experimentally but not yet considered stable.
+    addins/
 
 ---
 
-## What does NOT belong here?
+## Verification
 
-Do not store code here merely because:
+Content in `tested/` must have actually been tested.
+
+Do not mark information as verified merely because:
 
 - it compiles;
 - it looks correct;
 - an AI generated it;
-- it came from a GitHub example;
-- it came from old Autodesk training.
+- it appears in an old example;
+- it is plausible.
 
-Actual testing is required before calling code verified.
+Runtime behavior should be verified in Autodesk Inventor where
+runtime behavior is relevant.
 
 ---
 
-## Relationship to examples/
+## Relationship to Add-ins
 
-The distinction is:
+A complete Add-in remains in:
 
-    examples/
-    "This demonstrates how something could work."
+    addins/
 
+Do not copy the complete Add-in into `tested/`.
+
+If an Add-in produces a useful reusable pattern, extract only that
+pattern.
+
+Example:
+
+    addins/ParameterTools/
+        |
+        |  complete Add-in
+        |
+        +----> tested/parameters/
+                   |
+                   +-- parameter-value-units.md
+
+This avoids maintaining two copies of the same project.
+
+---
+
+## Relationship to Scratch
+
+Typical workflow:
+
+    scratch/
+        ->
+    test in Inventor
+        ->
+    verified result
+        ->
     tested/
-    "This implementation has actually been tested."
 
-A tested example may exist in both locations when that is useful.
+Only reusable knowledge should be extracted.
+
+A temporary experiment that has no future value does not need to
+be preserved.
 
 ---
 
-## Design Principle
+## Version Awareness
 
-`tested/` answers:
+A tested result is valid for the environment in which it was tested.
 
-> "What do we know actually works?"
+Always consider:
 
-This directory should become increasingly valuable over time because it captures real-world, version-specific experience.
+- Inventor version;
+- programming environment;
+- document type;
+- API context.
+
+Do not automatically assume that a tested pattern is valid in every
+Inventor release or context.

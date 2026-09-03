@@ -68,6 +68,55 @@ Do not assume that VS Code replaces Visual Studio for Inventor .NET Add-in build
 
 ---
 
+## API Verification
+
+Never assume that an Autodesk Inventor API member, property, method,
+enum, or object type exists based only on naming conventions,
+memory, examples, or generated code.
+
+Before using an Inventor API member:
+
+1. Check the relevant knowledge file.
+2. If the member is not clearly documented there, verify it against the current Autodesk Inventor API documentation.
+3. Prefer the API documentation for the target Inventor version.
+4. If documentation cannot be verified, clearly state the uncertainty.
+5. Do not present an unverified API member as confirmed.
+
+This is especially important for:
+
+- property names;
+- method names;
+- enum values;
+- object types;
+- method arguments;
+- return types;
+- iLogic access to Inventor API objects.
+
+A plausible-sounding API member is not evidence that the member exists.
+
+---
+
+## API Errors Are Evidence
+
+When Inventor reports an error such as:
+
+    Public member 'X' on type 'Y' not found
+
+treat this as evidence that the assumed API member is incorrect or
+not available in the current context.
+
+Do not simply replace the member with another guessed name.
+
+Instead:
+
+1. Identify the actual object type.
+2. Check the current API documentation.
+3. Verify the replacement member.
+4. Explain the correction.
+5. Update the relevant knowledge or tested documentation when the result provides reusable information.
+
+---
+
 ## 1. Source Hierarchy
 
 Use technical information according to this priority:

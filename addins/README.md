@@ -1,65 +1,38 @@
-# addins
+# Add-ins
 
 ## Purpose
 
-This directory contains active Autodesk Inventor Add-in projects.
+The `addins/` directory contains the actual Autodesk Inventor .NET
+Add-in projects being developed and maintained.
 
-These are real development projects rather than examples or documentation.
+Each Add-in should have one authoritative project location here.
 
 ---
 
-## What belongs here?
+## What Belongs Here
 
-Examples:
+Examples include:
 
 - C# Inventor Add-ins;
 - VB.NET Inventor Add-ins;
-- Add-in UI projects;
-- Add-in command implementations;
-- Add-in event handling;
-- Add-in services and supporting code;
-- project files and solution files.
+- Visual Studio solutions;
+- Add-in project files;
+- Add-in source code;
+- Add-in configuration;
+- Add-in-specific resources.
 
-Example:
-
-    addins/
-    └── HoleInspector/
-        ├── HoleInspector.sln
-        ├── HoleInspector.csproj
-        ├── ThisAddIn.cs
-        ├── Commands/
-        ├── Services/
-        └── UI/
+A complete Add-in project belongs here even after it has been
+successfully tested.
 
 ---
 
-## Active Development
+## Development Workflow
 
-- Files in this directory represent active development work.
-- Cline/AI may modify these files when explicitly asked to implement, debug, refactor, or extend an Add-in.
-- Changes should therefore be treated as real code changes.
-- Do not assume that files in this directory are disposable.
+For a new Add-in:
 
----
-
-## Development Environment
-
-Add-in source code is maintained through the VS Code/Cline workspace.
-
-Visual Studio is used for:
-
-- building;
-- debugging;
-- managing .NET project references;
-- configuring the Inventor Interop reference;
-- attaching to Autodesk Inventor;
-- runtime testing.
-
-Typical workflow:
-
-    VS Code / Cline
+    templates/addin/
         ->
-    Edit Add-in
+    addins/MyAddin/
         ->
     Visual Studio
         ->
@@ -68,100 +41,110 @@ Typical workflow:
     Autodesk Inventor
         ->
     Test
+        ->
+    Verify
+
+Cline may create and modify the project from VS Code.
+
+Visual Studio is used to build and debug the Add-in.
+
+Autodesk Inventor is used to test the Add-in at runtime.
 
 ---
 
-## Build Output
+## Experimental Add-in Work
 
-Build output should not be stored as useful source material.
+Small experiments that are not yet a real Add-in project may be
+created in:
 
-Typical generated directories include:
+    scratch/
 
-    bin/
-    obj/
-
-These directories are excluded through `.clineignore`.
-
----
-
-## Relationship to tested/
-
-The distinction is important.
-
-`addins/` contains active projects:
-
-> "What are we currently building?"
-
-`tested/` contains verified implementations and patterns:
-
-> "What do we know actually works?"
-
-A pattern discovered and tested during Add-in development can later be documented in `tested/`.
-
----
-
-## Relationship to examples/
-
-The distinction is:
+When the experiment becomes an actual Add-in project, move or
+develop it under:
 
     addins/
-    Active development projects
 
-    examples/
-    Reusable demonstrations and implementation examples
-
-An Add-in project should not automatically be copied into `examples/`.
-
-Extract only the reusable pattern when appropriate.
+The resulting Add-in should have only one authoritative project
+location.
 
 ---
 
-## Relationship to templates/
+## Testing
 
-The distinction is:
+An Add-in is not considered verified simply because:
 
-    templates/
-    Starting point for a new Add-in
+- the source code exists;
+- Cline generated the code;
+- the project opens in Visual Studio;
+- the project compiles.
+
+A complete Add-in should be considered verified only after the
+required functionality has been tested inside Autodesk Inventor.
+
+Testing should use appropriate disposable CAD files from:
+
+    cadfiles/
+
+---
+
+## Tested Patterns
+
+Do not copy complete Add-ins into:
+
+    tested/
+
+Instead, extract reusable patterns from a verified Add-in.
+
+For example:
+
+    addins/MyAddin/
+        |
+        +----> tested/parameters/
+                   |
+                   +-- parameter-value-units.md
+
+The Add-in remains in `addins/`.
+
+The reusable pattern is documented separately in `tested/`.
+
+---
+
+## Templates
+
+New Add-ins should normally start from:
+
+    templates/addin/
+
+Do not modify the template to solve project-specific problems.
+
+Project-specific changes belong in the Add-in project under:
 
     addins/
-    Actual Add-in project built from a template
+
+If a change should apply to future Add-ins, update the template
+separately and test the updated template.
 
 ---
 
-## Version Information
+## Version Awareness
 
-Each Add-in should make its target environment clear where practical.
+Each Add-in should clearly target a known Inventor version and
+compatible development environment.
 
-Document relevant information such as:
-
-- Autodesk Inventor version;
-- .NET version;
-- language;
-- Interop version;
-- target framework;
-- required dependencies.
-
-See:
+Before creating or modifying an Add-in, check:
 
     knowledge/api-compatibility.md
 
----
+and:
 
-## What does NOT belong here?
-
-Do not use this directory for:
-
-- generic API documentation;
-- old training material;
-- disposable test CAD files;
-- unrelated experiments;
-- compiled build output;
-- large third-party source repositories.
+    knowledge/addins.md
 
 ---
 
-## Design Principle
+## Authoritative Location
 
-`addins/` answers:
+The complete Add-in source in `addins/` is the authoritative
+project.
 
-> "What actual Inventor Add-in projects are we developing?"
+Do not maintain duplicate copies of the same Add-in elsewhere
+in the workspace.

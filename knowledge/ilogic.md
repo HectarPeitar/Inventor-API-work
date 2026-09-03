@@ -12,6 +12,29 @@ iLogic must be treated as a distinct programming environment built around Invent
 
 ---
 
+## API Verification in iLogic
+
+iLogic provides access to the Inventor API, but iLogic code should not
+assume that a familiar-looking .NET or VBA member exists on an
+Inventor object.
+
+When accessing Inventor API objects from iLogic:
+
+- verify the actual Inventor API type;
+- verify the exact property or method name;
+- verify the expected return type;
+- distinguish iLogic helper objects from Inventor API objects;
+- prefer current Inventor API documentation over memory or generic
+  .NET conventions.
+
+For example, do not assume that an Inventor `Document` has a `Name`
+property simply because other .NET objects commonly expose `Name`.
+
+When the exact API member is uncertain, verify it before generating
+the final rule.
+
+---
+
 ## 1. iLogic Overview
 
 iLogic provides rule-based automation inside Autodesk Inventor.

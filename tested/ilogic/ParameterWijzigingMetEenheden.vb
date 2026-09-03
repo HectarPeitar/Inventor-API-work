@@ -1,17 +1,17 @@
-' Regel: ParameterWijzigingMetEenheden
-' Beschrijving: Wijzigt de waarde van een parameter met expliciete eenheden
-' Vereist: Een onderdeeldocument (.ipt) met een beschrijfbare UserParameter genaamd "Width"
+' Rule: ParameterWijzigingMetEenheden
+' Description: Changes a Part-document UserParameter value using a unit-bearing Expression string.
+' Requires: A Part document (.ipt) with a writable UserParameter named "Width".
 '
-' Status: VERIFIED tegen Autodesk Inventor 2026
-' Datum: 2026-09-03
+' Status: VERIFIED against Autodesk Inventor 2026
+' Date: 2026-09-03
 '
-' Geleerde lessen tijdens ontwikkeling:
-' 1. DocumentTypeEnum werkt niet in iLogic - gebruik PartComponentDefinition met Try-Catch
-' 2. doc.FullName bestaat niet - gebruik ThisDoc of ThisApplication.ActiveDocument
-' 3. widthParam.IsLocked bestaat niet op UserParameter - gebruik Try-Catch rond Value/Expression
-' 4. Parameter.Value geeft interne waarde terug (in cm bij mm-document), gebruik
-'    UnitsOfMeasure.GetStringFromValue() met UnitsTypeEnum voor correcte weergave
-' 5. widthParam.Expression = "50 mm" werkt beter dan widthParam.Value = "50 mm"
+' Key design decisions:
+' - Uses Try/Catch on ComponentDefinition to restrict to Part documents.
+'   (iLogic does not expose DocumentTypeEnum.)
+' - Uses Parameter.Expression with a unit string ("50 mm") instead of a raw number.
+'   (Parameter.Value interprets the number in the document's internal unit.)
+' - Formats display values through UnitsOfMeasure.GetStringFromValue()
+'   so the user always sees millimetres regardless of the document's internal unit.
 
 Sub Main
     Dim doc As Document = ThisApplication.ActiveDocument

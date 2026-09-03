@@ -1,110 +1,58 @@
 # ParameterWijzigingMetEenheden
 
+## Purpose
+
+Sets the value of a Part-document UserParameter named `"Width"` to `"50 mm"` from an iLogic rule, with explicit units in the input string and unit-correct display through `UnitsOfMeasure`.
+
+This entry captures the **reusable implementation pattern**: how to find a named UserParameter, change it using a unit-bearing expression string, force a model update, and format the result for the user.
+
+## Context
+
+- Inventor version: 2026
+- Programming environment: iLogic rule (internal rule)
+- Document type: Part (`.ipt`)
+- Object/context: active Part document, `PartComponentDefinition.Parameters`, UserParameter named `"Width"`
+
+## Verified Implementation
+
+See the companion file:
+
+    tested/ilogic/ParameterWijzigingMetEenheden.vb
+
+The implementation follows this pattern:
+
+1. Get the active document via `ThisApplication.ActiveDocument`.
+2. Cast `doc.ComponentDefinition` to `PartComponentDefinition` inside a `Try`/`Catch`. This is the iLogic-safe way to restrict the rule to Part documents, because iLogic does not expose `DocumentTypeEnum`.
+3. Iterate `compDef.Parameters` and locate the parameter whose `.Name` equals the expected name.
+4. Read the current value through `Parameter.Value` but format it for display with `doc.UnitsOfMeasure.GetStringFromValue(value, UnitsTypeEnum.kMillimeterLengthUnits)`. `Parameter.Value` returns the document's internal unit (e.g. cm) and must not be shown to the user directly.
+5. Assign the new value through `Parameter.Expression = "50 mm"`. The Expression string accepts unit suffixes; assigning a raw number to `Parameter.Value` is interpreted in the document's internal unit, not the user's expected unit.
+6. Call `doc.Update` to force dependent features to recompute.
+7. Display the new value, again formatted through `UnitsOfMeasure`.
+
+Wrap both the `Expression` assignment and the fallback `Value` assignment in `Try`/`Catch` so that a read-only or locked parameter produces a useful error message instead of an unhandled exception.
+
+## Validation
+
+- Run the rule from **Manage → iLogic → Rules** in a Part document that contains a UserParameter named `Width`.
+- Expected runtime behaviour: the parameter value is updated to `50 mm` in the Parameters panel, dependent features recompute, and both MessageBox dialogs show values formatted in millimetres.
+- Validation date: 2026-09-03, Autodesk Inventor 2026, iLogic internal rule.
+
 ## Status
 
-VERIFIED tegen Autodesk Inventor 2026
+VERIFIED
 
-## Datum
+## Important Limitations
 
-2026-09-03
+- Part documents only. The rule relies on `PartComponentDefinition`; assemblies and drawings are rejected by the `Try`/`Catch` on `ComponentDefinition`.
+- User Parameters only. The lookup uses `Parameters` directly; Model Parameters and Reference Parameters are not addressed separately.
+- The parameter must exist with the exact name used in the lookup. Lookup is case-sensitive.
+- The new value is assigned without validation. Negative or extreme values are accepted by the rule; the model decides whether the geometry remains valid.
+- No batching. The rule changes one parameter per execution.
 
-## Doel
+## Related
 
-Wijzigt de waarde van een UserParameter genaamd "Width" in een onderdeeldocument naar "50 mm", met expliciete eenheden en correcte weergave via `UnitsOfMeasure`.
+- `knowledge/ilogic.md` — iLogic-specific API notes
+- `knowledge/parameters.md` — parameter concepts
+- `knowledge/units.md` — unit handling
+- `knowledge/errors/ilogic/iLogic-Missing-Api-Members.md` — verified negative knowledge from this task
 
-## Vereisten
-
-- Autodesk Inventor 2026
-- Een onderdeeldocument (`.ipt`) geopend in Inventor
-- Een UserParameter genaamd `"Width"` in het document (User Parameters, niet Model Parameters)
-- iLogic-extensie geïnstalleerd (standaard aanwezig in Inventor 2026)
-
-## Gebruik
-
-1. Open een `.ipt`-bestand in Inventor
-2. Voeg een User Parameter toe met de naam `Width` (User Parameters via Manage → Parameters)
-3. Open Manage → iLogic → Edit Rules
-4. Voeg een nieuwe rule toe en kopieer de inhoud van `ParameterWijzigingMetEenheden.vb`
-5. Geef de rule de naam `ParameterWijzigingMetEenheden`
-6. Klik **Save & Close**
-7. Open Manage → iLogic → Rules en dubbelklik op de rule om deze uit te voeren
-
-## Verwachte resultaten
-
-- **Debug Info MessageBox** toont:
-  - Naam: Width
-  - Huidige waarde: `<vorige waarde in mm>`
-- **Succes MessageBox** toont:
-  - Parameter 'Width' is gewijzigd en het model is bijgewerkt
-  - Nieuwe waarde: 50 mm
-- De waarde in het Parameters-paneel verandert naar 50 mm
-- Het model wordt bijgewerkt als er afhankelijke features zijn
-
-## Wat werkt
-
-| Stap | API | Opmerking |
-|------|-----|-----------|
-| ActiveDocument ophalen | `ThisApplication.ActiveDocument` | Werkt |
-| ComponentDefinition ophalen | `doc.ComponentDefinition` | Werkt (Try-Catch voor type-fouten) |
-| Parameters doorlopen | `For Each p In compDef.Parameters` | Werkt |
-| Parameter vinden op naam | `If p.Name = "Width"` | Werkt |
-| Waarde wijzigen | `widthParam.Expression = "50 mm"` | Werkt met Expression-string |
-| Waarde lezen met eenheden | `uom.GetStringFromValue(value, UnitsTypeEnum.kMillimeterLengthUnits)` | Werkt |
-| Model bijwerken | `doc.Update` | Werkt |
-
-## Wat NIET werkt in iLogic
-
-Tijdens ontwikkeling zijn deze API-pogingen mislukt:
-
-| Poging | Probleem |
-|--------|----------|
-| `doc.DocumentType = DocumentTypeEnum.kPartDocument` | Enum niet gevonden |
-| `doc.DocumentType = DocumentTypeEnum.PartDocument` | Enum niet gevonden |
-| `doc.FullName` | Property niet gevonden in iLogic's Document class |
-| `ThisDoc.FullFileName` | Property niet gevonden in ThisDoc class |
-| `widthParam.IsLocked` | Property niet gevonden op UserParameter |
-| `widthParam.Value = "50 mm"` | Waarde is numeriek, geen string |
-| `widthParam.Value = 50` | Werkt in cm-documenten als 50 cm, niet 50 mm |
-
-## Geleerde lessen
-
-### 1. iLogic API ≠ Inventor API
-iLogic heeft beperktere toegang tot Inventor API dan een C# Add-in. Sommige properties bestaan simpelweg niet in de iLogic-omgeving.
-
-### 2. Vermijd DocumentTypeEnum in iLogic
-Gebruik in plaats daarvan een **Try-Catch** rond `PartComponentDefinition`. Als het een assembly is, zal de cast/runtime-fout optreden en kun je netjes afhandelen.
-
-### 3. UnitsOfMeasure voor weergave
-`Parameter.Value` geeft de **interne document-eenheid** terug. Als je document op cm staat, krijg je 25 voor 250 mm. Gebruik altijd `UnitsOfMeasure.GetStringFromValue()` voor weergave aan de gebruiker.
-
-### 4. Expression boven Value
-Voor het instellen van waarden met eenheden, gebruik `Parameter.Expression` (string) in plaats van `Parameter.Value` (numeriek). De Expression-syntax herkent eenheden zoals "50 mm".
-
-### 5. Geneste Try-Catch voor robuustheid
-Wikkel parameter-wijzigingen in Try-Catch. Als de parameter vergrendeld of read-only is, geeft dit een nuttige foutmelding in plaats van een onverwachte crash.
-
-## Bekende beperkingen
-
-- Werkt alleen in **Part documents** (`.ipt`)
-- Werkt alleen met **User Parameters** (niet Model Parameters of Reference Parameters)
-- Parameter moet de **exacte naam** `"Width"` hebben (hoofdlettergevoelig)
-- Geen ondersteuning voor **batch-verwerking** van meerdere parameters tegelijk
-- Geen validatie van de **nieuwe waarde** (negatieve of extreem grote waarden worden geaccepteerd)
-
-## Toekomstige uitbreidingen
-
-Ideeën voor vervolg-tests:
-
-- **Algemene parameter-tool**: accepteer parameternaam en waarde als input
-- **Batch processing**: doorloop meerdere parameters tegelijk
-- **Assembly-ondersteuning**: pas de rule aan voor `AssemblyComponentDefinition`
-- **iProperty updates**: wijzig ook iProperties zoals Part Number en Description
-- **Feature control**: onderdruk/activeer specifieke features op basis van parameterwaarden
-- **External rule**: zet de rule om naar een externe rule voor hergebruik
-
-## Gerelateerde kennis
-
-- `knowledge/parameters.md` — parameter concepten
-- `knowledge/units.md` — eenheid handling (kritisch voor deze rule)
-- `knowledge/ilogic.md` — iLogic specifieke patronen
-- `knowledge/api-compatibility.md` — versie compatibiliteit

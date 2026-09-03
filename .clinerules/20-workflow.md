@@ -337,33 +337,61 @@ Do not promote failed experiments to `tested/`.
 
 ---
 
+## Knowledge Classification After Validation
+
+After a task is verified, all information produced during development must be classified and placed in the correct location. Do not leave all information in a single large report file.
+
+### Information types and their target locations
+
+| Information type | Target location | Notes |
+|---|---|---|
+| Reusable, verified implementation | `tested/<environment>/<name>.md` + code file | Concise. Purpose, context, implementation reference, limitations only. |
+| General technical fact or API behaviour | `knowledge/<topic>.md` | Reusable across tasks. Update existing files rather than creating new ones when the topic already exists. |
+| Verified failed API attempt / confirmed limitation | `knowledge/errors/<environment>/<name>.md` | Use the template in `.clinerules/15-validation-loop.md` → Error Memory section. |
+| Project-specific documentation | Project folder | Keep task-specific docs with the project, not in `tested/`. |
+| Future idea / enhancement proposal | `scratch/` or a backlog file | Not in `tested/` or `knowledge/` unless it is a verified technical fact. |
+| Usage instructions for a specific task | Project documentation, not `tested/` | `tested/` is not a how-to-run manual. |
+| Development history / repair log | Discard | Not needed after verification. Save only the final working state. |
+
+### `tested/` file structure
+
+A `tested/` entry should normally contain:
+
+- **Purpose** — one sentence describing what the implementation does.
+- **Context** — Inventor version, programming environment, document type, relevant objects.
+- **Verified implementation** — a reference to the code file, plus a short prose description of the pattern. Do not paste the full code again if the file already exists.
+- **Validation** — how the implementation was tested and when.
+- **Status** — `VERIFIED`.
+- **Important limitations** — context-specific constraints that affect reuse.
+- **Related** — links to relevant `knowledge/` and `knowledge/errors/` files.
+
+Do **not** put in `tested/`:
+
+- step-by-step usage instructions;
+- expected MessageBox content or UI screenshots;
+- development history;
+- failed attempts (those belong in `knowledge/errors/`);
+- future ideas.
+
+### Updating existing knowledge files
+
+When a verified finding extends an existing topic, append to the existing `knowledge/` file rather than creating a new file. When creating a new topic, place it in the most specific existing subdirectory or create a new subdirectory if warranted.
+
+### Keeping `tested/` and `knowledge/` in sync
+
+When a new `tested/` entry is created, update the **Related** section of that entry to point to any relevant `knowledge/errors/` entries that were also discovered during the task.
+
+### Promoting reusable findings from `tested/`
+
+If a `tested/` file contains a general lesson (e.g., "prefer Try/Catch over DocumentTypeEnum"), extract it and move the lesson to the appropriate `knowledge/` file. The `tested/` entry should then only reference the knowledge file, not duplicate its content.
+
+---
+
 ## Knowledge Promotion
 
-After successful validation:
+See the **Knowledge Classification After Validation** section above for the complete routing table and rules.
 
-### General technical knowledge
-
-Store in:
-
-`knowledge/`
-
-### Reusable verified implementation
-
-Store in:
-
-`tested/`
-
-### Project-specific implementation
-
-Store in the project source.
-
-### Temporary experiment
-
-Store in:
-
-`scratch/`
-
-Only promote verified knowledge.
+The key rule: a successful test does not automatically mean that the entire development result belongs in `tested/`. Classify each piece of information separately.
 
 ---
 

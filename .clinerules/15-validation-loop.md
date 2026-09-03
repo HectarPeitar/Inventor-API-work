@@ -118,10 +118,11 @@ Use evidence in this order:
 3. Current implementation
 4. Previous iterations
 5. `tested/`
-6. Relevant `knowledge/`
-7. Official Autodesk documentation
-8. Local SDK or Interop information
-9. Other reliable sources
+6. `knowledge/errors/` — check before repeating an API assumption that previously failed
+7. Relevant `knowledge/`
+8. Official Autodesk documentation
+9. Local SDK or Interop information
+10. Other reliable sources
 
 Do not replace an API member solely because another name appears plausible.
 
@@ -167,13 +168,14 @@ When the same or substantially equivalent failure appears twice:
 
 1. Stop cosmetic changes.
 2. Compare the affected iterations.
-3. Determine why the previous correction did not resolve the failure.
-4. Re-evaluate the root cause.
-5. Re-verify the relevant API, object type, or context.
-6. Apply a new targeted correction.
-7. Validate again.
+3. Check `knowledge/errors/` — confirm the failed API member or assumption is not already recorded as invalid for the current environment.
+4. Determine why the previous correction did not resolve the failure.
+5. Re-evaluate the root cause.
+6. Re-verify the relevant API, object type, or context.
+7. Apply a new targeted correction.
+8. Validate again.
 
-Do not repeat the same failed approach.
+Do not repeat the same failed approach without checking `knowledge/errors/` first.
 
 ---
 
@@ -354,12 +356,18 @@ Only create a verified error/solution record after the corrected implementation 
 
 ## Knowledge Promotion
 
-After successful validation:
+A successful test does not automatically mean that the entire development result belongs in `tested/`.
 
-* General technical fact -> `knowledge/`
-* Reusable implementation -> `tested/`
-* Project-specific implementation -> project source
-* Temporary experiment -> `scratch/`
+After validation, classify the result into the correct location:
+
+| Result type | Destination |
+|---|---|
+| Reusable verified implementation | `tested/` |
+| General technical knowledge | `knowledge/` |
+| Verified negative knowledge (invalid API member, incorrect assumption, confirmed limitation) | `knowledge/errors/` |
+| Project-specific documentation | project documentation |
+| Future idea or enhancement proposal | backlog or `scratch/` |
+| Temporary debugging information | discard |
 
 Do not promote unverified information.
 

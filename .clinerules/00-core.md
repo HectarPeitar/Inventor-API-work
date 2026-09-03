@@ -60,6 +60,7 @@ Before using an unfamiliar Inventor API member:
 6. Verify the required context.
 7. Verify compatibility with Autodesk Inventor 2026.
 8. Check `tested/` for an existing verified implementation.
+9. Check `knowledge/errors/` to confirm the member has not already been tested and found invalid in the target environment.
 
 If verification is not possible, explicitly mark the assumption as unverified.
 
@@ -250,6 +251,7 @@ Promote verified reusable information to the appropriate location:
 
 * `tested/` for verified implementation patterns
 * `knowledge/` for general technical facts
+* `knowledge/errors/` for verified negative knowledge (API members tested and found invalid, incorrect assumptions, confirmed limitations)
 
 Do not store failed or unverified implementations as tested solutions.
 

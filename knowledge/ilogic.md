@@ -10,8 +10,6 @@ Primary target:
 
 iLogic must be treated as a distinct programming environment built around Inventor functionality.
 
----
-
 ## API Verification in iLogic
 
 iLogic provides access to the Inventor API, but iLogic code should not
@@ -32,6 +30,60 @@ property simply because other .NET objects commonly expose `Name`.
 
 When the exact API member is uncertain, verify it before generating
 the final rule.
+
+---
+
+## iLogic Limitations Observed in Inventor 2026
+
+The following points were confirmed by validation of iLogic rules in Autodesk Inventor 2026. They are general iLogic behaviour, not specific to one rule.
+
+### Document type detection
+
+iLogic does not expose the `DocumentTypeEnum` used by the Inventor API.
+Do not use `doc.DocumentType = DocumentTypeEnum.kPartDocument` or
+similar in iLogic.
+
+To restrict an iLogic rule to a specific document type, cast
+`doc.ComponentDefinition` to the appropriate subtype
+(`PartComponentDefinition`, `AssemblyComponentDefinition`) inside a
+`Try`/`Catch`. A wrong document type is then reported as a clean
+runtime error and the rule can exit gracefully.
+
+### Document path properties
+
+`doc.FullName` is not available on the iLogic-wrapped `Document` object.
+`ThisDoc.FullFileName` is also not available on `ThisDoc` in current
+iLogic.
+
+If a file path is required, use `ThisApplication.ActiveDocument.DisplayName`
+or obtain the file path through the Inventor API on a non-iLogic
+reference. Verify the exact available property on the current Inventor
+version before relying on it.
+
+### Parameter lock state
+
+`UserParameter.IsLocked` is not exposed in iLogic. The presence of a
+lock or read-only state can only be detected indirectly by wrapping the
+`Expression` (or `Value`) assignment in a `Try`/`Catch`.
+
+### Parameter value vs. expression
+
+`Parameter.Value` is a numeric property interpreted in the document's
+internal unit (for example, centimetres even when the document is
+displayed in millimetres). Never show `Parameter.Value` directly to the
+user.
+
+`Parameter.Expression` is a string property and accepts unit suffixes
+such as `"50 mm"`, `"1 in"`, or expressions like `"Width * 2"`. To set
+a parameter with an explicit, user-facing unit, assign to
+`Parameter.Expression` rather than to `Parameter.Value`.
+
+### Displaying parameter values
+
+Use `doc.UnitsOfMeasure.GetStringFromValue(value, UnitsTypeEnum.kMillimeterLengthUnits)`
+(or another `UnitsTypeEnum` constant) to format a parameter value for
+display. The unit type passed to `GetStringFromValue` is the unit the
+user should see, not the document's internal unit.
 
 ---
 

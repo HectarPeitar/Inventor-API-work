@@ -173,6 +173,12 @@ However, do not assume iLogic syntax and raw Inventor API numeric values use ide
 
 When moving code between iLogic and C#/.NET, review all unit handling.
 
+In iLogic specifically:
+
+- `Parameter.Value` is numeric and interpreted in the document's internal unit. It is not safe to display directly to the user.
+- `Parameter.Expression` is a string and accepts unit suffixes such as `"50 mm"`. To set a parameter with an explicit, user-facing unit, assign to `Parameter.Expression`, not `Parameter.Value`.
+- For display, format the value through `doc.UnitsOfMeasure.GetStringFromValue(value, UnitsTypeEnum.kMillimeterLengthUnits)` (or another `UnitsTypeEnum` constant).
+
 ---
 
 ## 11. Assembly Context

@@ -1,0 +1,20 @@
+# Binaire Inventor-bestanden
+*.ipt
+*.iam
+*.idw
+*.ipn
+*.ipj
+
+# CadFiles: sowieso helemaal afschermen, ongeacht bestandstype
+CadFiles/*
+
+# Build-output
+AddIn/bin/
+AddIn/obj/
+*.dll
+*.pdb
+
+# Overig
+*.bak
+*.old
+~$*

@@ -1,0 +1,14 @@
+' Voorbeeld externe iLogic-regel
+' Plaats hier je eigen regels als los .iLogicVb-tekstbestand,
+' zodat Cline ze kan lezen en bewerken.
+'
+' Om deze regel in Inventor te gebruiken:
+'   1. Open het onderdeel/de assembly in Inventor
+'   2. Ga naar iLogic-paneel > External Rules > voeg dit bestand toe
+'   3. Of kopieer de inhoud naar een nieuwe interne regel
+
+Dim thickness As Double = Parameter("Thickness")
+
+If thickness < 5 Then
+    MessageBox.Show("Thickness is smaller then 5 mm, check design.", "Waarschuwing")
+End If

@@ -1,0 +1,24 @@
+# Build output
+AddIn/bin/
+AddIn/obj/
+*.dll
+*.pdb
+
+# Inventor temp/lock files
+~$*
+*.lck
+*.old
+*.bak
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+
+# Cline / AI agent local state
+.clinerules-local
+
+# CadFiles: folder only
+CadFiles/*
+!CadFiles/.gitkeep

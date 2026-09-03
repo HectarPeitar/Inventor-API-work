@@ -1,4 +1,4 @@
-# Core Rules — Inventor AI Assistant
+# Core Rules
 
 ## Purpose
 
@@ -6,318 +6,336 @@ This workspace is used for Autodesk Inventor automation and development.
 
 Primary use cases:
 
-- iLogic Rules
-- C# .NET Add-ins
-- VB.NET .NET Add-ins
-- Inventor API development
-- UI and Ribbon development
-- Events
-- Parts
-- Assemblies
-- Drawings
-- Parameters
-- Features
-- Debugging
-- Refactoring
+* iLogic Rules
+* External iLogic
+* C# .NET Inventor Add-ins
+* VB.NET .NET Inventor Add-ins
+* Inventor API development
+* Inventor UI and Ribbon development
+* Inventor events
+* Parts
+* Assemblies
+* Drawings
+* Parameters
+* Features
+* Debugging
+* Refactoring
 
-Primary target:
+Target platform:
 
-- Autodesk Inventor 2026
-
----
-
-## Development Environment
-
-This workspace is primarily operated through:
-
-- VS Code
-- Cline
-
-VS Code/Cline is the primary environment for:
-
-- AI-assisted development;
-- repository navigation;
-- editing source code;
-- editing Markdown knowledge;
-- managing project files;
-- reviewing examples;
-- maintaining tested implementations;
-- managing templates;
-- coordinating development tasks.
-
-Visual Studio is the primary environment for:
-
-- building .NET Inventor Add-ins;
-- debugging C# and VB.NET Add-ins;
-- managing .NET project references;
-- working with Autodesk Inventor Interop;
-- attaching the debugger to Inventor;
-- runtime debugging and validation.
-
-Autodesk Inventor is the runtime and primary test environment for:
-
-- iLogic rules;
-- Inventor Add-ins;
-- API behavior;
-- CAD document operations;
-- UI behavior;
-- events;
-- model changes.
-
-Do not assume that VS Code replaces Visual Studio for Inventor .NET Add-in build and debugging tasks.
+* Autodesk Inventor 2026
 
 ---
 
-## API Verification
+## Rule Priority
 
-Never assume that an Autodesk Inventor API member, property, method,
-enum, or object type exists based only on naming conventions,
-memory, examples, or generated code.
+Apply rules in this priority order:
 
-Before using an Inventor API member:
+1. User requirements
+2. Safety and platform constraints
+3. These core rules
+4. Task-specific workflow rules
+5. Knowledge files
+6. Existing project conventions
 
-1. Check the relevant knowledge file.
-2. If the member is not clearly documented there, verify it against the current Autodesk Inventor API documentation.
-3. Prefer the API documentation for the target Inventor version.
-4. If documentation cannot be verified, clearly state the uncertainty.
-5. Do not present an unverified API member as confirmed.
+When rules conflict, follow the higher-priority rule.
 
-This is especially important for:
-
-- property names;
-- method names;
-- enum values;
-- object types;
-- method arguments;
-- return types;
-- iLogic access to Inventor API objects.
-
-A plausible-sounding API member is not evidence that the member exists.
+Never ignore a higher-priority rule because a lower-priority rule is more convenient.
 
 ---
 
-## API Errors Are Evidence
+## General Behavior
 
-When Inventor reports an error such as:
+Act on evidence rather than assumptions.
 
-    Public member 'X' on type 'Y' not found
+Do not treat generated code, remembered API names, old examples, or plausible implementations as verified.
 
-treat this as evidence that the assumed API member is incorrect or
-not available in the current context.
+Before using an unfamiliar Inventor API member:
 
-Do not simply replace the member with another guessed name.
+1. Identify the object type.
+2. Identify the member.
+3. Verify that the member exists.
+4. Verify its parameters.
+5. Verify its return type.
+6. Verify the required context.
+7. Verify compatibility with Autodesk Inventor 2026.
+8. Check `tested/` for an existing verified implementation.
 
-Instead:
-
-1. Identify the actual object type.
-2. Check the current API documentation.
-3. Verify the replacement member.
-4. Explain the correction.
-5. Update the relevant knowledge or tested documentation when the result provides reusable information.
-
----
-
-## 1. Source Hierarchy
-
-Use technical information according to this priority:
-
-1. Current official Autodesk Inventor 2026 documentation
-2. Local Inventor 2026 SDK / Interop assemblies
-3. Locally tested code in `tested/`
-4. Local examples in `examples/`
-5. Current Autodesk / DevTech examples
-6. Older Autodesk documentation
-7. Community / GitHub projects
-8. General model knowledge
-
-When sources conflict, prefer the higher-priority source.
+If verification is not possible, explicitly mark the assumption as unverified.
 
 ---
 
-## 2. Never Invent API Members
+## Verification Levels
 
-Never invent or guess:
+Use these status values consistently:
 
-- classes
-- interfaces
-- methods
-- properties
-- events
-- enums
-- constructors
-- namespaces
-- parameters
-- return types
+* `GENERATED` — code exists but has not been validated.
+* `REVIEWED` — code has been inspected but not executed.
+* `BUILT` — compilation/build succeeded.
+* `RUNTIME-TESTED` — code executed in the target environment.
+* `VERIFIED` — requested behavior was successfully confirmed.
+* `BLOCKED` — validation requires an unavailable external action.
+* `UNRESOLVED` — validation failed and the issue remains unresolved.
 
-A plausible API name is not evidence that the API exists.
+Never report `VERIFIED` unless the requested behavior has actually been confirmed.
 
-When an API member is uncertain, verify it before using it.
+Never invent build or runtime results.
 
 ---
 
-## 3. Determine the Programming Context
+## Inventor Version
 
-Before writing code, determine which environment is being used:
+Assume Autodesk Inventor 2026 unless the task explicitly specifies another version.
 
-- iLogic
-- External iLogic
-- C# Add-in
-- VB.NET Add-in
-- VBA
-- Apprentice
-- External automation
+When existing code targets another Inventor version:
 
-Do not assume that functionality available in one environment is automatically available in another.
-
----
-
-## 4. Determine Document Context
-
-Before using document-specific API:
-
-1. determine the active document;
-2. determine its document type;
-3. determine the relevant ComponentDefinition;
-4. determine whether the operation occurs in an Assembly context;
-5. determine whether a proxy object is required.
-
-Never use Part-specific API without establishing that the target is a Part.
-
-Never use Assembly-specific API without establishing that the target is an Assembly.
-
----
-
-## 5. Use the Knowledge Base
-
-The `knowledge/` directory contains technical reference material.
-
-Use the most specific relevant file.
-
-Examples:
-
-- API concepts → `knowledge/APInotes.md`
-- API compatibility → `knowledge/api-compatibility.md`
-- Object relationships → `knowledge/object-model.md`
-- iLogic → `knowledge/ilogic.md`
-- Add-ins → `knowledge/addins.md`
-- Assemblies → `knowledge/assemblies.md`
-- Parameters → `knowledge/parameters.md`
-- Units → `knowledge/units.md`
-
-Do not duplicate large amounts of knowledge into `.clinerules`.
-
-Rules describe behavior.
-
-Knowledge files describe technical facts.
-
----
-
-## 6. Use Tested Code
-
-Before creating new functionality, check `tested/` for similar working code.
-
-Tested code has higher confidence than untested examples.
-
-When reusing tested code:
-
-- preserve known working behavior;
-- understand its context;
-- verify its Inventor version;
-- verify its programming environment;
-- adapt only what is necessary.
-
----
-
-## 7. Units
-
-Whenever physical values are involved:
-
-1. identify the source unit;
-2. identify the expected API unit;
-3. check whether conversion is required;
-4. use appropriate Inventor unit handling;
-5. avoid hidden unit assumptions.
-
-Never assume that a raw numeric value means millimeters, degrees, inches, or another unit.
-
-See `knowledge/units.md`.
-
----
-
-## 8. Existing Code
-
-When modifying existing code:
-
-1. understand the existing implementation;
-2. identify the actual problem;
-3. preserve working behavior;
-4. make the smallest reasonable change;
-5. avoid unnecessary rewrites.
-
-Only refactor larger sections when there is a clear benefit.
-
----
-
-## 9. Version Compatibility
-
-The default target is Autodesk Inventor 2026.
-
-Check `knowledge/api-compatibility.md` when:
-
-- migrating older code;
-- using old Autodesk examples;
-- using GitHub projects;
-- changing Inventor versions;
-- troubleshooting Interop;
-- troubleshooting .NET;
-- working with old Add-in projects.
+1. Identify the original version.
+2. Check compatibility.
+3. Verify API members against the target version.
+4. Update the implementation where necessary.
+5. Validate the result.
 
 Do not assume that code written for an older Inventor version is directly compatible with Inventor 2026.
 
 ---
 
-## 10. Uncertainty
+## Programming Environment
 
-When something cannot be verified:
+Always determine the execution environment before implementation.
 
-- state the uncertainty;
-- do not fabricate an answer;
-- identify what needs verification;
-- distinguish documented behavior from assumptions.
+Possible environments include:
 
-Prefer an explicit uncertainty over confidently incorrect API code.
+* iLogic
+* External iLogic
+* C# .NET Add-in
+* VB.NET .NET Add-in
+* VBA
+* Apprentice
+* External Inventor automation
 
----
+Do not assume that an API or capability available in one environment is available in another.
 
-## 11. Changes to Knowledge
+Do not introduce a .NET Add-in when the requirement can appropriately be implemented as an iLogic rule.
 
-When new information or code is discovered, classify it before storing it.
-
-- AI behavior or workflow rule → `.clinerules/`
-- General technical knowledge → `knowledge/`
-- Tested implementation → `tested/`
-- Reusable example → `examples/`
-- Active Add-in project → `addins/`
-- CAD test/sandbox file → `cadfiles/`
-- External source material → `reference/`
-- New project starting point → `templates/`
-
-Do not duplicate the same information across multiple directories unless there is a clear reason.
+Do not force iLogic when the requirement requires an Add-in.
 
 ---
 
-## 12. General Principle
+## Document Context
 
-Use this priority:
+Before using document-specific API, determine:
 
-Correctness
->
-Verified API usage
->
-Maintainability
->
-Performance
->
-Convenience
+* Active document
+* Document type
+* ComponentDefinition
+* Target object
+* Assembly context
+* Proxy requirements
+* Object ownership
+* Object state
 
-When in doubt, verify before generating.
+Do not use Part-specific API without confirming a Part context.
+
+Do not use Assembly-specific API without confirming an Assembly context.
+
+Do not assume that native objects and proxy objects are interchangeable.
+
+---
+
+## Units
+
+Whenever a task involves physical values:
+
+1. Identify the source unit.
+2. Identify the expected API unit.
+3. Determine whether conversion is required.
+4. Use explicit unit handling where appropriate.
+5. Avoid hidden unit assumptions.
+
+Never assume that a raw numeric value represents millimeters, inches, degrees, or another unit without evidence.
+
+Use `knowledge/units.md` when relevant.
+
+---
+
+## Existing Code
+
+When modifying existing code:
+
+1. Read the relevant implementation.
+2. Identify the actual problem.
+3. Preserve working behavior.
+4. Make the smallest reasonable change.
+5. Avoid unrelated refactoring.
+
+Do not rewrite working code unless the task requires it.
+
+---
+
+## Knowledge Base
+
+Use knowledge files as technical references.
+
+Typical files include:
+
+* `knowledge/APInotes.md`
+* `knowledge/api-compatibility.md`
+* `knowledge/object-model.md`
+* `knowledge/ilogic.md`
+* `knowledge/addins.md`
+* `knowledge/assemblies.md`
+* `knowledge/parameters.md`
+* `knowledge/units.md`
+
+Use the most specific relevant source first.
+
+Do not store unverified assumptions as knowledge.
+
+---
+
+## Tested Implementations
+
+Before implementing new functionality:
+
+1. Search `tested/`.
+2. Identify the closest verified implementation.
+3. Compare Inventor version.
+4. Compare programming environment.
+5. Compare document context.
+6. Compare API context.
+7. Reuse the implementation when applicable.
+
+Do not blindly copy a tested implementation when its context differs.
+
+A tested implementation is evidence, not universal proof.
+
+---
+
+## Error Handling
+
+Treat compile errors, runtime errors, API errors, and incorrect behavior as feedback.
+
+When validation fails:
+
+1. Capture the exact failure.
+2. Classify the failure.
+3. Identify the most likely root cause.
+4. Check previous attempts.
+5. Check `tested/`.
+6. Check relevant knowledge.
+7. Apply the smallest reasonable correction.
+8. Validate again.
+
+Follow `.clinerules/15-validation-loop.md`.
+
+---
+
+## Error Memory
+
+Do not discard reusable information discovered during debugging.
+
+When a failure reveals reusable knowledge, preserve:
+
+* Error
+* Context
+* Root cause
+* Incorrect assumption
+* Correct implementation
+* Inventor version
+* Programming environment
+* Document context
+* Verification status
+
+Promote verified reusable information to the appropriate location:
+
+* `tested/` for verified implementation patterns
+* `knowledge/` for general technical facts
+
+Do not store failed or unverified implementations as tested solutions.
+
+---
+
+## External Tools and Environments
+
+Use:
+
+* VS Code / Cline for planning, editing, repository navigation, documentation, and knowledge management.
+* Visual Studio for .NET Add-in builds and debugging.
+* Autodesk Inventor for runtime validation.
+
+Do not claim that an external operation succeeded unless its result is available.
+
+If an external validation step cannot be executed, report `BLOCKED`.
+
+---
+
+## Autonomous Repair
+
+For executable code, do not stop at the first generated implementation.
+
+The required sequence is:
+
+1. Implement
+2. Validate
+3. Capture failure
+4. Analyze failure
+5. Check previous knowledge
+6. Patch
+7. Validate again
+
+Repeat until the implementation is verified, blocked, or unresolved.
+
+Do not repeat an unsuccessful approach without new evidence.
+
+---
+
+## Repair Iteration Limit
+
+Default maximum repair iterations:
+
+`5`
+
+The initial implementation is iteration `1`.
+
+When the maximum is reached:
+
+1. Stop speculative changes.
+2. Preserve relevant evidence.
+3. Summarize the failed hypotheses.
+4. Report the current status as `UNRESOLVED`.
+5. State what external validation or information is required.
+
+Never loop indefinitely.
+
+---
+
+## Claims About Results
+
+Never claim that code:
+
+* compiles;
+* builds;
+* loads;
+* executes;
+* passes runtime validation;
+* fixes the original issue;
+* is compatible with Inventor 2026;
+
+unless the relevant result has actually been established.
+
+Use explicit status values.
+
+---
+
+## Definition of Done
+
+A task is complete only when all applicable conditions are satisfied:
+
+1. The requested functionality is implemented.
+2. Relevant API assumptions are verified.
+3. Validation has been attempted.
+4. Failures have been repaired, explained, or blocked.
+5. The final status is explicitly known.
+6. Reusable verified knowledge has been preserved where appropriate.
+
+A solution that merely looks correct is not considered verified.

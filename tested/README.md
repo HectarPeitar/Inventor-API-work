@@ -1,132 +1,87 @@
-# Tested
+# Tested Implementations
 
 ## Purpose
 
-The `tested/` directory contains small, reusable patterns and API
-behaviors that have been actually verified in Autodesk Inventor.
+`tested/` contains verified, reusable Autodesk Inventor implementation patterns.
 
-The purpose is to give the AI a collection of proven implementations
-that can be reused in future tasks.
+Content in this directory must be based on successful validation.
 
 ---
 
-## What Belongs Here
+## Requirements
 
-Examples include:
+Every tested implementation should identify, when relevant:
 
-- verified Inventor API usage;
-- verified iLogic techniques;
-- verified parameter operations;
-- verified assembly operations;
-- verified document operations;
-- documented Inventor-specific behavior;
-- small reusable implementation patterns.
-
-Each item should clearly state the environment in which it was tested.
-
-Where relevant, include:
-
-- Inventor version;
-- programming environment;
-- document type;
-- expected behavior;
-- actual behavior;
-- important limitations.
+* Purpose
+* Inventor version
+* Programming environment
+* Document type
+* Relevant object/context
+* API members used
+* Validation method
+* Verification status
+* Known limitations
 
 ---
 
-## What Does Not Belong Here
+## Error-Driven Improvements
 
-Do not use this directory for:
+When a failed implementation reveals useful information:
 
-- temporary experiments;
-- unfinished code;
-- backup copies;
-- complete Add-in projects;
-- copies of projects from `addins/`;
-- unverified API assumptions.
+1. Capture the original error.
+2. Identify the incorrect assumption.
+3. Determine the root cause.
+4. Implement the correction.
+5. Validate the correction.
+6. Store the verified result only after successful validation.
 
-Temporary experiments belong in:
-
-    scratch/
-
-Complete Add-in projects belong in:
-
-    addins/
+Do not store failed attempts as tested implementations.
 
 ---
 
-## Verification
+## Reliability
 
-Content in `tested/` must have actually been tested.
+A tested implementation is strong evidence for the context in which it was verified.
 
-Do not mark information as verified merely because:
+It is not automatically valid for:
 
-- it compiles;
-- it looks correct;
-- an AI generated it;
-- it appears in an old example;
-- it is plausible.
+* another Inventor version;
+* another programming environment;
+* another document type;
+* another object context;
+* another API context.
 
-Runtime behavior should be verified in Autodesk Inventor where
-runtime behavior is relevant.
-
----
-
-## Relationship to Add-ins
-
-A complete Add-in remains in:
-
-    addins/
-
-Do not copy the complete Add-in into `tested/`.
-
-If an Add-in produces a useful reusable pattern, extract only that
-pattern.
-
-Example:
-
-    addins/ParameterTools/
-        |
-        |  complete Add-in
-        |
-        +----> tested/parameters/
-                   |
-                   +-- parameter-value-units.md
-
-This avoids maintaining two copies of the same project.
+Re-check compatibility before reuse.
 
 ---
 
-## Relationship to Scratch
+## Recommended Structure
 
-Typical workflow:
+# <Implementation Name>
 
-    scratch/
-        ->
-    test in Inventor
-        ->
-    verified result
-        ->
-    tested/
+## Purpose
 
-Only reusable knowledge should be extracted.
+<What the implementation does>
 
-A temporary experiment that has no future value does not need to
-be preserved.
+## Context
 
----
+* Inventor version:
+* Environment:
+* Document type:
+* Object/context:
 
-## Version Awareness
+## Implementation
 
-A tested result is valid for the environment in which it was tested.
+<Verified implementation>
 
-Always consider:
+## Validation
 
-- Inventor version;
-- programming environment;
-- document type;
-- API context.
+<How it was tested>
 
-Do not automatically assume that a tested pattern is valid in every
-Inventor release or context.
+## Result
+
+VERIFIED
+
+## Notes
+
+<Important limitations or assumptions>

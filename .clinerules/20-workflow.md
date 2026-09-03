@@ -356,9 +356,17 @@ Do not label untested code as verified.
 
 ---
 
-## 18. Updating the Knowledge Base
+## 18. Updating the Workspace
 
-When a solution is successfully tested:
+When new work or information is created, determine what type of material it is.
+
+### Active Add-in project
+
+Store in:
+
+    addins/
+
+Use this for actual Add-in projects that are currently being developed.
 
 ### Tested implementation
 
@@ -366,13 +374,7 @@ Store in:
 
     tested/
 
-Include:
-
-- Inventor version;
-- environment;
-- document type;
-- purpose;
-- relevant limitations.
+Use this for verified implementations or API patterns that have been tested against Inventor.
 
 ### General technical knowledge
 
@@ -380,11 +382,15 @@ Store in:
 
     knowledge/
 
+Use this for reusable technical knowledge about Inventor and its API.
+
 ### New AI behavior rule
 
 Store in:
 
     .clinerules/
+
+Use this only for instructions about how the AI should work.
 
 ### Reusable demonstration
 
@@ -392,9 +398,59 @@ Store in:
 
     examples/
 
+Use this for examples that demonstrate an implementation technique.
+
+### External source material
+
+Store in:
+
+    reference/
+
+Use this for original external documentation, training material, repositories, or other source material.
+
+### CAD test files
+
+Store in:
+
+    cadfiles/
+
+Use this only for disposable Inventor test documents.
+
 ---
 
-## 19. Completion Checklist
+## 19. Avoid Duplication
+
+Do not copy the same information into multiple directories without a clear reason.
+
+Use the following principle:
+
+    .clinerules/
+    How the AI should work
+
+    knowledge/
+    What the AI should know
+
+    reference/
+    Where information came from
+
+    examples/
+    How something can be implemented
+
+    tested/
+    What has been verified to work
+
+    templates/
+    How to start something new
+
+    addins/
+    What is currently being developed
+
+    cadfiles/
+    Where it is safe to experiment
+
+---
+
+## 20. Completion Checklist
 
 Before considering a task complete:
 
@@ -413,7 +469,7 @@ Before considering a task complete:
 
 ---
 
-## 20. Core Principle
+## 21. Core Principle
 
 The AI should prefer:
 
@@ -431,6 +487,5 @@ The AI should prefer:
 
 When uncertain:
 
-Verify first.
-
-Do not guess.
+- Verify first.
+- Do not guess.

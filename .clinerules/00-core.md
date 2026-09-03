@@ -200,15 +200,18 @@ Prefer an explicit uncertainty over confidently incorrect API code.
 
 ## 11. Changes to Knowledge
 
-When new information is discovered:
+When new information or code is discovered, classify it before storing it.
 
-- General AI behavior → `.clinerules/`
-- Technical API knowledge → `knowledge/`
-- Tested working implementation → `tested/`
+- AI behavior or workflow rule → `.clinerules/`
+- General technical knowledge → `knowledge/`
+- Tested implementation → `tested/`
 - Reusable example → `examples/`
+- Active Add-in project → `addins/`
+- CAD test/sandbox file → `cadfiles/`
 - External source material → `reference/`
+- New project starting point → `templates/`
 
-Do not place the same information in multiple locations unless there is a clear reason.
+Do not duplicate the same information across multiple directories unless there is a clear reason.
 
 ---
 

@@ -1,20 +1,54 @@
-# Binaire Inventor-bestanden
+# ============================================================
+# Cline Ignore
+# Autodesk Inventor AI Workspace
+# ============================================================
+
+# ------------------------------------------------------------
+# Inventor CAD bestanden
+# ------------------------------------------------------------
+# CAD bestanden worden niet automatisch als AI-context gebruikt.
+# Testbestanden staan in cadfiles/ en zijn expliciet afgeschermd.
+# ------------------------------------------------------------
+
 *.ipt
 *.iam
 *.idw
 *.ipn
 *.ipj
 
-# CadFiles: sowieso helemaal afschermen, ongeacht bestandstype
-CadFiles/*
+# ------------------------------------------------------------
+# CAD sandbox
+# ------------------------------------------------------------
+# Cline mag deze bestanden nooit als algemene projectcontext
+# gebruiken.
+# ------------------------------------------------------------
 
-# Build-output
-AddIn/bin/
-AddIn/obj/
+cadfiles/**
+
+# ------------------------------------------------------------
+# Build output
+# ------------------------------------------------------------
+
+**/bin/
+**/obj/
+
 *.dll
+*.exe
 *.pdb
 
-# Overig
+# ------------------------------------------------------------
+# Visual Studio / IDE
+# ------------------------------------------------------------
+
+.vs/
+*.user
+*.suo
+
+# ------------------------------------------------------------
+# Temporary / backup files
+# ------------------------------------------------------------
+
 *.bak
 *.old
 ~$*
+*.tmp

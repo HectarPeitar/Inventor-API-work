@@ -373,6 +373,92 @@ A successful validation does not automatically create a `tested/` entry.
 
 Only create or update a `tested/` entry when the result contains a genuinely reusable implementation pattern.
 
+### Reusable Enough for tested/
+
+A pattern is eligible for `tested/` only when ALL of the following are true:
+
+1. It is actually verified in the stated environment.
+2. It has meaningful reuse value beyond the current function.
+3. It is not trivial boilerplate or an obvious one-line API call.
+4. It is not specific to one business function.
+5. It is independently useful in future Inventor/iLogic development.
+6. Storing it will materially help future development, reliability, or API discovery.
+
+If any mandatory criterion is false, do not create a `tested/` entry.
+
+When in doubt, do not promote to `tested/`.
+
+The source implementation and relevant `knowledge/` files are the default locations for verified work.
+
+`tested/` should be a small, high-confidence library rather than a comprehensive archive of successful work.
+
+#### Decision process
+
+```
+Successful implementation
+        |
+        v
+Is it reusable beyond this specific function?
+        |
+    +---+---+
+    |       |
+   NO      YES
+    |       |
+    v       v
+Keep      Is it
+source    meaningful
+only      enough?
+              |
+          +---+---+
+          |       |
+         NO      YES
+          |       |
+          v       v
+        Keep   tested/
+        source
+        only
+```
+
+#### Examples
+
+This should generally NOT become a `tested/` entry:
+
+```vb
+Dim doc = ThisApplication.ActiveDocument
+```
+
+unless it demonstrates some non-obvious, verified Inventor/iLogic behavior that is useful beyond the current task.
+
+This may be appropriate for `tested/`:
+
+* a verified pattern for safely obtaining a PartComponentDefinition in iLogic;
+* a verified pattern for setting Inventor parameter expressions with explicit units;
+* a verified pattern for handling assembly occurrences recursively;
+* a verified pattern for safely working with Inventor proxies;
+* a verified pattern for converting or displaying Inventor internal units.
+
+The goal is reusable knowledge, not a collection of tiny snippets.
+
+#### File granularity
+
+Prefer:
+
+```
+tested/ilogic/parameter-expression-and-units.md
+```
+
+over:
+
+```
+tested/ilogic/SetExpression.vb
+tested/ilogic/GetValue.vb
+tested/ilogic/GetParameter.vb
+```
+
+when the related patterns belong to the same reusable topic.
+
+A `tested/` file should represent a meaningful reusable pattern or topic, not merely one API call.
+
 ### addins/ — Completed Functions
 
 When an iLogic function is fully completed, validated, and ready for use, it belongs in `addins/`.

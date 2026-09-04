@@ -25,6 +25,12 @@ Generated code should be:
 
 Avoid unnecessary abstraction.
 
+Prefer deletion over addition. Remove unnecessary code when it is safe to do so.
+
+Avoid adding new dependencies when existing project capabilities or native Inventor/iLogic functionality can solve the problem.
+
+Avoid boilerplate that nobody asked for.
+
 ---
 
 ## 2. Naming

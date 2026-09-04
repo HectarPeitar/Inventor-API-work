@@ -124,6 +124,20 @@ Do not introduce unnecessary architecture.
 
 ## Phase 7 — Implement
 
+Before implementation, climb this decision ladder. Stop at the first rung that holds:
+
+1. Does this need to be built at all? (YAGNI)
+2. Does the functionality already exist in the codebase? Reuse it.
+3. Can native Inventor/iLogic functionality solve it? Use it.
+4. Can an existing project helper, utility, or verified pattern from `tested/` solve it? Use it.
+5. Can an already-installed dependency solve it? Use it.
+6. Can the solution be simplified without reducing correctness?
+7. Only then: implement the minimum necessary solution.
+
+The ladder runs after you understand the problem, not instead of it. Read the task and the code it touches, trace the real flow, then climb.
+
+Correctness and verified Inventor behavior always take priority over code minimization.
+
 Implement the smallest reasonable solution.
 
 Requirements:

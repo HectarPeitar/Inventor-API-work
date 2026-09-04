@@ -58,6 +58,7 @@ That information belongs in:
 
 - `20-workflow.md`
   Development and debugging workflow.
+  Includes the decision ladder for choosing the simplest correct solution (integrated into Phase 7 — Implement).
 
 ---
 

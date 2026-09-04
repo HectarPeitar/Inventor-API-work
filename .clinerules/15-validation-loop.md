@@ -126,6 +126,8 @@ Use evidence in this order:
 
 Do not replace an API member solely because another name appears plausible.
 
+When fixing a bug, check whether the problem originates in a shared implementation. Inspect relevant callers and usages. Fixing the root cause in one shared location is preferred over adding repeated workarounds at each call site.
+
 ---
 
 ## Failure Must Change the Next Attempt
@@ -480,3 +482,13 @@ FAIL
     ->
 BLIND REGENERATE
 ```
+
+---
+
+## Runnable Checks for Non-Trivial Logic
+
+Non-trivial iLogic or Inventor logic should leave a small runnable check behind — the smallest thing that fails if the logic breaks.
+
+This is not a replacement for the validation loop. It is a lightweight safeguard for logic that may be modified later.
+
+Trivial one-liners do not need a standalone check.

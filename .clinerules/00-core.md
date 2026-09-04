@@ -66,6 +66,18 @@ If verification is not possible, explicitly mark the assumption as unverified.
 
 ---
 
+## Questioning Complex Requests
+
+When a request involves complex implementation, verify whether the stated approach is actually needed.
+
+Ask:
+- Does the user actually need X, or does Y cover it?
+- Is there a simpler way to achieve the same outcome?
+
+Do not question requirements merely to avoid work. Question them when a simpler, equally correct solution may exist.
+
+---
+
 ## Verification Levels
 
 Use these status values consistently:

@@ -20,9 +20,31 @@ Examples include:
 - Add-in source code;
 - Add-in configuration;
 - Add-in-specific resources.
+- Completed iLogic functions (see below).
 
 A complete Add-in project belongs here even after it has been
 successfully tested.
+
+---
+
+## Completed iLogic Functions
+
+When an iLogic function is fully completed, validated, and ready for use, it belongs in `addins/` using this structure:
+
+```
+addins/
+└── <FunctionName>/
+    ├── <FunctionName>.vb
+    └── README.md
+```
+
+The folder name must match the function name.
+
+Each function folder contains:
+- The `.vb` source file (the authoritative implementation).
+- A `README.md` documenting purpose, usage, requirements, and limitations.
+
+Do not create multiple competing versions of the same function. Before promoting, check whether `addins/<FunctionName>/` already exists and update it in place.
 
 ---
 

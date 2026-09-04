@@ -6,6 +6,35 @@
 
 Content in this directory must be based on successful validation.
 
+**Important:** `tested/` is a knowledge library, not a storage location for completed functions. Completed production functions belong in `addins/<FunctionName>/`.
+
+---
+
+## What Belongs Here
+
+Use `tested/` for:
+
+* concise reusable implementation patterns;
+* verified API usage patterns;
+* verified code fragments;
+* reusable examples useful for future development.
+
+## What Does NOT Belong Here
+
+Do NOT use `tested/` for:
+
+* completed production functions (use `addins/<FunctionName>/` instead);
+* complete user-facing iLogic tools (use `addins/<FunctionName>/` instead);
+* every successfully tested function;
+* project-specific implementations;
+* user manuals;
+* release documentation;
+* automatic copies of completed source files.
+
+A successful validation does not automatically create a `tested/` entry.
+
+Only create or update a `tested/` entry when the result contains a genuinely reusable implementation pattern.
+
 ---
 
 ## Requirements

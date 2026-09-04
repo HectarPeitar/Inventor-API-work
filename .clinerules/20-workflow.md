@@ -345,33 +345,42 @@ After a task is verified, all information produced during development must be cl
 
 | Information type | Target location | Notes |
 |---|---|---|
-| Reusable, verified implementation | `tested/<environment>/<name>.md` + code file | Concise. Purpose, context, implementation reference, limitations only. |
+| Reusable, verified implementation pattern | `tested/<environment>/<name>.md` + code file | Concise. Purpose, context, implementation reference, limitations only. For patterns, not completed functions. |
 | General technical fact or API behaviour | `knowledge/<topic>.md` | Reusable across tasks. Update existing files rather than creating new ones when the topic already exists. |
 | Verified failed API attempt / confirmed limitation | `knowledge/errors/<environment>/<name>.md` | Use the template in `.clinerules/15-validation-loop.md` → Error Memory section. |
 | Project-specific documentation | Project folder | Keep task-specific docs with the project, not in `tested/`. |
 | Future idea / enhancement proposal | `scratch/` or a backlog file | Not in `tested/` or `knowledge/` unless it is a verified technical fact. |
 | Usage instructions for a specific task | Project documentation, not `tested/` | `tested/` is not a how-to-run manual. |
+| Completed user-ready iLogic function | `addins/<FunctionName>/` | Contains `.vb` source and `README.md`. Folder name matches function name. Only when explicitly ready for use. |
 | Development history / repair log | Discard | Not needed after verification. Save only the final working state. |
 
 ### `tested/` file structure
 
+`tested/` is for reusable implementation patterns only, not completed functions.
+
 A `tested/` entry should normally contain:
 
-- **Purpose** — one sentence describing what the implementation does.
+- **Purpose** — one sentence describing what the pattern does.
 - **Context** — Inventor version, programming environment, document type, relevant objects.
-- **Verified implementation** — a reference to the code file, plus a short prose description of the pattern. Do not paste the full code again if the file already exists.
-- **Validation** — how the implementation was tested and when.
+- **Verified pattern** — a reference to the code file, plus a short prose description of the reusable pattern. Do not paste the full code again if the file already exists.
+- **Validation** — how the pattern was tested and when.
 - **Status** — `VERIFIED`.
 - **Important limitations** — context-specific constraints that affect reuse.
 - **Related** — links to relevant `knowledge/` and `knowledge/errors/` files.
 
 Do **not** put in `tested/`:
 
+- completed production functions (use `addins/<FunctionName>/` instead);
+- complete user-facing iLogic tools (use `addins/<FunctionName>/` instead);
+- every successfully tested function;
 - step-by-step usage instructions;
 - expected MessageBox content or UI screenshots;
 - development history;
 - failed attempts (those belong in `knowledge/errors/`);
-- future ideas.
+- future ideas;
+- automatic copies of completed source files.
+
+A successful validation does not automatically create a `tested/` entry.
 
 ### Updating existing knowledge files
 

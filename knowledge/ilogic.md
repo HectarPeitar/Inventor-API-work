@@ -85,6 +85,15 @@ Use `doc.UnitsOfMeasure.GetStringFromValue(value, UnitsTypeEnum.kMillimeterLengt
 display. The unit type passed to `GetStringFromValue` is the unit the
 user should see, not the document's internal unit.
 
+**Important:** `GetStringFromValue` returns a string formatted according to the
+user's current culture (e.g., `"500,000 mm"` with comma as decimal separator in
+Dutch locale). When parsing this string back to a number, use
+`CultureInfo.CurrentCulture`, NOT `CultureInfo.InvariantCulture`. Using
+`InvariantCulture` will misinterpret the comma as a thousands separator,
+resulting in values that are 1000x too large.
+
+See `knowledge/errors/ilogic/iLogic-GetStringFromValue-Culture.md` for details.
+
 ---
 
 ## 1. iLogic Overview

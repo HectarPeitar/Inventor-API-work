@@ -362,11 +362,12 @@ After validation, classify the result into the correct location:
 
 | Result type | Destination |
 |---|---|
-| Reusable verified implementation | `tested/` |
+| Reusable verified implementation pattern | `tested/` |
 | General technical knowledge | `knowledge/` |
 | Verified negative knowledge (invalid API member, incorrect assumption, confirmed limitation) | `knowledge/errors/` |
 | Project-specific documentation | project documentation |
 | Future idea or enhancement proposal | backlog or `scratch/` |
+| Completed user-ready iLogic function | `addins/<FunctionName>/` |
 | Temporary debugging information | discard |
 
 Do not promote unverified information.

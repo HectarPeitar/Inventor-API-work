@@ -309,3 +309,175 @@ Implicit
 Speculative
 >
 Over-engineered
+
+---
+
+## 20. File Management
+
+When modifying, extending, debugging, or improving functionality that already exists:
+
+1. Always search the workspace for an existing implementation before creating a new source file.
+2. When the requested functionality already exists, identify the canonical source file.
+3. Read the existing implementation completely before making changes.
+4. Modify the existing implementation in place.
+5. Preserve its file name and location unless there is an explicit reason to change them.
+6. Do not create duplicate implementations of the same functionality.
+7. During repair iterations, continue modifying the existing implementation instead of creating replacement files.
+8. Only create a new file when:
+   - the user explicitly requests one;
+   - the functionality is genuinely separate;
+   - the architecture requires a separate file;
+   - or a new implementation is explicitly required.
+9. Apply the same rule to `tested/`: when an existing tested implementation is extended, update the existing file rather than creating a second version.
+10. Before creating any file, verify that the requested functionality does not already exist elsewhere in the workspace.
+
+Violating this rule produces duplicate implementations, scattered functionality, and maintenance burden.
+
+---
+
+## 21. Function Promotion and Storage
+
+### Storage Locations
+
+| Output type | Location |
+|---|---|
+| New or modified production function | source/project location |
+| Reusable verified implementation pattern | `tested/` |
+| General reusable technical knowledge | `knowledge/` |
+| Verified negative knowledge | `knowledge/errors/` |
+| Completed user-ready iLogic function | `addins/<FunctionName>/` |
+| Completed function documentation | `addins/<FunctionName>/README.md` |
+
+### tested/ — Reusable Patterns Only
+
+`tested/` is a knowledge library, not a storage location for completed functions.
+
+Use `tested/` for:
+
+* concise reusable implementation patterns;
+* verified API usage patterns;
+* verified code fragments;
+* reusable examples useful for future development.
+
+Do NOT use `tested/` for:
+
+* completed production functions;
+* complete user-facing iLogic tools;
+* every successfully tested function;
+* project-specific implementations;
+* user manuals;
+* release documentation;
+* automatic copies of completed source files.
+
+A successful validation does not automatically create a `tested/` entry.
+
+Only create or update a `tested/` entry when the result contains a genuinely reusable implementation pattern.
+
+### addins/ — Completed Functions
+
+When an iLogic function is fully completed, validated, and ready for use, it belongs in `addins/`.
+
+Use this structure:
+
+```
+addins/
+└── <FunctionName>/
+    ├── <FunctionName>.vb
+    └── README.md
+```
+
+The folder name must match the function name.
+
+Example:
+
+```
+addins/
+└── ValidateAndSetParameters/
+    ├── ValidateAndSetParameters.vb
+    └── README.md
+```
+
+Before promotion:
+
+1. The function must be implemented.
+2. The function must pass relevant validation.
+3. Known runtime and compile errors must be resolved.
+4. The requested behavior must be verified.
+5. The function must have a known validation status.
+6. The final implementation must be clean enough for reuse.
+7. The function must not contain temporary debugging code unless that debugging behavior is intentionally part of the function.
+
+Do not promote unfinished or unresolved functionality to `addins/`.
+
+### Modifying an Existing Function in addins/
+
+If the function already exists in `addins/<FunctionName>/`, treat that as the primary completed implementation unless the task explicitly requires a new function.
+
+After modification:
+
+* validate it;
+* update the existing README when behavior or usage changed;
+* update relevant `knowledge/` or `tested/` entries when genuinely reusable knowledge was discovered.
+
+Do not create a new folder for every modification.
+
+Do not create `<FunctionName>V2`, `<FunctionName>Final`, `<FunctionName>New`, etc. unless explicitly requested.
+
+### No Automatic Promotion
+
+Do NOT automatically promote every successfully completed task to `addins/`.
+
+Promotion should happen when the function is explicitly considered ready for use.
+
+The default workflow is:
+
+```
+New Function
+    ->
+Develop in source/project location
+    ->
+Validate
+    ->
+Repair if necessary
+    ->
+Verified
+    ->
+Ready for use?
+    |
+    +-- NO --> Keep in source/project location
+    |
+    +-- YES
+          ->
+    Promote to addins/<FunctionName>/
+          ->
+    Add <FunctionName>.vb
+          ->
+    Add README.md
+```
+
+### README in addins/<FunctionName>/
+
+A completed function in `addins/` may contain a `README.md`.
+
+Unlike `tested/`, a Markdown file in an `addins/<FunctionName>/` folder IS appropriate because it documents the completed function for practical use.
+
+The README may contain:
+
+* Purpose
+* What the function does
+* Requirements
+* Supported document types
+* Required parameters
+* Required setup
+* How to install/use it
+* Expected behavior
+* Validation result
+* Known limitations
+* Important configuration
+* Example usage
+
+Keep the README focused on using and understanding the completed function.
+
+Do not use the README as a development diary.
+
+Do not include a long list of every failed API experiment unless that information is genuinely useful to future developers. Store reusable negative knowledge in `knowledge/errors/` instead.

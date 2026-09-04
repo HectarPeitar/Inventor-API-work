@@ -196,19 +196,66 @@ Do not store unverified assumptions as knowledge.
 
 ## Tested Implementations
 
+`tested/` is a knowledge library of reusable implementation patterns, not a storage location for completed functions.
+
+Use `tested/` for concise reusable patterns, verified API usage patterns, and verified code fragments useful for future development.
+
+Do NOT use `tested/` for completed production functions, complete user-facing iLogic tools, every successfully tested function, project-specific implementations, user manuals, or release documentation.
+
 Before implementing new functionality:
 
-1. Search `tested/`.
-2. Identify the closest verified implementation.
+1. Search `tested/` for relevant patterns.
+2. Identify the closest verified pattern.
 3. Compare Inventor version.
 4. Compare programming environment.
 5. Compare document context.
 6. Compare API context.
-7. Reuse the implementation when applicable.
+7. Reuse the pattern when applicable.
 
-Do not blindly copy a tested implementation when its context differs.
+Do not blindly copy a tested pattern when its context differs.
 
-A tested implementation is evidence, not universal proof.
+A tested pattern is evidence, not universal proof.
+
+A successful validation does not automatically create a `tested/` entry.
+
+Only create or update a `tested/` entry when the result contains a genuinely reusable implementation pattern.
+
+---
+
+## Completed Functions
+
+When an iLogic function is fully completed, validated, and ready for use, it belongs in `addins/`.
+
+Use this structure:
+
+```
+addins/
+└── <FunctionName>/
+    ├── <FunctionName>.vb
+    └── README.md
+```
+
+The folder name must match the function name.
+
+A function may only be promoted to `addins/` when it is explicitly considered ready for use.
+
+Do not promote unfinished or unresolved functionality to `addins/`.
+
+For detailed promotion rules, see `.clinerules/10-coding-standards.md` section 21.
+
+---
+
+## Validation vs Promotion
+
+`VALIDATED` means the implementation has been tested successfully.
+
+`PROMOTED` means the implementation has been intentionally placed in `addins/` as a completed reusable function.
+
+A function can be `VALIDATED` without being `PROMOTED`.
+
+Never assume promotion is implied by validation.
+
+Do NOT automatically promote every successfully completed task to `addins/`.
 
 ---
 

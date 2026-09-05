@@ -264,6 +264,20 @@ For an iLogic task:
 
 Do not mark an iLogic rule `VERIFIED` merely because the rule was saved.
 
+### iLogic Testing Workflow
+
+For iLogic rules that require iterative testing in Autodesk Inventor:
+
+1. **Create a test case file** in `scratch/` with setup instructions and expected results for each scenario.
+2. **Create a test Part document** (`.ipt`) with the required User Parameters and iProperty states.
+3. **Enable `DebugMode`** in the rule to write output to a text file in `scratch/` (see `.clinerules/10-coding-standards.md` section 20).
+4. **Run the rule** in Inventor and share the output text file for analysis.
+5. **Repair** any issues and repeat until all test cases pass.
+6. **After verification**:
+   - Set `DebugMode = False` in the rule.
+   - Delete the test case file, test document, and output files from `scratch/`.
+   - Promote the rule to `addins/<FunctionName>/` if it is explicitly ready for use.
+
 ---
 
 ## Add-in Workflow

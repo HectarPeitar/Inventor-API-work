@@ -318,7 +318,35 @@ Over-engineered
 
 ---
 
-## 20. File Management
+## 20. Debug Mode for Testing
+
+When developing iLogic rules that will be validated in Autodesk Inventor:
+
+1. Add a `DebugMode` constant at the rule level.
+2. When `DebugMode = True`, write the report to a text file in `scratch/`.
+3. When `DebugMode = False`, only show the MessageBox (production behavior).
+4. After verification, set `DebugMode = False` and remove text files from `scratch/`.
+
+Pattern:
+
+```vb
+Const DebugMode As Boolean = True
+Const DebugOutputFile As String = "<path-to-scratch>\Output.txt"
+
+' ... after building the report ...
+If DebugMode Then
+    Try
+        System.IO.File.WriteAllText(DebugOutputFile, report.ToString())
+    Catch
+        ' Ignore file write failures
+    End Try
+End If
+MessageBox.Show(report.ToString(), "RuleName")
+```
+
+---
+
+## 21. File Management
 
 When modifying, extending, debugging, or improving functionality that already exists:
 
@@ -341,7 +369,7 @@ Violating this rule produces duplicate implementations, scattered functionality,
 
 ---
 
-## 21. Function Promotion and Storage
+## 22. Function Promotion and Storage
 
 ### Storage Locations
 

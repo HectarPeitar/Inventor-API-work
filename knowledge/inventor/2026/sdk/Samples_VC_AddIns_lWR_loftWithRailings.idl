@@ -1,0 +1,45 @@
+//-----------------------------------------------------------------------------
+//----- loftWithRailings.idl : IDL source for loftWithRailings.dll
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//----- This file will be processed by the MIDL tool to
+//----- produce the type library (loftWithRailings.tlb) and marshalling code.
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(B623765F-4AB1-4C78-A45F-294305E5956D),
+		dual,
+		helpstring("IloftWithRailingsAddInServer Interface"),
+		pointer_default(unique)
+	]
+	interface IloftWithRailingsAddInServer : IDispatch
+	{
+		[id(0x03001201)] HRESULT Activate([in] IDispatch * pDisp, [in] VARIANT_BOOL FirstTime);
+		[id(0x03001202)] HRESULT Deactivate();
+		[id(0x03001203)] HRESULT ExecuteCommand([in] long CommandID);
+		[propget, id(0x03001204)] HRESULT Automation([out, retval] IDispatch * * ppDisp);
+	};
+
+[
+	uuid(F978267A-3828-4A0B-B113-73A810B32B30),
+	version(1.0),
+	helpstring("loftWithRailings 1.0 Type Library")
+]
+library loftWithRailingsLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(37E7CBC7-F0F7-455B-85B4-668E0674C9DE),
+		helpstring("loftWithRailingsAddInServer Class")
+	]
+	coclass loftWithRailingsAddInServer
+	{
+		[default] interface IloftWithRailingsAddInServer;
+	};
+
+};

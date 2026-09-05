@@ -1,0 +1,58 @@
+LICENSE AGREEMENT
+
+THESE TERMS AND CONDITIONS AMEND THE END USER LICENSE AGREEMENT INCLUDED WITH THE AUTODESK?INVENTOR?SOFTWARE (THE “SOFTWARE? FOR WHICH THIS SOFTWARE DEVELOPER’S KIT (“SDK? IS INTENDED.
+
+BY INSTALLING THIS SDK THE USER ACCEPTS AND AGREES TO THE FOLLOWING:
+WHILE AUTODESK, INC. HAS MADE REASONABLE EFFORTS TO VERIFY AND TEST THE SAMPLE FILES (“SAMPLE FILES? AND TOOLS, INCLUDING WIZARDS, (COLLECTIVELY “TOOLS? PROVIDED IN THIS SDK, THE SDK IS PROVIDED SOLELY ON AN "AS IS" BASIS, "WITH ALL FAULTS." THE SDK, THE SAMPLE FILES AND THE TOOLS CONTAINED ARE EMPLOYED AT THE SOLE RISK OF THE USER. AUTODESK DISCLAIMS ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS, AND WARRANTIES OF ANY KIND, INCLUDING ANY IMPLIED WARRANTY OR CONDITION OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NONINFRINGEMENT. THE USER IS FREE TO MODIFY OR CUSTOMIZE THE SAMPLE FILES PROVIDED, HOWEVER AUTODESK MAKES NO REPRESENTATIONS, WARRANTIES, CONDITIONS, OR GUARANTIES AS TO THE QUALITY, SUITABILITY FOR A PARTICULAR PURPOSE, OR SAFETY OF USER’S OTHER APPLICATIONS OR DATA WHEN USED WITH THE SAMPLE FILES OR THE TOOLS.
+USER AGREES THAT AUTODESK IS NOT LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO, DAMAGES FOR LOSS OF PROFITS, REVENUE, GOODWILL, USE, DATA, ELECTRONICALLY TRANSMITTED ORDERS, OR OTHER ECONOMIC ADVANTAGE (EVEN IF AUTODESK HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES), HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, WHETHER IN CONTRACT (INCLUDING FUNDAMENTAL BREACH), TORT (INCLUDING NEGLIGENCE) OR OTHERWISE, ARISING OUT OF OR RELATED TO: (i) THE USE OF OR THE INABILITY TO USE THE SAMPLE FILES AND TOOLS; (ii) THE COST OF PROCUREMENT OF SUBSTITUTE GOODS AND SERVICES RESULTING FROM THE USE OR INABILITY TO USE THE SAMPLE FILES AND THE TOOLS; OR (iii) ANY OTHER MATTER RELATING TO THE SAMPLE FILES AND THE TOOLS. USER HAS SOLE RESPONSIBILITY FOR ADEQUATE PROTECTION AND BACKUP OF DATA AND/OR EQUIPMENT USED IN CONNECTION WITH THE SAMPLE FILES AND THE TOOLS CONTAINED IN THE SDK AND WILL NOT MAKE A CLAIM AGAINST AUTODESK FOR LOST DATA, RE-RUN TIME, INACCURATE OUTPUT, WORK DELAYS, OR LOST PROFITS RESULTING FROM THE USE OF SAME. USER AGREES TO HOLD AUTODESK HARMLESS FROM, AND USER COVENANTS NOT TO SUE OR OTHERWISE SEEK LIABILITY FROM AUTODESK FOR, ANY CLAIMS BASED ON USING THE SDK OR THE SAMPLE FILES AND THE TOOLS CONTAINED, WHETHER IN CONTRACT (INCLUDING FUNDAMENTAL BREACH), TORT (INCLUDING NEGLIGENCE) OR OTHERWISE. 
+EXCEPT AS PROVIDED HEREIN, ALL OTHER TERMS AND CONDITIONS OF THE END USER LICENSE AGREEMENT ACCOMPANYING THIS SOFTWARE APPLY TO THE SDK.
+
+-------------------------
+
+  
+iPart Sample
+============
+
+DESCRIPTION:
+
+This sample demonstrates the use of iPart API in general and the update of iPart members in specific. This sample can be used to bring iPart members belonging to a factory in-synch with the factory.
+
+Given an iPart factory, this samples indicates the location for the iPart members. Feedback about the location is provided in two ways. 
+
+1) Location text field
+2) Tool tip for the Location text field
+
+If the iPart factory (iPartFac.ipt) is in a library (lib1) and the project has a library prefixed with an underscore (_lib1), the iPart members will be created in _lib1. In such a case, the location text field will say "Library" and the tool tip will indicate the complete path for the iPart member files.
+
+If the iPart factory is not in a library, the members are created in a folder which has the same name as the iPart factory and is located in the same folder as the iPart factory.
+
+Choosing the "Regenerate existing members" option will update the iPart members which have already been created e.g.; if a factory has 50 rows and only 2 members have been created, an update with this option will update only 2 members.
+
+Choosing the "Create all members" option will update all the iPart members for the given iPart factory. If a factory has 50 rows, an update with this option will generate members for all 50 rows. 
+
+
+
+SERVER: Inventor
+
+
+LANGUAGE/COMPILER: VB.Net
+
+
+REQUIREMENTS:
+
+This sample requires the following: 
+
+- A running session of Inventor
+- If the iPart factory is located in a project, this sample requires that this project be active.
+
+
+INSTRUCTIONS:
+
+To run this sample, 
+
+1) Start Inventor
+2) Build the VB.Net project and run the exe
+
+
+---------------------
+For more information on Autodesk Inventor API, visit www.autodesk.com/developinventor

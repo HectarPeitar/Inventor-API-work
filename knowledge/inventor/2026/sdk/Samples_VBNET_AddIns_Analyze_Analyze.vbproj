@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <MyType>Windows</MyType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <OutputPath>.\bin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Company>Autodesk, Inc.</Company>
+    <Copyright>Copyright © 2008–2009 Autodesk, Inc.</Copyright>
+    <Description>Analyze path sample</Description>
+    <Product>Autodesk Inventor</Product>
+    <Title>Analyze path sample</Title>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="BrowserControl\**" />
+    <EmbeddedResource Remove="BrowserControl\**" />
+    <None Remove="Assembly\**" />
+    <None Remove="BrowserControl\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="My Project\Analyze.manifest" />
+    <None Remove="Readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+	  <Reference Include="Autodesk.Inventor.Interop">
+		  <SpecificVersion>False</SpecificVersion>
+		  <EmbedInteropTypes>False</EmbedInteropTypes>
+		  <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor OEM 2025\Bin')">$(programfiles)\Autodesk\Inventor OEM 2025\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+		  <HintPath Condition="Exists('..\..\..\Bin')">..\..\..\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+		  <HintPath Condition="Exists('..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion')">..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+		  <HintPath Condition="Exists('..\..\..\..\References\PrimaryInterop\CurrentVersion')">..\..\..\..\References\PrimaryInterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+		  <EmbedInteropTypes>False</EmbedInteropTypes>
+		  <Private>False</Private>
+	  </Reference>
+    <COMReference Include="stdole">
+      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Forms\ParametersForm.Designer.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>ParametersForm.vb</DependentUpon>
+    </Compile>
+    <Compile Update="Forms\ParamListForm.Designer.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>ParamListForm.vb</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Forms\ParametersForm.resX">
+      <DependentUpon>ParametersForm.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Forms\ParamListForm.resX">
+      <DependentUpon>ParamListForm.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Analysis.BMP" />
+    <EmbeddedResource Include="Icons\Params.BMP" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="BrowserControl\AnalyzeControl.vbproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <ApplicationManifest>My Project\Analyze.manifest</ApplicationManifest>
+  </PropertyGroup>
+</Project>

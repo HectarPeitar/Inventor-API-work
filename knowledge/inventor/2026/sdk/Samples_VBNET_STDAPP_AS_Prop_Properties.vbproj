@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<UseWindowsForms>true</UseWindowsForms>
+		<MyType>Windows</MyType>
+		<OutputType>WinExe</OutputType>
+		<AssemblyName>Properties</AssemblyName>
+		<DocumentationFile>Properties.xml</DocumentationFile>
+		<StartupObject>Properties.frmProperties</StartupObject>
+		<RootNamespace>Properties</RootNamespace>
+		<OutputPath>.\bin\</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+    <ItemGroup>
+	  <Reference Include="Autodesk.Inventor.Interop">
+		  <SpecificVersion>False</SpecificVersion>
+		  <EmbedInteropTypes>False</EmbedInteropTypes>
+		  <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor OEM 2026\Bin')">$(programfiles)\Autodesk\Inventor OEM 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+          <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2026\Bin')">$(programfiles)\Autodesk\Inventor 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+          <HintPath Condition="Exists('..\..\..\Bin')">..\..\..\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+		  <HintPath Condition="Exists('..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion')">..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+		  <HintPath Condition="Exists('..\..\..\..\..\References\PrimaryInterop\CurrentVersion')">..\..\..\..\..\References\PrimaryInterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+		  <EmbedInteropTypes>False</EmbedInteropTypes>
+		  <Private>True</Private>
+	  </Reference>
+	<COMReference Include="stdole">
+      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties.Designer.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>Properties.vb</DependentUpon>
+    </Compile>
+    <Compile Update="Properties.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Thumbnail.Designer.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>Thumbnail.vb</DependentUpon>
+    </Compile>
+    <Compile Update="Thumbnail.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Update="My Project\Resources.resx">
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties.resX">
+      <DependentUpon>Properties.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Thumbnail.resX">
+      <DependentUpon>Thumbnail.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

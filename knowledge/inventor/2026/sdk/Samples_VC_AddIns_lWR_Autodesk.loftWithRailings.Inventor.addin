@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Type attribute is same as Type registry key (Standard, Translator, Plugin (Server only) -->
+<Addin Type="Standard">
+
+  <ClassId>{37E7CBC7-F0F7-455B-85B4-668E0674C9DE}</ClassId>
+  <ClientId>{37E7CBC7-F0F7-455B-85B4-668E0674C9DE}</ClientId>
+  <DisplayName Language="1033">Loft With Railings</DisplayName>
+  <Description>Simple addin demonstrates how to create loft feature which makes use of railing.</Description>
+  <Assembly>loftWithRailings.dll</Assembly>
+  <SupportedSoftwareVersionGreaterThan>19..</SupportedSoftwareVersionGreaterThan>
+  <LoadAutomatically>0</LoadAutomatically>
+  <LoadOnStartUp>1</LoadOnStartUp>
+  <LoadBehavior>0</LoadBehavior>
+  <UserUnloadable>1</UserUnloadable>
+  <Hidden>0</Hidden>
+</Addin>

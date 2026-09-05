@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <MyType>Windows</MyType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <OutputPath>.\bin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+	  <Reference Include="Autodesk.Inventor.Interop">
+		  <SpecificVersion>False</SpecificVersion>
+		  <EmbedInteropTypes>False</EmbedInteropTypes>
+		  <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor OEM 2026\Bin')">$(programfiles)\Autodesk\Inventor OEM 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+          <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2026\Bin')">$(programfiles)\Autodesk\Inventor 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+          <HintPath Condition="Exists('..\..\..\Bin')">..\..\..\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+		  <HintPath Condition="Exists('..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion')">..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+		  <HintPath Condition="Exists('..\..\..\..\References\PrimaryInterop\CurrentVersion')">..\..\..\..\References\PrimaryInterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+		  <EmbedInteropTypes>False</EmbedInteropTypes>
+		  <Private>True</Private>
+	  </Reference>
+    <COMReference Include="stdole">
+      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="ChangeProcessor.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="ChangeRequest.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Command.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="CustomCommandAddInServer.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Interaction.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="RackFaceCmd.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="RackFaceCmdDlg.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="RackFaceRequest.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Content Include="icon1.ico" />
+    <Content Include="icon2.ico" />
+    <Content Include="icon3.ico" />
+    <Content Include="icon4.ico" />
+    <Content Include="icon5.ico" />
+    <Content Include="icon6.ico" />
+    <EmbeddedResource Update="RackFaceCmdDlg.resx">
+      <DependentUpon>RackFaceCmdDlg.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <PropertyGroup>
+    <ApplicationManifest>My Project\CustomCommand.manifest</ApplicationManifest>
+  </PropertyGroup>
+</Project>

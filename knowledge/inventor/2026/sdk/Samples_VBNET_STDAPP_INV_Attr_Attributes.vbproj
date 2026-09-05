@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net8.0-windows</TargetFramework>
+    <ProjectType>Local</ProjectType>
+    <MyType>WindowsForms</MyType>
+    <AssemblyName>Attributes</AssemblyName>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>Attributes.frmAttributes</StartupObject>
+    <RootNamespace>Attributes</RootNamespace>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+	<OutputPath>.\bin\</OutputPath>
+	<DocumentationFile>Attributes.xml</DocumentationFile>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+  </PropertyGroup>
+  <ItemGroup>
+   <Reference Include="Autodesk.Inventor.Interop">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+	  <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor OEM 2026\Bin')">$(programfiles)\Autodesk\Inventor OEM 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2026\Bin')">$(programfiles)\Autodesk\Inventor 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\Bin')">..\..\..\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+	  <HintPath Condition="Exists('..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion')">..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\..\References\PrimaryInterop\CurrentVersion')">..\..\..\..\..\References\PrimaryInterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+	  <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Attributes.Designer.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>Attributes.vb</DependentUpon>
+    </Compile>
+    <Compile Update="Attributes.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Update="Attributes.resX">
+      <DependentUpon>Attributes.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Update="My Project\" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,57 @@
+// SimpleAddIn.idl : IDL source for SimpleAddIn
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (SimpleAddIn.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(95E186CA-14F4-4E4E-9FAE-D8D78A0F37CA),
+	dual,
+	helpstring("ISimpleAddInServer Interface"),
+	pointer_default(unique)
+]
+interface ISimpleAddInServer : IDispatch{
+	[id(1), helpstring("method Activate")] HRESULT Activate([in] IDispatch* pDisp, [in] VARIANT_BOOL FirstTime);
+	[id(2), helpstring("method Deactivate")] HRESULT Deactivate(void);
+	[id(3), helpstring("method ExecuteCommand")] HRESULT ExecuteCommand([in] long CommandId);
+	[propget, id(4), helpstring("property Automation")] HRESULT Automation([out, retval] IDispatch** ppResult);
+};
+//[
+//	object,
+//	uuid(CCC91C04-15D1-4C15-BFFD-B290A899F1A3),
+//	dual,
+//	nonextensible,
+//	helpstring("ICommandButton Interface"),
+//	pointer_default(unique)
+//]
+//interface ICommandButton : IDispatch{
+//};
+[
+	uuid(BF108D8B-AFC0-4610-9B97-58B2C60734E7),
+	version(1.0),
+	helpstring("SimpleAddIn 1.0 Type Library")
+]
+library SimpleAddInLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(DB59D9A7-EE4C-434A-BB5A-F93E8866E872),
+		helpstring("SimpleAddInServer Class")
+	]
+	coclass SimpleAddInServer
+	{
+		[default] interface ISimpleAddInServer;
+	};
+	/*[
+		uuid(43634A08-89F6-46C5-A2A0-5131BD7E2FAF),
+		helpstring("CommandButton Class")
+	]*/
+	/*coclass CommandButton
+	{
+		[default] interface ICommandButton;
+	};*/
+};

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="SimpleAddin"
+                      version="1.0.0.0" />
+  <file name="SimpleAddin.dll">
+    <!---->
+    <comClass clsid="{DB59D9A7-EE4C-434A-BB5A-F93E8866E872}" />
+    <typelib tlbid="{BF108D8B-AFC0-4610-9B97-58B2C60734E7}"
+       version="1.0" helpdir=""/>
+  </file>
+</assembly>

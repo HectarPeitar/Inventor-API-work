@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+     <!-- Type attribute is same as Type registry key (Standard, Translator, Plugin (Server only) -->
+     <Addin Type="Standard">
+     <ClassId>{a0cc5d86-d345-461f-9e9d-35c5f699d2cb}</ClassId>
+     <ClientId>{a0cc5d86-d345-461f-9e9d-35c5f699d2cb}</ClientId>
+     
+     <!-- Both of the following fields should be translated. NO OTHER FIELDS SHOULD BE TRANSLATED! -->
+     <DisplayName>Custom Environment</DisplayName>
+     <Description>Custom Environment</Description>
+
+     <!-- Assumes that CustomEnvironment.dll is underneath Inventor\bin -->
+     <Assembly>CustomEnvironment.dll</Assembly>
+
+     <SupportedSoftwareVersionGreaterThan>17..</SupportedSoftwareVersionGreaterThan>
+     <LoadOnStartUp>1</LoadOnStartUp>
+     <Hidden>0</Hidden>
+     </Addin>

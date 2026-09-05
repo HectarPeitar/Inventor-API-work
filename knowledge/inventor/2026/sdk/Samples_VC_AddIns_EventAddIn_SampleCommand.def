@@ -1,0 +1,11 @@
+; SampleCommand.def : Declares the module parameters for the DLL.
+
+LIBRARY      "SampleCommand"
+; DESCRIPTION  'SimpleAddIn Windows Dynamic Link Library'
+
+EXPORTS
+	DllCanUnloadNow     PRIVATE
+	DllGetClassObject   PRIVATE
+	DllRegisterServer   PRIVATE
+	DllUnregisterServer	PRIVATE
+	InvProcessPreTranslateMessage PRIVATE

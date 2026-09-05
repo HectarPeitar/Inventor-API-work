@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+  <assemblyIdentity name="TextClientGraphics" version="1.0.0.0"></assemblyIdentity>
+
+  <clrClass clsid="{13b1419e-168c-4634-9475-af21bc2f36e7}" progid="TextClientGraphics.StandardAddInServer" threadingModel="Both" name="TextClientGraphics.TextClientGraphics.StandardAddInServer" runtimeVersion=""></clrClass>
+
+  <file name="TextClientGraphics.dll" hashalg="SHA1"></file>
+
+</assembly>

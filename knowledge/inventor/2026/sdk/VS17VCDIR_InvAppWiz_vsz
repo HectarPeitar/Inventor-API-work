@@ -1,0 +1,5 @@
+VSWIZARD 7.0
+Wizard=VsWizard.VsWizardEngine.17.0
+Param="WIZARD_NAME = InvAppWiz17"
+Param="ABSOLUTE_PATH = [WIZTARGETDIR]InvAppWiz17"
+Param="FALLBACK_LCID = 1033"

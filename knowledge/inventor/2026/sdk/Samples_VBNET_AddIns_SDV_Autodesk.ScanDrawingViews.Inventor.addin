@@ -1,0 +1,14 @@
+<Addin Type="Standard">
+  <!--Created for Autodesk Inventor Version 18.0-->
+  <ClassId>{b11d00bf-8671-474e-b698-03e5478c8a1e}</ClassId>
+  <ClientId>{b11d00bf-8671-474e-b698-03e5478c8a1e}</ClientId>
+  <DisplayName>ScanDrawingViews</DisplayName>
+  <Description>ScanDrawingViews</Description>
+  <Assembly>ScanDrawingViews.dll</Assembly>
+  <LoadOnStartUp>1</LoadOnStartUp>
+  <UserUnloadable>1</UserUnloadable>
+  <Hidden>0</Hidden>
+  <SupportedSoftwareVersionGreaterThan>17..</SupportedSoftwareVersionGreaterThan>
+  <DataVersion>1</DataVersion>
+  <UserInterfaceVersion>1</UserInterfaceVersion>
+</Addin>

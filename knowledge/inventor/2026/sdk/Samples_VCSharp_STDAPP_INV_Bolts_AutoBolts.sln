@@ -1,0 +1,20 @@
+
+Microsoft Visual Studio Solution File, Format Version 14.00
+# Visual Studio 2015
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoBoltsCS", "AutoBoltsCS.csproj", "{42A5108F-769D-4355-9033-BCA165E255CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42A5108F-769D-4355-9033-BCA165E255CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42A5108F-769D-4355-9033-BCA165E255CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42A5108F-769D-4355-9033-BCA165E255CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42A5108F-769D-4355-9033-BCA165E255CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

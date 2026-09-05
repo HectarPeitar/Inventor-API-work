@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="CustomCommand"
+                      version="1.0.0.0" />
+  <file name="CustomCommand.dll">
+    <!---->
+    <comClass clsid="{05CC5326-B165-483A-8A2A-4B52B7A54BEF}" />
+    <typelib tlbid="{3E80DCBB-4BA5-4D52-80CA-72F62C115638}"
+       version="1.0" helpdir=""/>
+  </file>
+</assembly>

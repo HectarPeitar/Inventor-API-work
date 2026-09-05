@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+<assemblyIdentity name="PartFeaturesAddin" version="1.0.3847.24123" processorArchitecture="msil"></assemblyIdentity>
+
+<clrClass clsid="{7B0327D5-9D20-46A2-8181-393F0AF09919}" progid="PartFeaturesAddin.BoltMaker" threadingModel="Both" name="PartFeaturesAddin.BoltMaker" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{42F674BE-A55C-3D7D-9DF2-6EE2A7EB6501}" progid="PartFeaturesAddin.AddInRegistration" threadingModel="Both" name="PartFeaturesAddin.AddInRegistration" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{4489291E-B06E-3A4F-852D-C75E63F96756}" progid="PartFeaturesAddin.BoltParas" threadingModel="Both" name="PartFeaturesAddin.BoltParas" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{DA9F62BA-748F-33D1-BD33-5A6136EB4E01}" progid="PartFeaturesAddin.BoltParas+CreateBoltEventEventHandler" threadingModel="Both" name="PartFeaturesAddin.BoltParas+CreateBoltEventEventHandler" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{C083B10D-B772-3585-A3AA-AE9CFF10C956}" progid="PartFeaturesAddin.BoltParas+PositionChangedEventEventHandler" threadingModel="Both" name="PartFeaturesAddin.BoltParas+PositionChangedEventEventHandler" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{E0F55134-8374-3FDA-9919-2E679F4844A9}" progid="PartFeaturesAddin.clsBolt" threadingModel="Both" name="PartFeaturesAddin.clsBolt" runtimeVersion=""></clrClass>
+
+<clrSurrogate clsid="{0599D240-2616-3D92-820D-DA95E2A57018}" name="PartFeaturesAddin.clsBolt+BoltParameter"></clrSurrogate>
+
+<file name="PartFeaturesAddin.dll" hashalg="SHA1"></file>
+
+</assembly>

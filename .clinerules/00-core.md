@@ -206,6 +206,131 @@ Do not store unverified assumptions as knowledge.
 
 ---
 
+## Local SDK First
+
+For Inventor API questions, prefer local Inventor 2026 SDK sources before relying on general model knowledge or web search.
+
+The complete Autodesk Inventor 2026 SDK is stored at:
+
+```
+knowledge/inventor/2026/sdk/
+```
+
+The central navigation point for Inventor knowledge is:
+
+```
+knowledge/inventor/KNOWLEDGE-MAP.md
+```
+
+Do not use web search merely because a local SDK source exists.
+
+---
+
+## Source Hierarchy
+
+Use sources in this priority order:
+
+1. Local Inventor 2026 API/source material
+2. Local official Autodesk SDK samples
+3. Local curated Inventor knowledge
+4. `tested/`
+5. `knowledge/errors/`
+6. Autodesk web documentation when necessary
+7. General model knowledge
+
+---
+
+## Search Narrowly
+
+Do not scan the entire SDK for every task.
+
+Start from:
+
+```
+knowledge/inventor/KNOWLEDGE-MAP.md
+```
+
+Then follow the most relevant source path.
+
+Examples:
+
+### Parameter task
+
+```
+KNOWLEDGE-MAP.md -> parameters -> units (if required) -> relevant SDK sample -> tested pattern -> implementation
+```
+
+### Property task
+
+```
+KNOWLEDGE-MAP.md -> properties -> relevant SDK property sample -> iLogic guidance -> implementation
+```
+
+### Assembly task
+
+```
+KNOWLEDGE-MAP.md -> assemblies -> AssemblyTree sample -> object model -> implementation
+```
+
+---
+
+## API Verification
+
+When an unfamiliar API member is encountered:
+
+1. Check the Knowledge Map.
+2. Check curated knowledge.
+3. Check relevant local SDK source.
+4. Check `knowledge/errors/`.
+5. Check `tested/`.
+6. Use web documentation only when local evidence is insufficient.
+
+Do not guess API members.
+
+---
+
+## PDF/DOC Source Handling
+
+The local SDK contains PDF and document files that may be difficult to search efficiently. Do not treat all PDF/DOC/DOCX files the same.
+
+For each PDF or document:
+
+1. Determine what information it contains.
+2. Determine whether the information is useful for future Inventor API development.
+3. Determine whether the original document is already sufficiently searchable.
+4. Determine whether an AI-friendly derived representation would materially improve retrieval.
+5. Keep the original Autodesk document unchanged as the authoritative source.
+
+### Source Types
+
+| Type | Description |
+|---|---|
+| `RAW SOURCE` | Original Autodesk document |
+| `CURATED SOURCE` | AI-friendly derived representation |
+
+The curated source must never silently replace the raw source.
+
+### PDF Retrieval Sequence
+
+```
+PDF/DOC source
+    ↓
+Check curated representation
+    ↓
+Use curated representation for normal retrieval
+    ↓
+Consult original document when:
+- visual relationships matter;
+- the curated representation is ambiguous;
+- exact source verification is required;
+- information may have been lost during derivation.
+```
+
+After creating a derived representation, compare it with the original source, verify that important relationships and information were not lost, check for unsupported assumptions, and mark the derived document as a curated interpretation. Do not claim that the derived representation is authoritative.
+
+Do not automatically convert every PDF/DOC file to Markdown. Only create a derived representation when it materially improves AI retrieval.
+---
+
 ## Tested Implementations
 
 `tested/` is a knowledge library of reusable implementation patterns, not a storage location for completed functions.

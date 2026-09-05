@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="iFeature"
+                      version="1.0.0.0" />
+  <file name="iFeature.dll">
+    <!---->
+    <comClass clsid="{90E841C3-C126-45FD-A985-FDFA6BC30C37}" />
+  </file>
+</assembly>

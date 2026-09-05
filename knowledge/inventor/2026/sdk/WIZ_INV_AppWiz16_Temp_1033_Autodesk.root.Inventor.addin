@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+[!if ADDIN_APPTYPE]
+<Addin Type="Standard">
+[!else]
+  <Addin Type="Translator">
+[!endif]
+    <!--Created for Autodesk Inventor Version 30.0-->
+    <ClassId>{[!output ADDINCLSID_REGISTRY_FORMAT]}</ClassId>
+    <ClientId>{[!output ADDINCLSID_REGISTRY_FORMAT]}</ClientId>   
+    <DisplayName>[!output ADDIN_NAME]</DisplayName>
+    <Description>[!output ADDIN_DESC]</Description>
+    <Assembly>[!output PROJECT_PATH]\Debug\[!output RDS_SYMB][!output PROJECT_NAME].dll</Assembly>
+    [!if ADDIN_APPTYPE]
+    [!else]
+    [!if TSL_OPENDLG]
+    <SupportsOpen>1</SupportsOpen>
+    <SupportsImport>1</SupportsImport>
+    <SupportsOpenInto>[!output TSL_BASE_TYPES]</SupportsOpenInto>
+    <SupportsImportInto>[!output TSL_BASE_TYPES]</SupportsImportInto>
+    [!endif]
+    [!if TSL_SAVEASDLG]
+    <SupportsSaveCopyAs>1</SupportsSaveCopyAs>
+    <SupportsSaveCopyAsFrom>[!output TSL_BASE_TYPES]</SupportsSaveCopyAsFrom>
+    [!endif]
+    <FileExtensions>[!output TSL_EXTENSION]</FileExtensions>
+    <FilterText>[!output TSL_FILTER]</FilterText>
+    [!endif]
+    [!if LOADATSTARTUP]
+    <LoadOnStartUp>1</LoadOnStartUp>
+    [!else]
+    <LoadOnStartUp>0</LoadOnStartUp>
+    [!endif]
+    <UserUnloadable>1</UserUnloadable>
+    <Hidden>0</Hidden>
+    <SupportedSoftwareVersionGreaterThan>29..</SupportedSoftwareVersionGreaterThan>
+    <DataVersion>1</DataVersion>
+    <UserInterfaceVersion>1</UserInterfaceVersion>
+  </Addin>

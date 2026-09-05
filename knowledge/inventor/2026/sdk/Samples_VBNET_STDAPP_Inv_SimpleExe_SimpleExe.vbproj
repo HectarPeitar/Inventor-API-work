@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net8.0-windows</TargetFramework>
+    <ProjectType>Local</ProjectType>
+    <MyType>WindowsForms</MyType>
+    <AssemblyName>SimpleExe</AssemblyName>
+	<AssemblyCompanyName>Autodesk, Inc.</AssemblyCompanyName>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>SimpleExe.InventorInfo</StartupObject>
+    <RootNamespace>SimpleExe</RootNamespace>
+  </PropertyGroup>
+   <PropertyGroup>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<Company>Autodesk, Inc.</Company>
+		<Copyright>Copyright © 2008–2009 Autodesk, Inc.</Copyright>
+		<Description></Description>
+		<Product>Autodesk Inventor</Product>
+		<Title></Title>
+		<UseWindowsForms>True</UseWindowsForms>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>SimpleExe.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>SimpleExe.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autodesk.Inventor.Interop">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+	  <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor OEM 2026\Bin')">$(programfiles)\Autodesk\Inventor OEM 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2026\Bin')">$(programfiles)\Autodesk\Inventor 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\Bin')">..\..\..\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+	  <HintPath Condition="Exists('..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion')">..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\..\References\PrimaryInterop\CurrentVersion')">..\..\..\..\..\References\PrimaryInterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+	  <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="InventorInfo.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="InventorInfo.Designer.vb">
+      <DependentUpon>InventorInfo.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="InventorInfo.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>InventorInfo.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

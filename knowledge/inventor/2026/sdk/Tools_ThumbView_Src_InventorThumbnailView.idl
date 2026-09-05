@@ -1,0 +1,37 @@
+// InventorThumbnailView.idl : IDL source for InventorThumbnailView
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (InventorThumbnailView.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(A4081B9D-BCA1-4910-8BEA-1A771D1ABACF),
+	dual,
+	nonextensible,
+	helpstring("IThumbnailProvider Interface"),
+	pointer_default(unique)
+]
+interface IThumbnailProvider : IDispatch{
+	[id(1), helpstring("method GetThumbnail")] HRESULT GetThumbnail([in] BSTR FullFileName, [out,retval] IPictureDisp** ppPicture);
+};
+[
+	uuid(DDA4CB63-BD36-413E-B0DB-9CC6F92BFD58),
+	version(1.0),
+	helpstring("Autodesk Inventor ThumbnailView 1.0 Type Library")
+]
+library InventorThumbnailViewLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(48F58AFF-B7A9-4C8E-8E80-F9C57DDC66F8),
+		helpstring("ThumbnailProvider Class")
+	]
+	coclass ThumbnailProvider
+	{
+		[default] interface IThumbnailProvider;
+	};
+};

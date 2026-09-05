@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 14.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleExeCPP", "SimpleExeCPP.vcxproj", "{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Optimize|Win32 = Optimize|Win32
+		Optimize|x64 = Optimize|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Debug|Win32.Build.0 = Debug|Win32
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Debug|x64.ActiveCfg = Debug|x64
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Debug|x64.Build.0 = Debug|x64
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Optimize|Win32.ActiveCfg = Optimize|Win32
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Optimize|Win32.Build.0 = Optimize|Win32
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Optimize|x64.ActiveCfg = Optimize|x64
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Optimize|x64.Build.0 = Optimize|x64
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Release|Win32.ActiveCfg = Release|Win32
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Release|Win32.Build.0 = Release|Win32
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Release|x64.ActiveCfg = Release|x64
+		{F9AAEA40-43AD-4D45-9F2F-17EF355FB0C3}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

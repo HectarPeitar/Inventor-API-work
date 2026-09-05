@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="CustomUI"
+                      version="1.0.0.0" />
+  <file name="CustomUI.dll">
+    <!---->
+    <comClass clsid="{B6CD8174-8817-4AF2-9561-C0F273ABF5D8}" />
+    <typelib tlbid="{3EC5746A-E0AE-49F7-9A77-E6F6527A5D18}"
+       version="1.0" helpdir=""/>
+  </file>
+</assembly>

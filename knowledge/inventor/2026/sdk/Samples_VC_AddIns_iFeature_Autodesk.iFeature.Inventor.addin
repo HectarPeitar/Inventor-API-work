@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Type attribute is same as Type registry key (Standard, Translator, Plugin (Server only) -->
+<Addin Type="Standard">
+
+  <ClassId>{90E841C3-C126-45FD-A985-FDFA6BC30C37}</ClassId>
+  <ClientId>{90E841C3-C126-45FD-A985-FDFA6BC30C37}</ClientId>
+  <DisplayName Language="1033">iFeature Sample</DisplayName>
+  <Description>Sample demonstrating iFeature API</Description>
+  <Assembly>iFeature.dll</Assembly>
+  <SupportedSoftwareVersionGreaterThan>19..</SupportedSoftwareVersionGreaterThan>
+  <LoadAutomatically>0</LoadAutomatically>
+  <LoadOnStartUp>1</LoadOnStartUp>
+  <LoadBehavior>0</LoadBehavior>
+  <UserUnloadable>1</UserUnloadable>
+  <Hidden>0</Hidden>
+</Addin>

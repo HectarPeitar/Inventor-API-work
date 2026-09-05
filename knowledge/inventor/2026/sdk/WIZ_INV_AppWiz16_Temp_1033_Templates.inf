@@ -1,0 +1,16 @@
+
+AddInServer.cpp
+AddInServer.h
+root.X.manifest
+
+Resource.h
+
+root.cpp
+root.h
+root.idl
+root.rc
+
+rootapp.h
+
+StdAfx.cpp
+StdAfx.h

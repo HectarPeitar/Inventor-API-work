@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 14.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CurvatureApp", "CurvatureApp.vcxproj", "{D7679159-748B-40B7-ABBE-44A60EEE7AB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Optimize|Win32 = Optimize|Win32
+		Optimize|x64 = Optimize|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Debug|Win32.Build.0 = Debug|Win32
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Debug|x64.ActiveCfg = Debug|x64
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Debug|x64.Build.0 = Debug|x64
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Optimize|Win32.ActiveCfg = Optimize|Win32
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Optimize|Win32.Build.0 = Optimize|Win32
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Optimize|x64.ActiveCfg = Optimize|x64
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Optimize|x64.Build.0 = Optimize|x64
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Release|Win32.ActiveCfg = Release|Win32
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Release|Win32.Build.0 = Release|Win32
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Release|x64.ActiveCfg = Release|x64
+		{D7679159-748B-40B7-ABBE-44A60EEE7AB6}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

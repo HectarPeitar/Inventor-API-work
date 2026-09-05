@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 14.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThreadFeature", "ThreadFeature.vcxproj", "{B4D6C82D-7908-42A3-9674-D2C445C5D16B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Optimize|Win32 = Optimize|Win32
+		Optimize|x64 = Optimize|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B4D6C82D-7908-42A3-9674-D2C445C5D16B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B4D6C82D-7908-42A3-9674-D2C445C5D16B}.Debug|Win32.Build.0 = Debug|Win32
+		{B4D6C82D-7908-42A3-9674-D2C445C5D16B}.Debug|x64.ActiveCfg = Debug|x64
+		{B4D6C82D-7908-42A3-9674-D2C445C5D16B}.Debug|x64.Build.0 = Debug|x64
+		{B4D6C82D-7908-42A3-9674-D2C445C5D16B}.Optimize|Win32.ActiveCfg = Optimize|Win32
+		{B4D6C82D-7908-42A3-9674-D2C445C5D16B}.Optimize|Win32.Build.0 = Optimize|Win32
+		{B4D6C82D-7908-42A3-9674-D2C445C5D16B}.Optimize|x64.ActiveCfg = Optimize|x64
+		{B4D6C82D-7908-42A3-9674-D2C445C5D16B}.Optimize|x64.Build.0 = Optimize|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

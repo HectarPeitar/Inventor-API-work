@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+     <!-- Type attribute is same as Type registry key (Standard, Translator, Plugin (Server only) -->
+     <Addin Type="Standard">
+     <ClassId>{7B0327D5-9D20-46A2-8181-393F0AF09919}</ClassId>
+     <ClientId>{7B0327D5-9D20-46A2-8181-393F0AF09919}</ClientId>
+
+     <!-- Both of the following fields should be translated. NO OTHER FIELDS SHOULD BE TRANSLATED! -->
+     <DisplayName>PartFeaturesAddin.BoltMaker</DisplayName>
+     <Description>PartFeaturesAddin.BoltMaker</Description>
+
+     <!-- Assumes that PartFeaturesAddin.dll is underneath Inventor\bin -->
+     <Assembly>R:\XInterface\InventorSDK\Source\DeveloperTools\Samples\VB.NET\AddIns\PartFeaturesAddin\bin\PartFeaturesAddin.dll</Assembly>
+
+     <SupportedSoftwareVersionGreaterThan>17..</SupportedSoftwareVersionGreaterThan>
+     <LoadOnStartUp>1</LoadOnStartUp>
+     <Hidden>0</Hidden>
+     </Addin>

@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+	<UseWindowsForms>true</UseWindowsForms>
+    <MyType>Windows</MyType>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>AutoBolts</AssemblyName>
+    <StartupObject>AutoBolts.frmAutoBolts</StartupObject>
+    <RootNamespace>AutoBolts</RootNamespace>
+    <OutputPath>.\bin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<DefaultItemExcludesInProjectFolder>$(DefaultItemExcludesInProjectFolder);**/DefineEdge/**</DefaultItemExcludesInProjectFolder>
+  </PropertyGroup>
+  <ItemGroup>
+   <Reference Include="Autodesk.Inventor.Interop">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+	  <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor OEM 2026\Bin')">$(programfiles)\Autodesk\Inventor OEM 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2026\Bin')">$(programfiles)\Autodesk\Inventor 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\Bin')">..\..\..\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+	  <HintPath Condition="Exists('..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion')">..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\..\References\PrimaryInterop\CurrentVersion')">..\..\..\..\..\References\PrimaryInterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+	  <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>True</Private>
+    </Reference>
+    <COMReference Include="Scripting">
+      <Guid>{420B2830-E718-11CF-893D-00A0C9054228}</Guid>
+      <Lcid>0</Lcid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <WrapperTool>tlbimp</WrapperTool>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="AutoBolts.Designer.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>AutoBolts.vb</DependentUpon>
+    </Compile>
+    <Compile Update="AutoBolts.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Update="AutoBolts.resX">
+      <DependentUpon>AutoBolts.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Update="My Project\" />
+  </ItemGroup>
+</Project>

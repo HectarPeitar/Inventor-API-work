@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="ThreadFeature"
+                      version="1.0.0.0" />
+  <file name="ThreadFeature.dll">
+    <!---->
+    <comClass clsid="{D6C5BC20-7F20-401E-B317-60CB8380E254}" />
+  </file>
+</assembly>

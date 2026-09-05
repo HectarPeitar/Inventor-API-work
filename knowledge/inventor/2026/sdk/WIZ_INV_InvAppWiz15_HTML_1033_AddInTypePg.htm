@@ -1,0 +1,369 @@
+<!- (c) 2003-2007 Autodesk, Inc. -->
+<HTML dir="ltr">
+	<HEAD>
+		<TITLE>'Inventor C++ AddIn Application Wizard for Inventor'</TITLE>
+		<META content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+    	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+        <META HTTP-EQUIV="MSThemeCompatible" CONTENT="Yes">
+    	<LINK ID="LINKURL" REL="stylesheet" HREF="../../../../../1033/NewStyles.css">
+		<SCRIPT>
+            var strURL = window.external.FindSymbol("PRODUCT_INSTALLATION_DIR");
+            strURL += "VCWizards/";
+            strURL += window.external.GetHostLocale();
+            strURL += "/NewStyles.css";
+            document.styleSheets ("LINKURL").href =strURL ;
+		</SCRIPT>
+	</HEAD>
+	<BODY onkeypress="OnPress();" onkeydown="OnKey();" bottomMargin="0" bgColor="buttonface" leftMargin="0" topMargin="0" onload="InitDocument(document);" rightMargin="0">
+		<TABLE class="ONE" height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
+			<COLGROUP>
+				<COL CLASS="LinkPane">
+				<COL>
+				<!--OPEN OF INTRODUCTORY INFORMATION TABLE//-->
+				<TR vAlign="top">
+					<TD width="100%" colSpan="2" height="79">
+						<TABLE class="TWO" cellSpacing="0" cellPadding="0" border="0">
+							<COLGROUP>
+								<COL width="12">
+								<COL>
+								<COL width="12">
+								<TR>
+									<TD vAlign="top" width="12" height="12">&nbsp;
+									</TD>
+									<TD vAlign="top" height="12">&nbsp;
+									</TD>
+									<TD vAlign="top" width="12" height="12">&nbsp;
+									</TD>
+									<TD class="IMAGE" vAlign="bottom" width="110" rowSpan="2">
+										<DIV class="SMALLA" id="Layer0"><IMG class="SMALLEST" height="63" alt="" src="..\..\Images\InvAppWiz.gif" width="63" border="0">
+										</DIV>
+									</TD>
+									<TD vAlign="top" width="6" height="12" rowSpan="2">&nbsp;
+									</TD>
+								</TR>
+								<TR>
+									<TD vAlign="top" width="12" height="65">&nbsp;
+									</TD>
+									<TD vAlign="top" height="65">
+										<H4 class="HEAD" id="HEAD">AddIn Type &amp; Settings</H4>
+										<P class="SUBHEAD" id="SUBHEAD">Specify your AddIn application options.</P>
+									</TD>
+									<TD vAlign="top" width="12" height="65">&nbsp;
+									</TD>
+								</TR>
+								<TR>
+									<TD class="RULE" vAlign="top" colSpan="5" height="2">
+										<TABLE height="1" cellSpacing="0" cellPadding="0" width="100%" border="0">
+											<TR vAlign="top">
+												<TD width="100%" bgColor="buttonshadow" height="1"><IMG height="1" alt="" src="../../Images/spacer.gif" width="1"></TD>
+												<TD width="1" bgColor="window" height="1"><IMG height="1" alt="" src="../../Images/spacer.gif" width="1"></TD>
+											</TR>
+										</TABLE>
+									</TD>
+								</TR>
+						</TABLE>
+					</TD>
+				</TR>
+				<!--CLOSE OF INTRODUCTORY INFORMATION TABLE//-->
+				<!--OPEN OF NAVIGATION, CONTENT, AND BUTTON TABLES//-->
+				<TR vAlign="top">
+					<TD class="THREE" style="BACKGROUND-IMAGE: url(../../Images/InvAppWiz_Background.gif)" vAlign="top" width="178" height="100%">
+						<!--OPEN OF NAVIGATION TABLE//-->
+						<TABLE class="THREE" cellSpacing="0" cellPadding="0" border="0">
+							<COLGROUP>
+								<COL width="12">
+								<COL width="166">
+								<COL width="1">
+								<TR>
+									<TD vAlign="top" colSpan="3" height="12">&nbsp;
+									</TD>
+								</TR>
+								<TR>
+									<TD vAlign="top" width="12" height="100%">&nbsp;
+									</TD>
+									<TD vAlign="top" width="165" height="100%">
+										<!--OPEN OF NAVIGATIONAL LINKS//-->
+										<DIV class="LINK">
+											<TABLE class="LINKTEXT" height="28" cellSpacing="0" cellPadding="0" width="166" border="0">
+												<TR vAlign="center">
+													<TD width="162"><SPAN class="ACTIVELINK" id="Main" title="" onclick="Next(document, 'default.htm');" tabIndex="1">Overview</SPAN>
+													</TD>
+													<TD width="4"><IMG height="1" src="../../Images/spacer.gif" width="4">
+													</TD>
+												</TR>
+											</TABLE>
+										</DIV>
+										<DIV class="LINKSELECTED"><SPAN class="VERTLINE1"><IMG height="1" alt="" src="../../Images/spacer.gif" width="1" border="0">
+											</SPAN><SPAN class="HORILINE1">
+												<TABLE height="100%" cellSpacing="0" cellPadding="0" width="167" border="0">
+													<TR vAlign="top">
+														<TD class="DOTTEDLINE" height="1"></TD>
+													</TR>
+													<TR vAlign="top">
+														<TD height="100%"><IMG height="28" alt="" src="../../Images/spacer.gif" width="1" border="0">
+														</TD>
+													</TR>
+													<TR vAlign="top">
+														<TD class="DOTTEDLINE" height="1"></TD>
+													</TR>
+												</TABLE>
+											</SPAN>
+											<TABLE class="LINKTEXTSELECTED" height="28" cellSpacing="0" cellPadding="0" width="160" border="0">
+												<TR vAlign="center">
+													<TD width="162"><SPAN id="AddInTypePg" title="" tabIndex="1">AddIn Type &amp; Settings</SPAN>
+													</TD>
+													<TD width="4"><IMG height="1" src="../../Images/spacer.gif" width="4">
+													</TD>
+												</TR>
+											</TABLE>
+										</DIV>
+										<DIV class="LINK">
+											<TABLE class="LINKTEXT" height="28" cellSpacing="0" cellPadding="0" width="166" border="0">
+												<TR vAlign="center">
+													<TD width="162"><SPAN class="ACTIVELINK" id="AdvSettingsPg" title="" onclick="Next(document, 'AdvSettingsPg.htm');" tabIndex="1">Advanced 
+															Settings</SPAN>
+													</TD>
+													<TD width="4"><IMG height="1" src="../../Images/spacer.gif" width="4">
+													</TD>
+												</TR>
+											</TABLE>
+										</DIV>
+										<!--CLOSE OF NAVIGATIONAL LINKS//--></TD>
+									<TD width="1">
+										<DIV class="VERTLINE"><IMG height="1" alt="" src="../../Images/spacer.gif" width="1" border="0">
+										</DIV>
+									</TD>
+								</TR>
+						</TABLE>
+						<!--CLOSE OF NAVIGATION TABLE//--></TD>
+					<TD vAlign="top" height="100%">
+						<!--OPEN OF CONTENT AND BUTTON TABLE//-->
+						<TABLE class="ONE" cellSpacing="0" cellPadding="0" border="0">
+							<COLGROUP>
+								<COL width="100%">
+								<TR vAlign="top">
+									<TD height="100%">
+										<!--OPEN OF CONTENT//-->
+										<TABLE class="CONTENT" cellSpacing="0" cellPadding="0" border="0">
+											<COLGROUP>
+												<COL width="12">
+												<COL width="185">
+												<COL width="12">
+												<COL width="185">
+												<COL width="12">
+												<COL width="185">
+												<COL width="12">
+												<TR>
+													<TD VALIGN="top" HEIGHT="12" COLSPAN="5">
+														&nbsp;
+													</TD>
+												</TR>
+												<TR VALIGN="top">
+													<TD VALIGN="top" WIDTH="12">
+														&nbsp;
+													</TD>
+													<TD VALIGN="top" COLSPAN="3">
+														<table BORDER="0" CELLPADDING="0" CELLSPACING="0">
+															<tr>
+																<td colspan="2"><B><U>Project Type</U></B></td>
+																<td>
+																	<select ID="PROJTYPE" NAME="PROJTYPE" onchange="OnProjectTypeChange();">
+																		<option value="1">Application AddIn in a Regular DLL</option>
+																		<option value="2">Translator AddIn in a Regular DLL</option>
+																	</select></td>
+															</tr>
+															<tr>
+																<td width="15">&nbsp;</td>
+																<td colspan="2"><input type="checkbox" ID="LOADATSTARTUP" NAME="LOADATSTARTUP">Load 
+																	at StartUp</td>
+															</tr>
+															<tr>
+																<td colspan="3"><B><U>Details</U></B></td>
+															</tr>
+															<tr>
+																<td>&nbsp;</td>
+																<td>Name:&nbsp;</td>
+																<td><input type="text" ID="ADDIN_NAME" NAME="ADDIN_NAME"></td>
+															</tr>
+															<tr>
+																<td>&nbsp;</td>
+																<td valign="top">Description:&nbsp;</td>
+																<td><textarea name="ADDIN_DESC" id="ADDIN_DESC" cols="25" rows="2"></textarea></td>
+															</tr>
+														</table>
+														<table border="0" cellpadding="0" cellspacing="0" id="TSL_TABLE">
+															<tr>
+																<td colspan="3"><B><U>Translator Options</U></B></td>
+															</tr>
+															<tr>
+																<td>&nbsp;</td>
+																<td>Base Types:&nbsp;</td>
+																<td><input type="text" ID="TSL_BASE_TYPES" NAME="TSL_BASE_TYPES"> I.e.: .ipt;.iam</td>
+															</tr>
+															<tr>
+																<td>&nbsp;</td>
+																<td>Extension:&nbsp;</td>
+																<td><input type="text" ID="TSL_EXTENSION" NAME="TSL_EXTENSION"> I.e.: .xxx;.yyy</td>
+															</tr>
+															<tr>
+																<td>&nbsp;</td>
+																<td>Filter:&nbsp;</td>
+																<td><input type="text" ID="TSL_FILTER" NAME="TSL_FILTER"> I.e.: My Files 
+																	(*.xxx;*.yyy)</td>
+															</tr>
+															<tr>
+																<td>&nbsp;</td>
+																<td>Display Name:&nbsp;</td>
+																<td><input type="text" ID="TSL_DISPLAYNAME" NAME="TSL_DISPLAYNAME"> I.e.: My 
+																	Translator AddIn</td>
+															</tr>
+															<tr>
+																<td colspan="3">&nbsp;</td>
+															</tr>
+															<tr>
+																<td>&nbsp;</td>
+																<td colspan="2">
+																	<table cellpadding="0" cellspacing="0" border="0">
+																		<tr>
+																			<td><u>Inventor Dialogs:</u></td>
+																			<td>&nbsp;</td>
+																			<td><input type="checkbox" ID="TSL_OPENDLG" NAME="TSL_OPENDLG">Open Dialog</td>
+																			<td>&nbsp;</td>
+																			<td><input type="checkbox" ID="TSL_SAVEASDLG" NAME="TSL_SAVEASDLG">SaveAs Dialog</td>
+																		</tr>
+																	</table>
+																</td>
+															</tr>
+														</table>
+													</TD>
+													<TD VALIGN="top" WIDTH="12">
+														&nbsp;
+													</TD>
+												</TR>
+												<TR>
+													<TD VALIGN="top" HEIGHT="100%" COLSPAN="7">
+														&nbsp;
+													</TD>
+												</TR>
+										</TABLE>
+										<!--CLOSE OF CONTENT//--></TD>
+								</TR>
+								<TR vAlign="bottom">
+									<TD height="48">
+										<!--OPEN OF BUTTON HTML//-->
+										<TABLE height="48" cellSpacing="0" cellPadding="0" border="0">
+											<COLGROUP>
+												<COL width="12">
+												<COL>
+												<COL width="75">
+												<COL width="4">
+												<COL width="75">
+												<COL width="4">
+												<COL width="75">
+												<COL width="12">
+												<TR>
+													<TD class="RULE" vAlign="top" colSpan="8" height="2">
+														<TABLE height="1" cellSpacing="0" cellPadding="0" width="100%" border="0">
+															<TR vAlign="top">
+																<TD width="100%" bgColor="buttonshadow" height="1"><IMG height="1" alt="" src="../../Images/spacer.gif" width="1"></TD>
+																<TD width="1" bgColor="window" height="1"><IMG height="1" alt="" src="../../Images/spacer.gif" width="1"></TD>
+															</TR>
+														</TABLE>
+													</TD>
+												</TR>
+												<TR>
+													<TD vAlign="top" colSpan="8" height="11">&nbsp;
+													</TD>
+												</TR>
+												<TR>
+													<TD vAlign="center" width="12" height="23">&nbsp;
+													</TD>
+													<TD vAlign="top" height="23">&nbsp;
+													</TD>
+													<TD vAlign="center" width="75" height="23"><BUTTON class="BUTTONS" id="FinishBtn" accessKey="F" onclick="OnFinish(document);" type="button"><U>F</U>inish</BUTTON>
+													</TD>
+													<TD vAlign="center" width="4" height="23">&nbsp;
+													</TD>
+													<TD vAlign="center" width="75" height="23"><BUTTON class="BUTTONS" id="CancelBtn" accessKey="C" onclick="window.external.Finish(document, 'cancel');" type="button"><U>C</U>ancel</BUTTON>
+													</TD>
+													<TD vAlign="center" width="4" height="23">&nbsp;
+													</TD>
+													<TD vAlign="center" width="75" height="23"><BUTTON class="BUTTONS" id="HelpBtn" accessKey="H" onclick="InvokeInvWizardHelp();" type="button"><U>H</U>elp</BUTTON>
+													</TD>
+													<TD vAlign="center" width="12" height="23">&nbsp;
+													</TD>
+												</TR>
+												<TR>
+													<TD vAlign="top" colSpan="8" height="12">&nbsp;
+													</TD>
+												</TR>
+										</TABLE>
+										<!--CLOSE OF BUTTON HTML//--></TD>
+								</TR>
+						</TABLE>
+						<!--CLOSE OF NAVIGATION, CONTENT, AND BUTTON TABLES//--></TD>
+				</TR>
+		</TABLE>
+		<SCRIPT language="JSCRIPT">
+
+var tab_array = new Array () ;
+tab_array [0] =Main ;
+tab_array [1] =AddInTypePg ;
+tab_array [2] =AdvSettingsPg ;
+
+function InitDocument (document) {
+	setDirection () ;
+	if ( window.external.FindSymbol ('DOCUMENT_FIRST_LOAD') ) {
+		//- This function sets the default symbols based 
+		//- on the values specified in the SYMBOL tags above
+		window.external.SetDefaults (document) ;
+	}
+	//- Load the document and initialize the controls 
+	//- with the appropriate symbol values
+	window.external.Load (document) ;
+	InitControls () ;
+}
+
+function InitControls () {
+	var index =0 ;
+	if ( !window.external.FindSymbol ('ADDIN_APPTYPE') )
+		index++ ;
+	PROJTYPE.selectedIndex =index ;
+	OnProjectTypeChange () ;
+}
+
+function OnProjectTypeChange () {
+	var index =PROJTYPE.selectedIndex ;
+	switch ( index ) {
+		case 0: //- application
+			window.external.AddSymbol ('ADDIN_APPTYPE', true) ;
+			TSL_TABLE.disabled =true ;
+			break ;
+		case 1: //- translator
+			window.external.AddSymbol ('ADDIN_APPTYPE', false) ;
+			TSL_TABLE.disabled =false ;
+			break ;
+	}
+}
+
+function Next (document, linkto) {
+	window.external.Next (document, linkto) ;
+}
+
+function OnFinish (document) {
+	OnWizFinish (document) ;
+}
+
+		</SCRIPT>
+		    <SCRIPT language="JSCRIPT" id="INCLUDE_SCRIPT"></SCRIPT>
+		    <SCRIPT language="JSCRIPT" id="INCLUDE_COMMON"></SCRIPT>
+		    <SCRIPT>
+            document.scripts ("INCLUDE_SCRIPT").src =window.external.FindSymbol ("SCRIPT_COMMON_PATH") + "/Script.js" ;
+            document.scripts ("INCLUDE_COMMON").src =window.external.FindSymbol ("SCRIPT_COMMON_PATH") + "/Common.js" ;
+    		
+    	    var strPath =window.external.FindSymbol ("ABSOLUTE_PATH") ;
+	        strPath =strPath.substring (0, strPath.lastIndexOf ("\\") + 1) ;
+	        //document.scripts ("INCLUDE_INVCOMMON").src =strPath + "ArxWizCommon/arxCommon.js" ;
+		    </SCRIPT>
+	</BODY>
+</HTML>

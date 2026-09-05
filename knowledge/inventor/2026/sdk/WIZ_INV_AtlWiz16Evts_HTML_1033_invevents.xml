@@ -1,0 +1,78 @@
+<?xml version="1.0" standalone="yes" ?>
+<Events>
+	<!-- Create a tag 'Expert' to force seeing all entries -->
+	<!-- Expert/ -->
+	<event name="ApplicationEventsSink" typeint="IDispatch"/>
+	<event name="AssemblyEventsSink" typeint="IDispatch"/>
+	<event name="BalloonTipSink" typeint="IDispatch"/>
+	<event name="BrowserPaneSink" typeint="IDispatch"/>
+	<event name="BrowserPanesSink" typeint="IDispatch"/>
+    <event name="ButtonDefinitionSink" typeint="IDispatch"/>
+    <event name="CameraEventsSink" typeint="IDispatch"/>
+    <event name="ChangeDefinitionSink" typeint="IDispatch"/>
+    <event name="ChangeProcessorSink" typeint="IDispatch"/>
+	<event name="ComboBoxDefinitionSink" typeint="IDispatch"/>
+	<event name="ContentCenterDialogEventsSink" typeint="IDispatch"/>
+	<event name="ContentQuerySink" typeint="IDispatch"/>
+	<event name="DockableWindowsEventsSink" typeint="IDispatch"/>
+	<event name="DocumentEventsSink" typeint="IDispatch"/>
+	<event name="DrawingEventsSink" typeint="IDispatch"/>
+    <event name="DrawingViewEventsSink" typeint="IDispatch"/>
+	<event name="DriveConstraintSettingsSink" typeint="IDispatch"/>
+	<event name="FileAccessEventsSink" typeint="IDispatch"/>
+    <event name="FileDialogEventsSink" typeint="IDispatch"/>
+	<event name="FileManagerEventsSink" typeint="IDispatch"/>
+	<event name="FileUIEventsSink" typeint="IDispatch"/>
+	<event name="HelpEventsSink" typeint="IDispatch"/>
+	<event name="InteractionEventsSink" typeint="IDispatch"/>
+	<event name="KeyboardEventsSink" typeint="IDispatch"/>
+    <event name="MeasureEventsSink" typeint="IDispatch"/>
+	<event name="MiniToolbarSink" typeint="IDispatch"/>
+	<event name="MiniToolbarButtonSink" typeint="IDispatch"/>
+	<event name="MiniToolbarCheckBoxSink" typeint="IDispatch"/>
+	<event name="MiniToolbarComboBoxSink" typeint="IDispatch"/>
+	<event name="MiniToolbarDropdownSink" typeint="IDispatch"/>
+	<event name="MiniToolbarTextBoxSink" typeint="IDispatch"/>
+	<event name="MiniToolbarValueEditorSink" typeint="IDispatch"/>
+	<event name="ModelingEventsSink" typeint="IDispatch"/>
+	<event name="MouseEventsSink" typeint="IDispatch"/>
+	<event name="PanelBarEventsSink" typeint="IDispatch"/>
+	<event name="PartEventsSink" typeint="IDispatch"/>
+    <event name="ProgressBarSink" typeint="IDispatch"/>
+	<event name="ProjectOptionsButtonSink" typeint="IDispatch"/>
+	<event name="ReferenceKeyEventsSink" typeint="IDispatch"/>
+	<event name="RepresentationEventsSink" typeint="IDispatch"/>
+	<event name="SearchBoxEventsSink" typeint="IDispatch"/>
+	<event name="SelectEventsSink" typeint="IDispatch"/>
+	<event name="SketchEventsSink" typeint="IDispatch"/>
+	<event name="StyleEventsSink" typeint="IDispatch"/>
+	<event name="TransactionEventsSink" typeint="IDispatch"/>
+	<event name="TriadEventsSink" typeint="IDispatch"/>
+	<event name="UserInputEventsSink" typeint="IDispatch"/>
+	<event name="UserInterfaceEventsSink" typeint="IDispatch"/>
+	<event name="WebBrowserDialogEventsSink" typeint="IDispatch"/>
+
+	<event name="IRxApplicationEvents" typeint="VTable" hide='true'/>
+	<!-- event name="_IRxApplicationEvents" typeint="VTable" hide='true'/ -->
+	<event name="IRxDocumentEvents" typeint="VTable" hide='true'/>
+	<!-- event name="_IRxDocumentEvents" typeint="VTable" hide='true'/ -->
+	<event name="IRxFileAccessEvents" typeint="VTable" hide='true'/>
+	<!-- event name="_IRxFileAccessEvents" typeint="VTable" hide='true'/ -->
+	<event name="IRxFileUIEvents" typeint="VTable" hide='true'/>
+	<!-- event name="_IRxFileUIEvents" typeint="VTable" hide='true'/ -->
+	<!-- event name="_IRxInteractionEvents" typeint="VTable" hide='true'/ -->
+	<!-- event name="_IRxKeyboardEvents" typeint="VTable" hide='true'/ -->
+	<!-- event name="_IRxMouseEvents" typeint="VTable" hide='true'/ -->
+	<!-- event name="_IRxSelectEvents" typeint="VTable" hide='true'/ -->
+	<event name="IRxTransactionEvents" typeint="VTable" hide='true'/>
+	<!-- event name="_IRxTransactionEvents" typeint="VTable" hide='true'/ -->
+	<event name="IRxUserInputEvents" typeint="VTable" hide='true'/>
+	<!-- event name="_IRxUserInputEvents" typeint="VTable" hide='true'/ -->
+	<event name="_IRxViewEvents" typeint="VTable" hide='true'/>
+	
+	<!-- event name="_VbaImplementationEvents" typeint="VTable" hide='true'/ -->
+	<!-- event name="_VbaImplementationPartEvents" typeint="VTable" hide='true'/ -->
+	<!-- event name="_VbaImplementationAssemblyEvents" typeint="VTable" hide='true'/ -->
+	<!-- event name="_VbaImplementationDrawingEvents" typeint="VTable" hide='true'/ -->
+	<!-- event name="_VbaImplementationPresentationEvents" typeint="VTable" hide='true'/ -->
+</Events>

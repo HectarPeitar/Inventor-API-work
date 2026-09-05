@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Type attribute is same as Type registry key (Standard, Translator, Plugin (Server only) -->
+<Addin Type="Standard">
+
+  <ClassId>{2CDA1EC9-A800-4606-AA31-FCC77D8E3CA0}</ClassId>
+  <ClientId>{2CDA1EC9-A800-4606-AA31-FCC77D8E3CA0}</ClientId>
+  <DisplayName Language="1033">SweepFeature</DisplayName>
+  <Description>Simple addin demonstrates how to create sweep feature.</Description>
+  <Assembly>SweepFeature.dll</Assembly>
+  <SupportedSoftwareVersionGreaterThan>19..</SupportedSoftwareVersionGreaterThan>
+  <LoadAutomatically>0</LoadAutomatically>
+  <LoadOnStartUp>1</LoadOnStartUp>
+  <LoadBehavior>0</LoadBehavior>
+  <UserUnloadable>1</UserUnloadable>
+  <Hidden>0</Hidden>
+</Addin>

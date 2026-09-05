@@ -6,6 +6,8 @@ This directory stores **verified negative knowledge** about the Autodesk Invento
 
 Negative knowledge is information that was actively tested and found to be incorrect, unavailable, or invalid. It is recorded so the AI does not repeat the same failed assumption in a future task.
 
+**Central navigation for Inventor knowledge:** see `knowledge/inventor/KNOWLEDGE-MAP.md`. When an API assumption fails, check existing error knowledge here first, then the local SDK at `knowledge/inventor/2026/sdk/`.
+
 ## What belongs here
 
 - API members that were tested and confirmed not available in a given environment.

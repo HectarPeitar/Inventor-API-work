@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net8.0-windows</TargetFramework>
+    <ProjectType>Local</ProjectType>
+    <MyType>WindowsForms</MyType>
+    <AssemblyName>UOM</AssemblyName>
+	<AssemblyCompanyName>Autodesk, Inc.</AssemblyCompanyName>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>UOM.frmUOM</StartupObject>
+    <RootNamespace>UOM</RootNamespace>
+	<OutputPath>.\bin\</OutputPath>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<DocumentationFile>UOM.xml</DocumentationFile>
+	<UseWindowsForms>True</UseWindowsForms>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+     <Reference Include="Autodesk.Inventor.Interop">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+	  <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor OEM 2026\Bin')">$(programfiles)\Autodesk\Inventor OEM 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2026\Bin')">$(programfiles)\Autodesk\Inventor 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\Bin')">..\..\..\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+	  <HintPath Condition="Exists('..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion')">..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\..\References\PrimaryInterop\CurrentVersion')">..\..\..\..\..\References\PrimaryInterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+	  <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="UOM.Designer.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>UOM.vb</DependentUpon>
+    </Compile>
+    <Compile Update="UOM.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Update="UOM.resX">
+      <DependentUpon>UOM.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

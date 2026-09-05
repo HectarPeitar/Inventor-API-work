@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="iPart"
+                      version="1.0.0.0" />
+  <file name="iPart.dll">
+    <!---->
+    <comClass clsid="{8E260182-B94B-40DE-8661-DCA8E70600E0}" />
+  </file>
+</assembly>

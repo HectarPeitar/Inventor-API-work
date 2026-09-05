@@ -1,0 +1,10 @@
+; GraphicsTestAddIn.def : Declares the module parameters for the DLL.
+
+LIBRARY      "ClientGraphics"
+; DESCRIPTION  'ClientGraphics Windows Dynamic Link Library'
+
+EXPORTS
+	DllCanUnloadNow      PRIVATE
+	DllGetClassObject    PRIVATE
+	DllRegisterServer    PRIVATE
+	DllUnregisterServer	 PRIVATE

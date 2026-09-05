@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Type attribute is same as Type registry key (Standard, Translator, Plugin (Server only) -->
+<Addin Type="Translator">
+  <ClassId>{246084E3-F374-11D3-853D-0060B0F0B5B7}</ClassId>
+  <ClientId>{246084E3-F374-11D3-853D-0060B0F0B5B7}</ClientId>
+  <DisplayName Language="1033">Translator Sample</DisplayName>
+  <Description>Simple addin demonstrates how to use the Inventor API to integrate a file translator.</Description>
+  <Assembly>Translator.dll</Assembly>
+  <FileExtensions>.tsx;*.thtsx</FileExtensions>
+  <FilterText Language="1033">TSX Files (*.tsx;*.thtsx)</FilterText>
+  <SupportsOpenInto>.ipt</SupportsOpenInto>
+  <SupportsImportInto>.ipt</SupportsImportInto>
+  <SupportsSaveCopyAs>1</SupportsSaveCopyAs>
+  <SupportsSaveCopyAsFrom>.ipt</SupportsSaveCopyAsFrom>
+  <SupportsOpen>1</SupportsOpen>
+  <SupportsImport>1</SupportsImport>	  
+  <SupportsSaveCopyAs>1</SupportsSaveCopyAs> 
+  <TranslatorAvailable>1</TranslatorAvailable>
+  <SupportedSoftwareVersionGreaterThan>19..</SupportedSoftwareVersionGreaterThan>
+  <LoadOnStartUp>0</LoadOnStartUp>
+  <Hidden>0</Hidden>
+  <ExtraInfo>1</ExtraInfo>
+</Addin>

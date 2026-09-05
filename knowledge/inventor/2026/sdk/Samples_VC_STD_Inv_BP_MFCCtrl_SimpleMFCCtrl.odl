@@ -1,0 +1,72 @@
+// SIMPLEMFCCONTROL.odl : type library source for ActiveX Control project.
+
+// This file will be processed by the Make Type Library (mktyplib) tool to
+// produce the type library (SIMPLEMFCCONTROL.tlb) that will become a resource in
+// SIMPLEMFCCONTROL.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(E230D8E9-C189-49AA-A932-01B5F43507EB), version(1.0),
+  helpfile("SIMPLEMFCCONTROL.hlp"),
+  helpstring("SIMPLEMFCCONTROL ActiveX Control module"),
+  control ]
+library SIMPLEMFCCONTROLLib
+{
+	importlib(STDOLE_TLB);
+	importlib(STDTYPE_TLB);
+
+	//  Primary dispatch interface for CSIMPLEMFCCONTROLCtrl
+
+	[ uuid(EA9F39CD-0356-4F7C-8DA8-DE913DB64D99),
+	  helpstring("Dispatch interface for SIMPLEMFCCONTROL Control"), hidden ]
+	dispinterface _DSIMPLEMFCCONTROL
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CSIMPLEMFCCONTROLCtrl)
+			//}}AFX_ODL_PROP
+
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CSIMPLEMFCCONTROLCtrl)
+			[id(1)] boolean AddText(BSTR text);
+			[id(2)] void Clear();
+			//}}AFX_ODL_METHOD
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+	};
+
+	//  Event dispatch interface for CSIMPLEMFCCONTROLCtrl
+
+	[ uuid(B1A2EFBE-A44E-4A40-A4CA-801685A6A624),
+	  helpstring("Event interface for SIMPLEMFCCONTROL Control") ]
+	dispinterface _DSIMPLEMFCCONTROLEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+			// NOTE - ClassWizard will maintain event information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_EVENT(CSIMPLEMFCCONTROLCtrl)
+			[id(1)] void ContentChanged();
+			//}}AFX_ODL_EVENT
+	};
+
+	//  Class information for CSIMPLEMFCCONTROLCtrl
+
+	[ uuid(50CCD357-FA53-42B6-8B06-C5D6AB37CDBF),
+	  helpstring("SIMPLEMFCCONTROL Control"), control ]
+	coclass SIMPLEMFCCONTROL
+	{
+		[default] dispinterface _DSIMPLEMFCCONTROL;
+		[default, source] dispinterface _DSIMPLEMFCCONTROLEvents;
+	};
+
+
+	//{{AFX_APPEND_ODL}}
+	//}}AFX_APPEND_ODL}}
+};

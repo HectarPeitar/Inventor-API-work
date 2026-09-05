@@ -1,0 +1,14 @@
+<Addin Type="Standard">
+  <!--Created for Autodesk Inventor Version 18.0-->
+  <ClassId>{13b1419e-168c-4634-9475-af21bc2f36e7}</ClassId>
+  <ClientId>{13b1419e-168c-4634-9475-af21bc2f36e7}</ClientId>
+  <DisplayName>TextClientGraphics</DisplayName>
+  <Description>TextClientGraphics</Description>
+  <Assembly>TextClientGraphics.dll</Assembly>
+  <LoadOnStartUp>1</LoadOnStartUp>
+  <UserUnloadable>1</UserUnloadable>
+  <Hidden>0</Hidden>
+  <SupportedSoftwareVersionGreaterThan>17..</SupportedSoftwareVersionGreaterThan>
+  <DataVersion>1</DataVersion>
+  <UserInterfaceVersion>1</UserInterfaceVersion>
+</Addin>

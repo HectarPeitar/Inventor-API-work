@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+<assemblyIdentity name="Analyze" version="1.0.0.0" processorArchitecture="msil"></assemblyIdentity>
+
+<clrClass clsid="{AFEBDB0D-C529-4f55-94E7-E7B87807F5A4}" progid="Analyze.StandardAddInServer" threadingModel="Both" name="Analyze.StandardAddInServer" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{9913EBD7-C32D-383B-8FBF-19D738DE8E10}" progid="Analyze.AddInRegistration" threadingModel="Both" name="Analyze.AddInRegistration" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{F1E84814-B8C9-3AE1-9CA9-EC663B10626C}" progid="Analyze.ImageToPictureConverter" threadingModel="Both" name="Analyze.ImageToPictureConverter" runtimeVersion=""></clrClass>
+
+<file name="Analyze.dll" hashalg="SHA1"></file>
+
+</assembly>

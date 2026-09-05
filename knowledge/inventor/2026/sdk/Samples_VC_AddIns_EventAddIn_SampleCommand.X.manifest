@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="SampleCommand"
+                      version="1.0.0.0" />
+  <file name="SampleCommand.dll">
+    <!---->
+    <comClass clsid="{436DE7CF-3CB3-4032-BB7E-A581E8BC47CF}" />
+    <comClass clsid="{D2864462-B9F5-491C-983F-D4902764328C}" />
+    <typelib tlbid="{E3953FB2-6ADB-4CC5-8871-748A59DCE388}"
+       version="1.0" helpdir=""/>
+  </file>
+</assembly>

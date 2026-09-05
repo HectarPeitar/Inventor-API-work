@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="iMateSampleAddin"
+                      version="1.0.0.0" />
+  <file name="iMateSampleAddin.dll">
+    <!---->
+    <comClass clsid="{D298E4CE-3D9F-4306-A667-A9CE578B9ED4}" />
+    <typelib tlbid="{563518A9-B4AB-49F5-BC6F-CB4CDB55654C}"
+       version="1.0" helpdir=""/>
+  </file>
+</assembly>

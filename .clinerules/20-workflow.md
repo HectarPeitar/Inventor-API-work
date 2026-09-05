@@ -52,8 +52,15 @@ Prefer reuse over duplication.
 
 Search the most relevant knowledge sources.
 
+Start from the central Knowledge Map:
+
+* `knowledge/inventor/KNOWLEDGE-MAP.md`
+
+For Inventor API questions, prefer local Inventor 2026 SDK sources before general model knowledge or web search.
+
 For iLogic:
 
+* `knowledge/inventor/2026/ilogic.md`
 * `knowledge/ilogic.md`
 * `knowledge/parameters.md`
 * `knowledge/units.md`
@@ -65,10 +72,21 @@ For Add-ins:
 
 For object relationships:
 
+* `knowledge/inventor/2026/object-model.md`
 * `knowledge/object-model.md`
 * relevant domain-specific knowledge
 
+For topic-to-SDK-source mapping:
+
+* `knowledge/inventor/2026/API-SOURCE-MAP.md`
+
+For sample lookup:
+
+* `knowledge/inventor/2026/SAMPLE-INDEX.md`
+
 Do not load unrelated knowledge.
+
+Do not scan the entire SDK for every task — start from the Knowledge Map and follow the most relevant source path.
 
 ---
 
@@ -100,6 +118,17 @@ For every unfamiliar API member:
 5. Verify object/context requirements.
 6. Verify target Inventor version.
 7. Check for an existing tested implementation.
+
+Source order for verification (prefer local sources first):
+
+1. `knowledge/inventor/KNOWLEDGE-MAP.md`
+2. Curated knowledge (`knowledge/inventor/2026/*.md`)
+3. Relevant local SDK source (`knowledge/inventor/2026/sdk/`)
+4. `knowledge/errors/`
+5. `tested/`
+6. Autodesk web documentation only when local evidence is insufficient
+
+Do not guess API members.
 
 Do not rely on guessed member names.
 

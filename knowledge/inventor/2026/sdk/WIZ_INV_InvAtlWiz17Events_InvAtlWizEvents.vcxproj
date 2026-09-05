@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <IntDir>R:\Intermediate\$(Configuration)\$(Platform)\XInterface\InventorSDK\Source\DeveloperTools\Tools\Wizards\Visual Studio 17x Wizards\VC\InvAtlWiz17Events\InvAtlWizEvents\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{751F72C5-0F58-4116-9CBB-B5B921D555D2}</ProjectGuid>
+    <RootNamespace>InvAtlWizEvents</RootNamespace>
+    <Keyword>CustomAppWizProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</OutDir>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Templates\1033\ApplicationEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\AssemblyEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\BrowserPaneSink.cpp" />
+    <ClCompile Include="Templates\1033\BrowserPanesSink.cpp" />
+    <ClCompile Include="Templates\1033\ButtonDefinitionSink.cpp" />
+    <ClCompile Include="Templates\1033\ChangeDefinitionSink.cpp" />
+    <ClCompile Include="Templates\1033\ChangeProcessorSink.cpp" />
+    <ClCompile Include="Templates\1033\ComboBoxDefinitionSink.cpp" />
+    <ClCompile Include="Templates\1033\ContentCenterDialogEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\ContentQuerySink.cpp" />
+    <ClCompile Include="Templates\1033\DocumentEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\DrawingEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\DrawingViewEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\FileAccessEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\FileDialogEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\FileManagerEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\FileUIEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\InteractionEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\IRxApplicationEvents.cpp" />
+    <ClCompile Include="Templates\1033\IRxDocumentEvents.cpp" />
+    <ClCompile Include="Templates\1033\IRxFileAccessEvents.cpp" />
+    <ClCompile Include="Templates\1033\IRxFileUIEvents.cpp" />
+    <ClCompile Include="Templates\1033\IRxTransactionEvents.cpp" />
+    <ClCompile Include="Templates\1033\IRxUserInputEvents.cpp" />
+    <ClCompile Include="Templates\1033\IRxViewEvents.cpp" />
+    <ClCompile Include="Templates\1033\KeyboardEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\MeasureEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\MiniToolbarTextBoxSink.cpp" />
+    <ClCompile Include="Templates\1033\ModelingEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\MouseEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\object.cpp" />
+    <ClCompile Include="Templates\1033\PanelBarEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\PartEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\ProgressBarSink.cpp" />
+    <ClCompile Include="Templates\1033\RepresentationEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\SearchBoxEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\SelectEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\SketchEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\StyleEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\TransactionEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\TriadEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\UserInputEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\UserInterfaceEventsSink.cpp" />
+    <ClCompile Include="Templates\1033\WebBrowserDialogEventsSink.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Templates\1033\ApplicationEventsSink.h" />
+    <ClInclude Include="Templates\1033\AssemblyEventsSink.h" />
+    <ClInclude Include="Templates\1033\BrowserPaneSink.h" />
+    <ClInclude Include="Templates\1033\BrowserPanesSink.h" />
+    <ClInclude Include="Templates\1033\ButtonDefinitionSink.h" />
+    <ClInclude Include="Templates\1033\ChangeDefinitionSink.h" />
+    <ClInclude Include="Templates\1033\ChangeProcessorSink.h" />
+    <ClInclude Include="Templates\1033\ComboBoxDefinitionSink.h" />
+    <ClInclude Include="Templates\1033\connpt.h" />
+    <ClInclude Include="Templates\1033\ContentCenterDialogEventsSink.h" />
+    <ClInclude Include="Templates\1033\ContentQuerySink.h" />
+    <ClInclude Include="Templates\1033\DocumentEventsSink.h" />
+    <ClInclude Include="Templates\1033\DrawingEventsSink.h" />
+    <ClInclude Include="Templates\1033\DrawingViewEventsSink.h" />
+    <ClInclude Include="Templates\1033\FileAccessEventsSink.h" />
+    <ClInclude Include="Templates\1033\FileDialogEventsSink.h" />
+    <ClInclude Include="Templates\1033\FileManagerEventsSink.h" />
+    <ClInclude Include="Templates\1033\FileUIEventsSink.h" />
+    <ClInclude Include="Templates\1033\InteractionEventsSink.h" />
+    <ClInclude Include="Templates\1033\IRxApplicationEvents.h" />
+    <ClInclude Include="Templates\1033\IRxDocumentEvents.h" />
+    <ClInclude Include="Templates\1033\IRxFileAccessEvents.h" />
+    <ClInclude Include="Templates\1033\IRxFileUIEvents.h" />
+    <ClInclude Include="Templates\1033\IRxTransactionEvents.h" />
+    <ClInclude Include="Templates\1033\IRxUserInputEvents.h" />
+    <ClInclude Include="Templates\1033\IRxViewEvents.h" />
+    <ClInclude Include="Templates\1033\KeyboardEventsSink.h" />
+    <ClInclude Include="Templates\1033\MeasureEventsSink.h" />
+    <ClInclude Include="Templates\1033\MiniToolbarTextBoxSink.h" />
+    <ClInclude Include="Templates\1033\ModelingEventsSink.h" />
+    <ClInclude Include="Templates\1033\MouseEventsSink.h" />
+    <ClInclude Include="Templates\1033\object.h" />
+    <ClInclude Include="Templates\1033\PanelBarEventsSink.h" />
+    <ClInclude Include="Templates\1033\PartEventsSink.h" />
+    <ClInclude Include="Templates\1033\ProgressBarSink.h" />
+    <ClInclude Include="Templates\1033\RepresentationEventsSink.h" />
+    <ClInclude Include="Templates\1033\SearchBoxEventsSink.h" />
+    <ClInclude Include="Templates\1033\SelectEventsSink.h" />
+    <ClInclude Include="Templates\1033\SketchEventsSink.h" />
+    <ClInclude Include="Templates\1033\StyleEventsSink.h" />
+    <ClInclude Include="Templates\1033\TransactionEventsSink.h" />
+    <ClInclude Include="Templates\1033\TriadEventsSink.h" />
+    <ClInclude Include="Templates\1033\UserInputEventsSink.h" />
+    <ClInclude Include="Templates\1033\UserInterfaceEventsSink.h" />
+    <ClInclude Include="Templates\1033\WebBrowserDialogEventsSink.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="Templates\1033\objco.idl" />
+    <Midl Include="Templates\1033\objint.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Others\inventor.vsdir" />
+    <None Include="Others\InvEvents.vsz" />
+    <None Include="Templates\1033\object.rgs" />
+    <None Include="HTML\1033\default.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="HTML\1033\invevents.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="HTML\1033\invevents.xml" />
+    <None Include="HTML\1033\options.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Images\InvEvents.gif" />
+    <None Include="Images\InvEventsBG.gif" />
+    <None Include="Scripts\1033\default.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Others\InvEvents.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

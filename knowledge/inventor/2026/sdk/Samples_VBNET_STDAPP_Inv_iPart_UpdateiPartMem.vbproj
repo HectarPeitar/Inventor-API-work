@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net8.0-windows</TargetFramework>
+    <ProjectType>Local</ProjectType>
+    <MyType>WindowsForms</MyType>
+    <AssemblyName>UpdateiPartMembers</AssemblyName>
+	<AssemblyCompanyName>Autodesk, Inc.</AssemblyCompanyName>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>UpdateiPartMembers.Form1</StartupObject>
+    <RootNamespace>UpdateiPartMembers</RootNamespace>
+	<OutputPath>.\bin\</OutputPath>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<DocumentationFile>UpdateiPartMembers.xml</DocumentationFile>
+    <UseWindowsForms>True</UseWindowsForms>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autodesk.Inventor.Interop">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+	  <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor OEM 2026\Bin')">$(programfiles)\Autodesk\Inventor OEM 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2026\Bin')">$(programfiles)\Autodesk\Inventor 2026\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\Bin')">..\..\..\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+	  <HintPath Condition="Exists('..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion')">..\..\..\InventorSDK\Source\DeveloperTools\References\primaryinterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\..\References\PrimaryInterop\CurrentVersion')">..\..\..\..\..\References\PrimaryInterop\CurrentVersion\Autodesk.Inventor.Interop.dll</HintPath>
+	  <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="UpdateiPartMem.Designer.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>UpdateiPartMem.vb</DependentUpon>
+    </Compile>
+    <Compile Update="UpdateiPartMem.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Update="UpdateiPartMem.resX">
+      <DependentUpon>UpdateiPartMem.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Update="My Project\" />
+  </ItemGroup>
+</Project>

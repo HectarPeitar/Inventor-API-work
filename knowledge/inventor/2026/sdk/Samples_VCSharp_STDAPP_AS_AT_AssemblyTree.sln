@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 14.00
+# Visual Studio 2015
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssemblyTreeCS", "AssemblyTreeCS.csproj", "{06035203-0DD0-4F47-A9AA-98A738BBAB5A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{06035203-0DD0-4F47-A9AA-98A738BBAB5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06035203-0DD0-4F47-A9AA-98A738BBAB5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06035203-0DD0-4F47-A9AA-98A738BBAB5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06035203-0DD0-4F47-A9AA-98A738BBAB5A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,121 @@
+//-----------------------------------------------------------------------------
+//----- CustomUI.idl : IDL source for CustomUI.dll
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//----- This file will be processed by the MIDL tool to
+//----- produce the type library (CustomUI.tlb) and marshalling code.
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(ADAF3CA1-0685-4A54-B452-870CB1FF2F4C),
+		helpstring("ICustomUIAddInServer Interface"),
+		pointer_default(unique)
+	]
+	/*interface ICustomUIAddInServer : IUnknown
+	{
+	};*/
+	interface ICustomUIAddInServer : IDispatch
+	{
+		[id(1)] HRESULT Activate([in] IDispatch * pDisp, [in] VARIANT_BOOL FirstTime);
+		[id(2)] HRESULT Deactivate();
+		[id(3)] HRESULT ExecuteCommand([in] long CommandID);
+		[propget, id(4)] HRESULT Automation([out, retval] IDispatch * * Result);
+	};
+/*
+	[
+		object,
+		uuid(968D02C3-DD6E-4B95-B173-25F694837D8D),
+		dual,
+		helpstring("ICmdHandler1 Interface"),
+		pointer_default(unique)
+	]
+	interface ICmdHandler1 : IDispatch
+	{
+	};
+	[
+		object,
+		uuid(062A5EA5-7E5B-4156-BBFE-CDCC4812F9FF),
+		dual,
+		helpstring("ICmdHandler2 Interface"),
+		pointer_default(unique)
+	]
+	interface ICmdHandler2 : IDispatch
+	{
+	};
+	[
+		object,
+		uuid(AE8513D1-4064-44D2-BEE7-4686C336C5E5),
+		dual,
+		helpstring("ICmdHandler3 Interface"),
+		pointer_default(unique)
+	]
+	interface ICmdHandler3 : IDispatch
+	{
+	};
+	[
+		object,
+		uuid(BD6208FC-E360-4BFF-A7A2-94F37C0BFF5A),
+		dual,
+		helpstring("ICmdHandler4 Interface"),
+		pointer_default(unique)
+	]
+	interface ICmdHandler4 : IDispatch
+	{
+	};
+*/
+[
+	uuid(3EC5746A-E0AE-49F7-9A77-E6F6527A5D18),
+	version(1.0),
+	helpstring("CustomUI 1.0 Type Library")
+]
+library CustomUILib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(B6CD8174-8817-4AF2-9561-C0F273ABF5D8),
+		helpstring("CustomUIAddInServer Class")
+	]
+	coclass CustomUIAddInServer
+	{
+		[default] interface ICustomUIAddInServer;
+	};
+/*
+	[
+		uuid(C2281A66-FD18-4F9A-B917-E0BB648FFA8E),
+		helpstring("CmdHandler1 Class")
+	]
+	coclass CmdHandler1
+	{
+		[default] interface ICmdHandler1;
+	};
+	[
+		uuid(077005DC-5F69-49FD-8503-AA54BB45FB8B),
+		helpstring("CmdHandler2 Class")
+	]
+	coclass CmdHandler2
+	{
+		[default] interface ICmdHandler2;
+	};
+	[
+		uuid(E680505F-7CB1-41A9-BF3D-E52C3AD2CC8F),
+		helpstring("CmdHandler3 Class")
+	]
+	coclass CmdHandler3
+	{
+		[default] interface ICmdHandler3;
+	};
+	[
+		uuid(79D0EE08-DB72-43DF-80C6-047743D1D35B),
+		helpstring("CmdHandler4 Class")
+	]
+	coclass CmdHandler4
+	{
+		[default] interface ICmdHandler4;
+	};
+*/
+};

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+     <!-- Type attribute is same as Type registry key (Standard, Translator, Plugin (Server only) -->
+     <Addin Type="Standard">
+     <ClassId>{140918FF-668A-435a-BD5E-57EF81CA5C5D}</ClassId>
+     <ClientId>{140918FF-668A-435a-BD5E-57EF81CA5C5D}</ClientId>
+
+     <!-- Both of the following fields should be translated. NO OTHER FIELDS SHOULD BE TRANSLATED! -->
+     <DisplayName>CustomCommand</DisplayName>
+     <Description>CustomCommand</Description>
+
+     <!-- Assumes that CustomCommand.dll is underneath Inventor\bin -->
+     <Assembly>CustomCommand.dll</Assembly>
+
+     <SupportedSoftwareVersionGreaterThan>29..</SupportedSoftwareVersionGreaterThan>
+     <LoadOnStartUp>1</LoadOnStartUp>
+     <Hidden>0</Hidden>
+     </Addin>
+

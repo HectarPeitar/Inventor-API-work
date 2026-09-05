@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 14.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SweepFeature", "SweepFeature.vcxproj", "{D9305EFE-85BF-49A1-97F5-84D091F1E66C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Optimize|Win32 = Optimize|Win32
+		Optimize|x64 = Optimize|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9305EFE-85BF-49A1-97F5-84D091F1E66C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D9305EFE-85BF-49A1-97F5-84D091F1E66C}.Debug|Win32.Build.0 = Debug|Win32
+		{D9305EFE-85BF-49A1-97F5-84D091F1E66C}.Debug|x64.ActiveCfg = Debug|x64
+		{D9305EFE-85BF-49A1-97F5-84D091F1E66C}.Debug|x64.Build.0 = Debug|x64
+		{D9305EFE-85BF-49A1-97F5-84D091F1E66C}.Optimize|Win32.ActiveCfg = Optimize|Win32
+		{D9305EFE-85BF-49A1-97F5-84D091F1E66C}.Optimize|Win32.Build.0 = Optimize|Win32
+		{D9305EFE-85BF-49A1-97F5-84D091F1E66C}.Optimize|x64.ActiveCfg = Optimize|x64
+		{D9305EFE-85BF-49A1-97F5-84D091F1E66C}.Optimize|x64.Build.0 = Optimize|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+  <assemblyIdentity name="FeatureStatistics" version="1.0.0.0"></assemblyIdentity>
+
+  <clrClass clsid="{59a37f44-fccf-4769-9f87-ff14583fc492}" progid="FeatureStatistics.StandardAddInServer" threadingModel="Both" name="FeatureStatistics.FeatureStatistics.StandardAddInServer" runtimeVersion=""></clrClass>
+
+  <file name="FeatureStatistics.dll" hashalg="SHA1"></file>
+
+</assembly>

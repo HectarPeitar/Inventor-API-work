@@ -1,0 +1,44 @@
+//-----------------------------------------------------------------------------
+//----- CustomCommand.idl : IDL source for CustomCommand.dll
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//----- This file will be processed by the MIDL tool to
+//----- produce the type library (CustomCommand.tlb) and marshalling code.
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(F5B53DA9-D0DC-4EAE-A786-33F26087069D),
+		dual,
+		helpstring("ICustomCommandAddInServer Interface"),
+		pointer_default(unique)
+	]
+	interface ICustomCommandAddInServer : IDispatch
+	{
+		[id(0x03001201)] HRESULT Activate([in] IDispatch * pDisp, [in] VARIANT_BOOL FirstTime);
+		[id(0x03001202)] HRESULT Deactivate();
+		[id(0x03001203)] HRESULT ExecuteCommand([in] long CommandID);
+		[propget, id(0x03001204)] HRESULT Automation([out, retval] IDispatch * * Result);
+	};
+	
+[
+	uuid(3E80DCBB-4BA5-4D52-80CA-72F62C115638),
+	version(1.0),
+	helpstring("CustomCommand 1.0 Type Library")
+]
+library CustomCommandLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(05CC5326-B165-483A-8A2A-4B52B7A54BEF),
+		helpstring("CustomCommandAddInServer Class")
+	]
+	coclass CustomCommandAddInServer
+	{
+		[default] interface ICustomCommandAddInServer;
+	};
+};

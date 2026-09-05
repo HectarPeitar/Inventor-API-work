@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="ClientGraphics"
+                      version="1.0.0.0" />
+  <file name="ClientGraphics.dll">
+    <!---->
+    <comClass clsid="{E985C31C-56BF-11d5-8E36-0010B547BBF8}" />
+  </file>
+</assembly>

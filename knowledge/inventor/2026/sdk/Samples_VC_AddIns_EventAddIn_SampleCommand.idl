@@ -1,0 +1,55 @@
+
+	// SampleCommand.idl : IDL source for SampleCommand.exe
+//
+// This file will be processed by the MIDL tool to
+// produce the type library (SampleCommand.tlb) and marshalling code.
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(D6283162-1026-46B5-801D-CA47DDDECA89),
+		dual,
+		helpstring("ISelectEventHandler Interface"),
+		pointer_default(unique)
+	]
+	interface ISelectEventHandler : IDispatch
+	{
+	};
+	[
+		object,
+		uuid(74FD85D4-C442-4119-A4BE-E934B6824DA6),
+		dual,
+		helpstring("IInteractionEventHandler Interface"),
+		pointer_default(unique)
+	]
+	interface IInteractionEventHandler : IDispatch
+	{
+	};
+[
+	uuid(E3953FB2-6ADB-4CC5-8871-748A59DCE388),
+	version(1.0),
+	helpstring("SampleCommand 1.0 Type Library")
+]
+library SampleCommandLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+	[
+		uuid(436DE7CF-3CB3-4032-BB7E-A581E8BC47CF),
+		helpstring("SelectEventHandler Class")
+	]
+	coclass SelectEventHandler
+	{
+		[default] interface ISelectEventHandler;
+	};
+	[
+		uuid(D2864462-B9F5-491C-983F-D4902764328C),
+		helpstring("InteractionEventHandler Class")
+	]
+	coclass InteractionEventHandler
+	{
+		[default] interface IInteractionEventHandler;
+	};
+};
+
+	

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="Translator"
+                      version="1.0.0.0" />
+  <file name="Translator.dll">
+    <!---->
+    <comClass clsid="{246084E3-F374-11D3-853D-0060B0F0B5B7}" />
+  </file>
+</assembly>

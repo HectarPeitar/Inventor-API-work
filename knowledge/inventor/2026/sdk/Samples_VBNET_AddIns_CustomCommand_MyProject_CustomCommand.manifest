@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+<assemblyIdentity name="CustomCommand" version="1.0.3847.23359" processorArchitecture="msil"></assemblyIdentity>
+
+<clrClass clsid="{D7D54695-7FBE-4968-A0DD-B86FA4D59AE5}" progid="CustomCommand.AddInServer" threadingModel="Both" name="CustomCommand.CustomCommandAddInServer" runtimeVersion=""></clrClass>
+
+<file name="CustomCommand.dll" hashalg="SHA1"></file>
+
+</assembly>

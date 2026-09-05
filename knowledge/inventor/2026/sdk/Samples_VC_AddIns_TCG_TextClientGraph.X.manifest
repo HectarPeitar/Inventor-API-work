@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="TextClientGraph"
+                      version="1.0.0.0" />
+  <file name="TextClientGraph.dll">
+    <!---->
+    <comClass clsid="{9F605F71-7683-43D7-946A-523DCD9255D3}" />
+    <typelib tlbid="{54B120D8-3FA8-469D-A088-1DD332A87008}"
+       version="1.0" helpdir=""/>
+  </file>
+</assembly>

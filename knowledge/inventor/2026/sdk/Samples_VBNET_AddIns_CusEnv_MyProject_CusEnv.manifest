@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+<assemblyIdentity name="CustomEnvironment" version="1.0.0.0" ></assemblyIdentity>
+
+<clrClass clsid="{A0CC5D86-D345-461f-9E9D-35C5F699D2CB}" progid="CustomEnvAddIn.StandardAddInServer" threadingModel="Both" name="CustomEnvironment.clsCustomEnvAddIn" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{FDD3D5BC-EE1A-3E60-AB14-C4837E214190}" progid="CustomEnvironment.AddInRegistration" threadingModel="Both" name="CustomEnvironment.AddInRegistration" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{8842CF7C-0BEA-3642-A7F6-B3E6C5CC08D1}" progid="CustomEnv.ApplicationEvts" threadingModel="Both" name="CustomEnvironment.clsApplicationEvts" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{6429F30C-66CA-3469-9B68-B2E3B56D06A0}" progid="clsCustomBrowserPane_NET.clsCustomBrowserPane" threadingModel="Both" name="CustomEnvironment.clsCustomBrowserPane" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{A744DA02-1FC3-395B-BF78-0DC409660B71}" progid="CustomEnv.Interaction" threadingModel="Both" name="CustomEnvironment.clsInteraction" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{FC478B92-6802-34A5-BDC3-B5F5CFCAED21}" progid="CustomEnvironment.ImageToPictureConverter" threadingModel="Both" name="CustomEnvironment.ImageToPictureConverter" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{D0E89DC6-06E1-32B8-9D92-055ECE044CB8}" progid="CustomEnv.UserInputEvts" threadingModel="Both" name="CustomEnvironment.clsUserInputEvts" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{C8822B10-3CFA-311D-9627-23D0E8C7DEA5}" progid="CustomEnv.UserInterfaceEvts" threadingModel="Both" name="CustomEnvironment.clsUserInterfaceEvts" runtimeVersion=""></clrClass>
+
+<file name="CustomEnvironment.dll" hashalg="SHA1"></file>
+
+</assembly>

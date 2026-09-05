@@ -1,0 +1,45 @@
+//-----------------------------------------------------------------------------
+//----- iMateSampleAddin.idl : IDL source for iMateSampleAddin.dll
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//----- This file will be processed by the MIDL tool to
+//----- produce the type library (iMateSampleAddin.tlb) and marshalling code.
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(D6DC0ED8-A9BE-48A6-942D-6464C2B36EEE),
+		dual,
+		helpstring("IiMateSampleAddinAddInServer Interface"),
+		pointer_default(unique)
+	]
+	interface IiMateSampleAddinAddInServer : IDispatch
+	{
+		[id(0x03001201)] HRESULT Activate([in] IDispatch * pDisp, [in] VARIANT_BOOL FirstTime);
+		[id(0x03001202)] HRESULT Deactivate();
+		[id(0x03001203)] HRESULT ExecuteCommand([in] long CommandID);
+		[propget, id(0x03001204)] HRESULT Automation([out, retval] IDispatch * * Result);
+	};
+
+[
+	uuid(563518A9-B4AB-49F5-BC6F-CB4CDB55654C),
+	version(1.0),
+	helpstring("iMateSampleAddin 1.0 Type Library")
+]
+library iMateSampleAddinLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(D298E4CE-3D9F-4306-A667-A9CE578B9ED4),
+		helpstring("iMateSampleAddinAddInServer Class")
+	]
+	coclass iMateSampleAddinAddInServer
+	{
+		[default] interface IiMateSampleAddinAddInServer;
+	};
+
+};

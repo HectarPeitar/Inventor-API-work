@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+  <assemblyIdentity name="ScanDrawingViews" version="1.0.0.0"></assemblyIdentity>
+
+  <clrClass clsid="{b11d00bf-8671-474e-b698-03e5478c8a1e}" progid="ScanDrawingViews.StandardAddInServer" threadingModel="Both" name="ScanDrawingViews.ScanDrawingViews.StandardAddInServer" runtimeVersion=""></clrClass>
+
+  <file name="ScanDrawingViews.dll" hashalg="SHA1"></file>
+
+</assembly>

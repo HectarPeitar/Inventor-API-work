@@ -1,0 +1,45 @@
+//-----------------------------------------------------------------------------
+//----- TextClientGraph.idl : IDL source for TextClientGraph.dll
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//----- This file will be processed by the MIDL tool to
+//----- produce the type library (TextClientGraph.tlb) and marshalling code.
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(2D2A5075-028A-4601-98A8-F01F115FAF40),
+		dual,
+		helpstring("ITextClientGraphAddInServer Interface"),
+		pointer_default(unique)
+	]
+	interface ITextClientGraphAddInServer : IDispatch
+	{
+		[id(0x03001201)] HRESULT Activate([in] IDispatch * pDisp, [in] VARIANT_BOOL FirstTime);
+		[id(0x03001202)] HRESULT Deactivate();
+		[id(0x03001203)] HRESULT ExecuteCommand([in] long CommandID);
+		[propget, id(0x03001204)] HRESULT Automation([out, retval] IDispatch * * Result);
+	};
+
+[
+	uuid(54B120D8-3FA8-469D-A088-1DD332A87008),
+	version(1.0),
+	helpstring("TextClientGraph 1.0 Type Library")
+]
+library TextClientGraphLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(9F605F71-7683-43D7-946A-523DCD9255D3),
+		helpstring("TextClientGraphAddInServer Class")
+	]
+	coclass TextClientGraphAddInServer
+	{
+		[default] interface ITextClientGraphAddInServer;
+	};
+
+};

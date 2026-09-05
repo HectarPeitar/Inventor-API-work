@@ -1,0 +1,27 @@
+HKCR
+{
+	InventorThumbnailView.ThumbnailProvid.1 = s 'ThumbnailProvider Class'
+	{
+		CLSID = s '{48F58AFF-B7A9-4C8E-8E80-F9C57DDC66F8}'
+	}
+	InventorThumbnailView.ThumbnailProvider = s 'ThumbnailProvider Class'
+	{
+		CLSID = s '{48F58AFF-B7A9-4C8E-8E80-F9C57DDC66F8}'
+		CurVer = s 'InventorThumbnailView.ThumbnailProvid.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {48F58AFF-B7A9-4C8E-8E80-F9C57DDC66F8} = s 'ThumbnailProvider Class'
+		{
+			ProgID = s 'InventorThumbnailView.ThumbnailProvid.1'
+			VersionIndependentProgID = s 'InventorThumbnailView.ThumbnailProvider'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DDA4CB63-BD36-413E-B0DB-9CC6F92BFD58}'
+		}
+	}
+}

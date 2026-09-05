@@ -6,6 +6,10 @@ This directory contains technical knowledge about Autodesk Inventor and its APIs
 
 The information is intended to give the AI a stable technical foundation when creating or modifying Inventor automation.
 
+**Primary navigation for Inventor knowledge:** see `knowledge/inventor/KNOWLEDGE-MAP.md`.
+
+The complete Autodesk Inventor 2026 SDK is stored at `knowledge/inventor/2026/sdk/` and is treated as raw authoritative source material. Curated interpretation files live in `knowledge/inventor/2026/`.
+
 ---
 
 ## What belongs here?

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity   type="win32"
+                      name="loftWithRailings"
+                      version="1.0.0.0" />
+  <file name="loftWithRailings.dll">
+    <!---->
+    <comClass clsid="{37E7CBC7-F0F7-455B-85B4-668E0674C9DE}" />
+    <typelib tlbid="{F978267A-3828-4A0B-B113-73A810B32B30}"
+       version="1.0" helpdir=""/>
+  </file>
+</assembly>

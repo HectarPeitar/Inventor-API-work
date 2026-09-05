@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+<assemblyIdentity name="AnalyzeControl" version="1.0.0.0" processorArchitecture="msil"></assemblyIdentity>
+
+<clrClass clsid="{EC7DD335-B41B-36E5-9211-1EF11BB527B7}" progid="AnalyzeControl.BrowserControl" threadingModel="Both" name="AnalyzeControl.BrowserControl" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{B839DCE5-A22B-37E2-8B21-E07798664EB6}" progid="ShowHideResultCurvesEventArgs_NET.ShowHideResultCurvesEventArgs" threadingModel="Both" name="AnalyzeControl.BrowserControl+ShowHideResultCurvesEventArgs" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{D19BF365-C0F3-398D-A89D-C262E5625898}" progid="TrackPointDeletedEventArgs_NET.TrackPointDeletedEventArgs" threadingModel="Both" name="AnalyzeControl.BrowserControl+TrackPointDeletedEventArgs" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{8204BBE5-477B-3F68-88C1-7F18379896AA}" progid="TrackPointSelectedEventArgs_NET.TrackPointSelectedEventArgs" threadingModel="Both" name="AnalyzeControl.BrowserControl+TrackPointSelectedEventArgs" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{E3F261AD-8E5B-3403-A2D7-D3DBCC402181}" progid="AnalyzeControl.BrowserControl+TrackPointSelectedEventHandler" threadingModel="Both" name="AnalyzeControl.BrowserControl+TrackPointSelectedEventHandler" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{BCF54932-16A7-39C5-8120-617D4328A02F}" progid="AnalyzeControl.BrowserControl+TrackPointUnSelectedEventHandler" threadingModel="Both" name="AnalyzeControl.BrowserControl+TrackPointUnSelectedEventHandler" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{CCDC90EE-8929-3F05-AED6-2D7EA4C29414}" progid="AnalyzeControl.BrowserControl+TrackPointDeletedEventHandler" threadingModel="Both" name="AnalyzeControl.BrowserControl+TrackPointDeletedEventHandler" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{CE3359A9-6171-3B26-B5E2-B9DC8AC8E2A8}" progid="AnalyzeControl.BrowserControl+AddTrackPointEventHandler" threadingModel="Both" name="AnalyzeControl.BrowserControl+AddTrackPointEventHandler" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{338014FB-8B0B-3AD2-BD12-A572CAB2CBC6}" progid="AnalyzeControl.BrowserControl+ShowHideResultCurvesEventHandler" threadingModel="Both" name="AnalyzeControl.BrowserControl+ShowHideResultCurvesEventHandler" runtimeVersion=""></clrClass>
+
+<clrClass clsid="{C8895CEB-21B8-3A45-96D7-AB3AEC4F8547}" progid="AnalyzeControl.BrowserControl+RunAnalysisEventHandler" threadingModel="Both" name="AnalyzeControl.BrowserControl+RunAnalysisEventHandler" runtimeVersion=""></clrClass>
+
+<file name="AnalyzeControl.dll" hashalg="SHA1"></file>
+
+</assembly>

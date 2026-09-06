@@ -23,7 +23,7 @@ If doc.DocumentType = DocumentTypeEnum.kPartDocument Then ...
 If doc.DocumentType = DocumentTypeEnum.PartDocument Then ...
 ```
 
-**Result:** Enum type not found or not accessible in iLogic.
+**Result:** The enum IS accessible in iLogic. The original failure was caused by incorrect member names — `kPartDocument` and `PartDocument` do not exist. The correct members are `kPartDocumentObject` and `kAssemblyDocumentObject`, both of which resolve correctly (verified by runtime probe, 2026-09-06).
 
 **Context:**
 
@@ -32,9 +32,11 @@ If doc.DocumentType = DocumentTypeEnum.PartDocument Then ...
 - Document type: Part document
 - Object: `Document`
 
-**Root cause:** `DocumentTypeEnum` is defined in the full Inventor interop assemblies but is not exposed in the iLogic rule environment.
+**Root cause:** Wrong enum member names were used. `DocumentTypeEnum` itself is fully available in the iLogic rule environment; only the specific names `kPartDocument` and `PartDocument` are invalid.
 
-**Correct approach:** Use a `Try`/`Catch` around the `ComponentDefinition` cast (`PartComponentDefinition`, `AssemblyComponentDefinition`). If the document is the wrong type, the cast throws a runtime exception and the rule exits cleanly.
+**Correct approach:** Use the correct member names `DocumentTypeEnum.kPartDocumentObject` and `DocumentTypeEnum.kAssemblyDocumentObject`. The exporter's existing usage is correct and should be kept. Do NOT avoid this enum — it works as expected.
+
+**Correction note (2026-09-06):** The original entry diagnosed this as "enum not exposed in iLogic," which was incorrect. A runtime probe (`scratch\DSTV_API_Probe.vb`) confirmed both members resolve in Inventor 2026 iLogic. The entry is retained to warn against the invalid short names `kPartDocument` / `PartDocument`.
 
 ---
 

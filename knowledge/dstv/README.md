@@ -263,7 +263,7 @@ Record: `face Xref Y O t [code [l width height angle]]`
 
 | # | Item | Pages | Default until confirmed |
 |---|---|---|---|
-| F1 | Np (zero point) per profile type + standard-views orientation -> pins start-end rule and per-face X-reference letter | p. 7–8 | X-reference letter = `u` on all faces (p. 12 examples) |
+| F1 | Np (zero point) per profile type + standard-views orientation -> pins start-end rule and per-face X-reference letter | p. 7–8 | Phase 2 implemented this default: ref letter `u` on all faces, Np at minX (pins at start), t=0.00 on round holes; figure p. 7-8 analysis still PENDING for per-face/per-profile rule |
 | F2 | BO slot `width` (70.00 in p. 22 example): center-to-center or overall length | p. 11–12 | center-to-center |
 | F3 | Rectangle O column meaning (24.00 in `...24.00 0.00l 100.00 60.00 10.00`) | p. 11–12 | pre-drill diameter; rectangle corners sharp |
 | F4 | Empty ST text-info lines: written as blank lines or omitted (examples show a single filled text line) | p. 9, 17–22 | write all 4 lines |
@@ -276,9 +276,9 @@ Record: `face Xref Y O t [code [l width height angle]]`
 |---|---|
 | section 3 syntax | indentation/schema of writer OK; keep two-space data lines |
 | section 5 codes | replace `GetDstvProfileCode` fallback SO with B/R/RO/M/C/T mapping |
-| section 6 system | OBB axes kept; Np rule -> Phase 2; ref-point via theoretical envelope for curved profiles |
+| section 6 system | OBB axes kept; Np rule DONE Phase 2 (smallest X = 0.0, pins at minX end, documented default); theoretical-envelope alignment for curved profiles still open |
 | section 7 ST | fields 1–16 already conform (flange before web OK); 17–20 skew angles -> Phase 5 |
-| section 8 BO | fix round-hole `t` field + reference letter; slot one-line value order; rectangle rotation |
+| section 8 BO | round-hole `t` field + trailing X-ref letter DONE Phase 2 (`face X[ref] Y O t`); slot one-line value order + rectangle rotation still open |
 | section 8 vs 12 | cut classifier must never route BO-describable holes to IK |
 | section 10 AK/IK | Phase 5: plates with theoretical dimensions, CCW external / CW internal, closed |
 | section 9 SI/PU/KO | Phase 6 (numeration vs marks — corrected mapping) |

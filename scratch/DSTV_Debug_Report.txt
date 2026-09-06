@@ -29,11 +29,11 @@ Not extrude (skipped): 4
 Extrude but not cut (skipped): 1
 Cut extrudes processed: 0
 ======================
-  Hole: face=u X=888.78 Y=129.66 D=24.00 mm
-  Hole: face=v X=286.60 Y=76.00 D=18.00 mm
-  Hole: face=o X=1110.00 Y=120.00 D=16.00 mm
-  Hole: face=o X=427.00 Y=32.00 D=16.00 mm
-  Hole: face=o X=160.00 Y=122.00 D=16.00 mm
+  Hole: face=u X=888.78u Y=129.66 D=24.00 mm
+  Hole: face=v X=286.60u Y=76.00 D=18.00 mm
+  Hole: face=o X=1110.00u Y=120.00 D=16.00 mm
+  Hole: face=o X=427.00u Y=32.00 D=16.00 mm
+  Hole: face=o X=160.00u Y=122.00 D=16.00 mm
 
 === B-REP HOLE DETECTION ===
 Holes detected: 5

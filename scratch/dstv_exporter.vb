@@ -15,8 +15,15 @@
 ' - BO met numerieke duplicaat-detectie
 ' - EN + schrijven naar <PartFolder>\<PieceId>.nc1
 '
-' Open punten (zie plan, fase 2):
-' - F1: Np / referentieletter per profieltype
+' Fase 2 (Np + X-referentieletter):
+' - Np: kleinste X = 0.0 (minX-referentie); pins/pins-start aan de
+'   minX-zijde (standaardaanzicht-default; figuur p. 7-8 = PENDING)
+' - X-referentieletter 'u' op alle vlakken (F1-default, p. 12)
+' - t-diepteveld 0.00 toegevoegd aan ronde-gat BO-regels
+'
+' Open punten:
+' - F1-rest: pins-start per profieltype + per-vlak ref-letter
+'   (figuur p. 7-8 is een afbeelding, PENDING)
 ' - F2: BO slot breedte (hart-tot-hart vs totale lengte)
 ' - F3: BO rechthoek O-kolom
 '
@@ -561,6 +568,18 @@ Sub Main()
 	Next
 
 
+	' -------------------------------------------------------------
+	' Np / nulpunt (fase 2):
+	' - Kleinste X = 0.0: alle BO-X-coordinaten worden verminderd met
+	'   minX (zie de BO-regelbouw). Np/pins liggen daarmee aan de
+	'   minX-zijde van het werkstuk (default; de exacte pins-start
+	'   regel per profieltype uit figuur p. 7-8 is PENDING).
+	' - Theoretische omhullende: voor rechte prismatische profielen
+	'   (I/U/L, platen) vallen de OBB-extremen samen met de
+	'   theoretische envelope. Voor gekromde werkstukken (kromme
+	'   balken / gebogen onderdelen) wijkt de ruwe OBB daarvan af;
+	'   dat blijft een open punt in deze fase.
+	' -------------------------------------------------------------
 	' =============================================================
 	' DEBUG: coordinate-system diagnostic dump (DebugMode only)
 	' =============================================
@@ -985,15 +1004,16 @@ Sub Main()
 						' -------------------------------------------------
 
 						If DebugMode Then
-							debugSb.AppendLine("  OPENING: face=" + sFace + " facePos=" + Fmt(facePos) + " holeX=" + Fmt(holeX) + " holeY=" + Fmt(holeY) + " holeZ=" + Fmt(holeZ) + " dia=" + Fmt(diameterMm))
+							debugSb.AppendLine("  OPENING: face=" + sFace + " facePos=" + Fmt(facePos) + " holeX=" + Fmt(holeX) + GetDstvXref(sFace) + " holeY=" + Fmt(holeY) + " holeZ=" + Fmt(holeZ) + " dia=" + Fmt(diameterMm))
 						End If
 
 						Dim sHoleLine As String = _
 							"  " & _
 							sFace & " " & _
-							Fmt(holeX) & " " & _
+							Fmt(holeX) & GetDstvXref(sFace) & " " & _
 							Fmt(facePos) & " " & _
-							Fmt(diameterMm)
+							Fmt(diameterMm) & " " & _
+							Fmt(0.0)
 
 
 						AddHoleLineUnique( _
@@ -1188,7 +1208,7 @@ Sub Main()
 
 					' DEBUG: per-opening face decision (slot)
 					If DebugMode Then
-						debugSb.AppendLine("  OPENING (slot): face=" + sFace + " facePos=" + Fmt(facePos) + " holeX=" + Fmt(holeX) + " holeY=" + Fmt(holeY) + " holeZ=" + Fmt(holeZ) + " width=" + Fmt(widthMm) + " centerDist=" + Fmt(centerDistMm) + " angle=" + Fmt(angleDeg))
+						debugSb.AppendLine("  OPENING (slot): face=" + sFace + " facePos=" + Fmt(facePos) + " holeX=" + Fmt(holeX) + GetDstvXref(sFace) + " holeY=" + Fmt(holeY) + " holeZ=" + Fmt(holeZ) + " width=" + Fmt(widthMm) + " centerDist=" + Fmt(centerDistMm) + " angle=" + Fmt(angleDeg))
 					End If
 
 
@@ -1208,7 +1228,7 @@ Sub Main()
 					Dim sHoleLine As String = _
 						"  " & _
 						sFace & " " & _
-						Fmt(holeX) & " " & _
+						Fmt(holeX) & GetDstvXref(sFace) & " " & _
 						Fmt(facePos) & " " & _
 						Fmt(widthMm) & " " & _
 						Fmt(0.0) & _
@@ -1403,7 +1423,7 @@ Sub Main()
 
 					' DEBUG: per-opening face decision (rectangle)
 					If DebugMode Then
-						debugSb.AppendLine("  OPENING (rect): face=" + sFace + " facePos=" + Fmt(facePos) + " holeX=" + Fmt(holeX) + " holeY=" + Fmt(holeY) + " holeZ=" + Fmt(holeZ) + " sizeX=" + Fmt(sizeXmm) + " sizeY=" + Fmt(sizeYmm))
+						debugSb.AppendLine("  OPENING (rect): face=" + sFace + " facePos=" + Fmt(facePos) + " holeX=" + Fmt(holeX) + GetDstvXref(sFace) + " holeY=" + Fmt(holeY) + " holeZ=" + Fmt(holeZ) + " sizeX=" + Fmt(sizeXmm) + " sizeY=" + Fmt(sizeYmm))
 					End If
 
 
@@ -1424,7 +1444,7 @@ Sub Main()
 					Dim sHoleLine As String = _
 						"  " & _
 						sFace & " " & _
-						Fmt(holeX) & " " & _
+						Fmt(holeX) & GetDstvXref(sFace) & " " & _
 						Fmt(facePos) & " " & _
 						Fmt(0.0) & " " & _
 						Fmt(0.0) & _
@@ -1635,9 +1655,10 @@ Sub Main()
 			Dim sHoleLine As String = _
 				"  " & _
 				sFace & " " & _
-				Fmt(vPos) & " " & _
+				Fmt(vPos) & GetDstvXref(sFace) & " " & _
 				Fmt(faceY) & " " & _
-				Fmt(dDiameterMm)
+				Fmt(dDiameterMm) & " " & _
+				Fmt(0.0)
 
 			AddHoleLineUnique( _
 				holeLines, _
@@ -1649,7 +1670,7 @@ Sub Main()
 			If DebugMode Then
 				debugSb.AppendLine( _
 					"  Hole: face=" & sFace & _
-					" X=" & Fmt(vPos) & _
+					" X=" & Fmt(vPos) & GetDstvXref(sFace) & _
 					" Y=" & Fmt(faceY) & _
 					" D=" & Fmt(dDiameterMm) & " mm")
 			End If
@@ -2036,15 +2057,42 @@ End Function
 
 
 ' =====================================================================
-' DSTV X-REFERENTIELETTER
+' DSTV X-REFERENTIELETTER (Fase 2)
 '
-' Fase 1: verwijderd (zie opmerking hieronder).
-' =====================================================================
-
-' Fase 1: GetDstvReference verwijderd.
 ' De referentieletter na X in een BO-regel is een DIMENSIE-referentie
 ' (o = bovenrand, leeg = vorige, s = as, u = onderrand), NIET de
-' vlakletter (v/h). Beslissing in fase 2 (open punt F1).
+' vlakletter (v/h).
+'
+' Fase 2: default 'u' (onderrand) op ALLE vlakken - PENDING-item F1,
+' p. 12 voorbeelden. Differentiatie per vlak/profieltype volgt uit
+' figuur p. 7-8 (afbeelding; PENDING in de digest).
+' =====================================================================
+
+Function GetDstvXref(ByVal sFace As String) As String
+
+	' F1-default: onderrand-referentie op elk vlak.
+	Return "u"
+
+End Function
+
+
+' =====================================================================
+' X-REF-LETTER STRIPPEN (numerieke duplicaatdetectie)
+'
+' Een BO-X-waarde kan een trailende referentieletter bevatten
+' ("888.78u"). Double.Parse faalt daarop; deze helper haalt een
+' trailende letter eraf voordat geparseerd wordt.
+' =====================================================================
+
+Function StripRefLetter(ByVal s As String) As String
+
+	If s.Length > 0 AndAlso Char.IsLetter(s(s.Length - 1)) Then
+		Return s.Substring(0, s.Length - 1)
+	End If
+
+	Return s
+
+End Function
 
 
 ' =====================================================================
@@ -2107,7 +2155,7 @@ Sub AddHoleLineUnique( _
 
 		xPos = _
 			Double.Parse( _
-				parts(1), _
+				StripRefLetter(parts(1)), _
 				System.Globalization.CultureInfo.InvariantCulture)
 
 		yPos = _
@@ -2177,7 +2225,7 @@ Function HoleLinesEquivalent( _
 
 		Dim existingX As Double = _
 			Double.Parse( _
-				parts(1), _
+				StripRefLetter(parts(1)), _
 				System.Globalization.CultureInfo.InvariantCulture)
 
 		Dim existingY As Double = _

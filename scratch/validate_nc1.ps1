@@ -80,11 +80,11 @@ if ($stData.Count -ge 9) {
     }
 }
 
-# 5. BO records grammar:  face X Y diameter [t l width height angle]
+# 5. BO records grammar:  face X[ref] Y diameter [t [l width height angle]]
 $boCount = 0
 $boInvalid = 0
 $inBo = $false
-$boRegex = '^[ouvh]\s+-?\d+\.\d{2}\s+-?\d+\.\d{2}\s+-?\d+\.\d{2}(\s+-?\d+\.\d{2}l\s+-?\d+\.\d{2}\s+-?\d+\.\d{2}\s+-?\d+\.\d{2})?\s*$'
+$boRegex = '^[ouvh]\s+-?\d+\.\d{2}[ous]?\s+-?\d+\.\d{2}\s+-?\d+\.\d{2}(\s+-?\d+\.\d{2}(l\s+-?\d+\.\d{2}\s+-?\d+\.\d{2}\s+-?\d+\.\d{2})?)?\s*$'
 foreach ($line in $content) {
     $t = $line.Trim()
     if ($t -eq "BO") { $inBo = $true; continue }

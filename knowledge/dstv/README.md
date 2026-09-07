@@ -264,8 +264,8 @@ Record: `face Xref Y O t [code [l width height angle]]`
 | # | Item | Pages | Default until confirmed |
 |---|---|---|---|
 | F1 | Np (zero point) per profile type + standard-views orientation -> pins start-end rule and per-face X-reference letter | p. 7–8 | Phase 2 implemented this default: ref letter `u` on all faces, Np at minX (pins at start), t=0.00 on round holes; figure p. 7-8 analysis still PENDING for per-face/per-profile rule |
-| F2 | BO slot `width` (70.00 in p. 22 example): center-to-center or overall length | p. 11–12 | center-to-center |
-| F3 | Rectangle O column meaning (24.00 in `...24.00 0.00l 100.00 60.00 10.00`) | p. 11–12 | pre-drill diameter; rectangle corners sharp |
+| F2 | BO slot `width` (70.00 in p. 22 example): center-to-center or overall length | p. 11-12, 23 | **Phase 3: overall length** (centerDist + 2r). Confirmed by p. 23 HEB400 working drawing: the 70 dimension spans the slot end-to-end, X = slot start (left extreme), Y = slot center-line, height = 0.00 |
+| F3 | Rectangle O column meaning (24.00 in `...24.00 0.00l 100.00 60.00 10.00`) | p. 10-12, 23 | **Phase 3: corner diameter** (2 x corner radius). Confirmed by p. 10 figure (rectangle with four corner circles, leader Oslash;24 -> O=24.00) and p. 23 HEB400 drawing. Sharp corners when O = 0.0. Width/height = true edge lengths along rotated edges; angle = rectangle rotation from +w (piece X) reference |
 | F4 | Empty ST text-info lines: written as blank lines or omitted (examples show a single filled text line) | p. 9, 17–22 | write all 4 lines |
 
 ---
@@ -278,7 +278,7 @@ Record: `face Xref Y O t [code [l width height angle]]`
 | section 5 codes | replace `GetDstvProfileCode` fallback SO with B/R/RO/M/C/T mapping |
 | section 6 system | OBB axes kept; Np rule DONE Phase 2 (smallest X = 0.0, pins at minX end, documented default); theoretical-envelope alignment for curved profiles still open |
 | section 7 ST | fields 1–16 already conform (flange before web OK); 17–20 skew angles -> Phase 5 |
-| section 8 BO | round-hole `t` field + trailing X-ref letter DONE Phase 2 (`face X[ref] Y O t`); slot one-line value order + rectangle rotation still open |
+| section 8 BO | round-hole `t` field + trailing X-ref letter DONE Phase 2 (`face X[ref] Y O t`); slot width/height DONE Phase 3 (overall length, height=0.00); rectangle O/width/height/angle DONE Phase 3 (corner diameter, edge lengths, rotation); slot/rectangle angle face-frame mapping still PENDING |
 | section 8 vs 12 | cut classifier must never route BO-describable holes to IK |
 | section 10 AK/IK | Phase 5: plates with theoretical dimensions, CCW external / CW internal, closed |
 | section 9 SI/PU/KO | Phase 6 (numeration vs marks — corrected mapping) |

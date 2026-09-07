@@ -1,4 +1,4 @@
-﻿' =====================================================================
+' =====================================================================
 ' EXPORT_DSTV2
 '
 ' DSTV export
@@ -1230,11 +1230,11 @@ Sub Main()
 						sFace & " " & _
 						Fmt(holeX) & GetDstvXref(sFace) & " " & _
 						Fmt(facePos) & " " & _
-						Fmt(widthMm) & " " & _
+						Fmt(centerDistMm + widthMm) & " " & _
 						Fmt(0.0) & _
 						"l " & _
-						Fmt(widthMm) & " " & _
-						Fmt(centerDistMm) & " " & _
+						Fmt(centerDistMm + widthMm) & " " & _
+						Fmt(0.0) & " " & _
 						Fmt(angleDeg)
 
 
@@ -1376,6 +1376,12 @@ Sub Main()
 					Dim sizeYmm As Double = _
 						(maxSY - minSY) * 10.0
 
+					'' F3: rectangle edge lengths (bounding box; refined later)
+					Dim rectWidthMm As Double = sizeXmm
+					Dim rectHeightMm As Double = sizeYmm
+					Dim rectODiamMm As Double = 0.0
+					Dim rectAngleDeg As Double = 0.0
+
 
 					Dim holeX As Double = _
 						GetDstvX( _
@@ -1446,12 +1452,12 @@ Sub Main()
 						sFace & " " & _
 						Fmt(holeX) & GetDstvXref(sFace) & " " & _
 						Fmt(facePos) & " " & _
-						Fmt(0.0) & " " & _
+						Fmt(rectODiamMm) & " " & _
 						Fmt(0.0) & _
 						"l " & _
-						Fmt(sizeXmm) & " " & _
-						Fmt(sizeYmm) & " " & _
-						Fmt(0.0)
+						Fmt(rectWidthMm) & " " & _
+						Fmt(rectHeightMm) & " " & _
+						Fmt(rectAngleDeg)
 
 
 					AddHoleLineUnique( _

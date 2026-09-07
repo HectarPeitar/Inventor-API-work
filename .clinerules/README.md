@@ -54,7 +54,7 @@ That information belongs in:
 
 - `10-coding-standards.md`
   Coding standards for Inventor automation.
-  Includes file-management rules (section 20) and function promotion/storage rules (section 21).
+  Includes file-management rules (section 20), function promotion/storage rules (section 21), and tool usage for file operations (section 23).
 
 - `20-workflow.md`
   Development and debugging workflow.

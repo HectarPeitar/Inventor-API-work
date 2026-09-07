@@ -601,3 +601,83 @@ Keep the README focused on using and understanding the completed function.
 Do not use the README as a development diary.
 
 Do not include a long list of every failed API experiment unless that information is genuinely useful to future developers. Store reusable negative knowledge in `knowledge/errors/` instead.
+
+---
+
+## 23. Tool Usage for File Operations
+
+### File edits — use the `editor` tool directly
+
+When modifying, creating, or replacing text in any file, use the `editor` tool. Do NOT write a Python or PowerShell script to perform file edits.
+
+**Correct:**
+```
+editor → path: scratch/dstv_exporter.vb
+       → old_text: "Fmt(widthMm)"
+       → new_text: "Fmt(centerDistMm + widthMm)"
+```
+
+**Incorrect:**
+```
+run_commands → PowerShell script that reads the file, does string replacement, writes it back
+```
+
+The `editor` tool is:
+- faster (no process spawn, no full-file read/write);
+- safer (exact text matching, no regex escaping errors);
+- cleaner (no helper scripts cluttering `scratch/`);
+- reviewable (the diff is in the actual file, not a script).
+
+### When to use `run_commands`
+
+Use `run_commands` only for operations that cannot be done with `editor` or `read_files`:
+
+- Git operations (status, add, commit, diff, log)
+- Build and compile checks (vbc.exe, MSBuild)
+- File listings and inspections (dir, Get-ChildItem)
+- Running external programs
+- Searching with grep/findstr
+
+### When to use scratch/ scripts
+
+A script in `scratch/` is appropriate when:
+
+- The operation is genuinely complex (multi-step logic, conditional branching)
+- The operation requires a real programming language (loops, data transformation)
+- The operation is a one-off experiment that will be discarded
+
+A script in `scratch/` is NOT appropriate when:
+
+- The operation is a simple find-and-replace (use `editor`)
+- The operation is a single file write (use `editor`)
+- The operation is a build check that will be reused (move to a permanent script location)
+
+### Decision ladder for file operations
+
+```
+Need to change a file?
+    |
+    +-- Is it a simple text replacement?
+    |       |
+    |       +-- YES --> use `editor`
+    |       |
+    |       +-- NO
+    |           |
+    |           +-- Is it a multi-step transformation?
+    |                   |
+    |                   +-- YES --> consider `editor` with multiple calls
+    |                   |       |
+    |                   |       +-- Still too complex?
+    |                   |               |
+    |                   |               +-- YES --> use `run_commands` with a script
+    |                   |               |
+    |                   |               +-- NO --> use `editor`
+    |                   |
+    |                   +-- NO --> use `editor`
+    |
+    +-- Is it a read-only operation?
+            |
+            +-- YES --> use `read_files`
+            |
+            +-- NO --> use `run_commands` (git, build, etc.)
+```

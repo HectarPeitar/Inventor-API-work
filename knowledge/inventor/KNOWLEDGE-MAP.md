@@ -287,4 +287,5 @@ See: `knowledge/addins.md` (general), `knowledge/inventor/2026/ilogic.md` (iLogi
 - `knowledge/inventor/2026/drawings.md` — Curated drawing knowledge
 - `knowledge/errors/` — Verified negative knowledge
 - `tested/` — Verified reusable patterns
+- `knowledge/dstv/nc1/7th-edition/DSTV-KNOWLEDGE-MAP.md` — DSTV/NC1 specification knowledge (7th corrected edition)
 

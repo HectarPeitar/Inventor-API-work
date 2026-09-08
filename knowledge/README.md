@@ -83,8 +83,8 @@ External source material belongs in:
 - `units.md`
   Unit handling and unit-related pitfalls.
 
-- `dstv/README.md`
-  Curated digest of the DSTV NC1 specification (7th corrected edition, July 1998). Raw source PDF archived in `reference/dstv/`.
+- `dstv/nc1/7th-edition/DSTV-KNOWLEDGE-MAP.md`
+  Curated navigation map for the DSTV NC1 specification (7th corrected edition, July 1998). Raw source PDF archived in `reference/dstv/`.
 
 ---
 

@@ -604,6 +604,20 @@ Do not include a long list of every failed API experiment unless that informatio
 
 ---
 
+## 24. DSTV/NC1 Knowledge Usage
+
+When a task involves DSTV/NC1 file-format questions:
+
+1. Start from the canonical entry point: `knowledge/dstv/nc1/7th-edition/DSTV-KNOWLEDGE-MAP.md`.
+2. Follow the route mapping (NC1 concept → DSTV source file) to locate the authoritative topic file.
+3. Consult the original PDF (`reference/dstv/`) for figures, dimensional examples, and layout that are not reliably represented by text extraction.
+4. Use curated sources (`DSTV-7th-edition-extracted.md`) for searchable text only when the PDF page is not available.
+5. Do not infer a DSTV field meaning from a variable name, an existing implementation, or a single software-generated NC1 file when the specification can answer the question.
+6. Preserve the original DSTV PDF as the authoritative source; curated Markdown files are derived interpretations.
+7. Never create a second competing DSTV Knowledge Map — all NC1 routing instructions must funnel through the canonical map.
+
+---
+
 ## 23. Tool Usage for File Operations
 
 ### File edits — use the `editor` tool directly

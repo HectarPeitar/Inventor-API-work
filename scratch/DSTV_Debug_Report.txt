@@ -1,6 +1,6 @@
 === COORDINATE SYSTEM DIAGNOSTIC ===
-Piece ID: EURONORM 53-62 - HE 400 B-525
-Profile: HE 400 B (I)
+Piece ID: HE400B_CoordinateTest
+Profile: HE400B_CoordinateTest (SO)
 dHeightMm=400.00 dWidthMm=300.00 dLengthMm=525.00
 
 OBB direction lengths (mm): 300.00 / 400.00 / 525.00
@@ -12,24 +12,33 @@ zUnit (height axis): 0.00, 1.00, 0.00
 
 Right-handed check (x cross y dot z): 1.00
 
-Reference point (model coords): -12.50, -17.60, 7.00
-Extremes (DSTV frame, mm): minX=-70.00 maxX=455.00 minY=-25.00 maxY=275.00 minZ=-24.00 maxZ=376.00
+Reference point (model coords): 14.33, 20.00, 43.00
+Extremes (DSTV frame, mm): minX=-430.00 maxX=95.00 minY=-143.25 maxY=156.75 minZ=-200.00 maxZ=200.00
 Computed piece size (mm): X=525.00 Y=300.00 Z=400.00
-SurfaceBody vertex count: 40
+SurfaceBody vertex count: 38
 =====================================
 
-  FEATURE (not extrude): Driven Length type=kClientFeatureObject
-  FEATURE (cut extrude): Extrusion3
-  OPENING (rect): face=u facePos=245.00 holeX=120.00u holeY=245.00 holeZ=0.00 sizeX=60.00 sizeY=100.00
+  FEATURE (not extrude): Hole1 type=kHoleFeatureObject
+  FEATURE (not extrude): Hole2 type=kHoleFeatureObject
+  FEATURE (not extrude): Hole3 type=kHoleFeatureObject
+  FEATURE (not extrude): Hole4 type=kHoleFeatureObject
+  FEATURE (not extrude): Hole5 type=kHoleFeatureObject
 
 === FEATURE CENSUS ===
-Total features: 3
-Not extrude (skipped): 1
+Total features: 6
+Not extrude (skipped): 5
 Extrude but not cut (skipped): 1
-Cut extrudes processed: 1
+Cut extrudes processed: 0
 ======================
+  Hole: face=h X=425.00u Y=200.00 D=10.00 mm
+  Hole: face=v X=100.00u Y=200.00 D=10.00 mm
+  Hole: face=o X=262.50u Y=50.00 D=10.00 mm
+  Hole: face=o X=262.50u Y=250.00 D=10.00 mm
+  Hole: face=u X=262.50u Y=225.00 D=10.00 mm
+  Hole: face=o X=500.00u Y=225.00 D=10.00 mm
+  Hole: face=o X=25.00u Y=225.00 D=10.00 mm
 
 === B-REP HOLE DETECTION ===
-Holes detected: 0
-Total BO records: 1
+Holes detected: 7
+Total BO records: 7
 

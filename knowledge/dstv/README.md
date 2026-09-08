@@ -275,7 +275,7 @@ Record: `face Xref Y O t [code [l width height angle]]`
 | Digest rule | Exporter impact |
 |---|---|
 | section 3 syntax | indentation/schema of writer OK; keep two-space data lines |
-| section 5 codes | replace `GetDstvProfileCode` fallback SO with B/R/RO/M/C/T mapping |
+| section 5 codes | full profile-code mapping DONE: B/RU/RO/M/C/T added to I/L/U; SO stays as fallback (scratch/dstv_exporter.vb, GetDstvProfileCode) |
 | section 6 system | OBB axes kept; Np rule DONE Phase 2 (smallest X = 0.0, pins at minX end, documented default); theoretical-envelope alignment for curved profiles still open |
 | section 7 ST | fields 1–16 already conform (flange before web OK); 17–20 skew angles -> Phase 5 |
 | section 8 BO | round-hole `t` field + trailing X-ref letter DONE Phase 2 (`face X[ref] Y O t`); slot width/height DONE Phase 3 (overall length, height=0.00); rectangle O/width/height/angle DONE Phase 3 (corner diameter, edge lengths, rotation); slot/rectangle angle face-frame mapping still PENDING |

@@ -37,6 +37,17 @@ A similar slot record appears later using the `u` face and again using the `o` f
 
 For disputed slot semantics, the dimensional drawing on page 10 and the worked example on page 21 should be considered together. Do not silently reinterpret the 70 value without checking the geometry shown by the source.
 
+## Verified slot interpretation (manual viewer evidence)
+
+**IMPORTANT**: Manual viewer testing confirms that `l Width` represents the **centre-to-centre distance**, not the overall length.
+
+For the HEB400 reference slot record `u 1415.00s 251.50 24.00 0.00l 70.00 0.00 0.00`:
+
+- `70.00` is the centre-to-centre distance between slot ends
+- The previous interpretation that `overall length = centreDist + diameter` is **SUPERSEDED**
+
+This is verified by testing that the slot BO record with the correct centre-to-centre interpretation passes validation.
+
 ## Example interpretation caution
 
 Worked examples show how the standard is used, but an example alone does not prove that every populated field is mandatory in every file.

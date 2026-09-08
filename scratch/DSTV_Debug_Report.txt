@@ -1,6 +1,6 @@
 === COORDINATE SYSTEM DIAGNOSTIC ===
-Piece ID: HE400B_CoordinateTest
-Profile: HE400B_CoordinateTest (SO)
+Piece ID: EURONORM 53-62 - HE 400 B-525
+Profile: HE 400 B (I)
 dHeightMm=400.00 dWidthMm=300.00 dLengthMm=525.00
 
 OBB direction lengths (mm): 300.00 / 400.00 / 525.00
@@ -12,33 +12,28 @@ zUnit (height axis): 0.00, 1.00, 0.00
 
 Right-handed check (x cross y dot z): 1.00
 
-Reference point (model coords): 14.33, 20.00, 43.00
-Extremes (DSTV frame, mm): minX=-430.00 maxX=95.00 minY=-143.25 maxY=156.75 minZ=-200.00 maxZ=200.00
+Reference point (model coords): -12.00, 17.60, 37.00
+Extremes (DSTV frame, mm): minX=-370.00 maxX=155.00 minY=-30.00 maxY=270.00 minZ=-376.00 maxZ=24.00
 Computed piece size (mm): X=525.00 Y=300.00 Z=400.00
-SurfaceBody vertex count: 38
+SurfaceBody vertex count: 56
 =====================================
 
-  FEATURE (not extrude): Hole1 type=kHoleFeatureObject
-  FEATURE (not extrude): Hole2 type=kHoleFeatureObject
-  FEATURE (not extrude): Hole3 type=kHoleFeatureObject
-  FEATURE (not extrude): Hole4 type=kHoleFeatureObject
-  FEATURE (not extrude): Hole5 type=kHoleFeatureObject
+  FEATURE (not extrude): Driven Length type=kClientFeatureObject
+  FEATURE (cut extrude): Extrusion3
+  OPENING (rect): face=u facePos=245.00 holeX=120.00u holeY=245.00 holeZ=0.00 sizeX=60.00 sizeY=100.00 angle=0.00
+  FEATURE (cut extrude): Extrusion4
+  OPENING (slot): face=o facePos=50.00 holeX=150.00u holeY=50.00 holeZ=400.00 width=24.00 centerDist=70.00 angle=0.00
+  FEATURE (cut extrude): Extrusion5
+  OPENING (rect): face=o facePos=230.00 holeX=395.00u holeY=230.00 holeZ=400.00 sizeX=80.00 sizeY=50.00 angle=0.00
 
 === FEATURE CENSUS ===
-Total features: 6
-Not extrude (skipped): 5
+Total features: 5
+Not extrude (skipped): 1
 Extrude but not cut (skipped): 1
-Cut extrudes processed: 0
+Cut extrudes processed: 3
 ======================
-  Hole: face=h X=425.00u Y=200.00 D=10.00 mm
-  Hole: face=v X=100.00u Y=200.00 D=10.00 mm
-  Hole: face=o X=262.50u Y=50.00 D=10.00 mm
-  Hole: face=o X=262.50u Y=250.00 D=10.00 mm
-  Hole: face=u X=262.50u Y=225.00 D=10.00 mm
-  Hole: face=o X=500.00u Y=225.00 D=10.00 mm
-  Hole: face=o X=25.00u Y=225.00 D=10.00 mm
 
 === B-REP HOLE DETECTION ===
-Holes detected: 7
-Total BO records: 7
+Holes detected: 0
+Total BO records: 3
 

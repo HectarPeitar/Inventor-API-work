@@ -129,6 +129,30 @@ Important example from the specification:
 
 This priority must be preserved when extending the exporter.
 
+### Verified viewer exception (2026-09) — sharp-corner rectangles
+
+Manual testing in the target NC1 viewer established a project-specific compatibility finding:
+
+- A sharp-corner rectangular internal opening exported as `BO` with `d = 0.00` is **rejected** (validation warning).
+- The same geometry exported as an `IK` closed clockwise internal contour (4 corner points, radius = 0.0 at corners) **passes**.
+- Any non-zero corner diameter (`d = 1.00 / 10.00 / 20.00`) passes as `BO`.
+- Round holes and rounded-end slots pass as `BO` in all tested forms.
+
+Classification: this is a **verified viewer/exporter compatibility rule**, not a universal DSTV specification rule. The DSTV 7th edition defines rectangular `BO` records and does not explicitly state that `d = 0.00` is invalid. Do not record or quote it as an unconditional DSTV requirement. The BO-over-IK priority rule from the specification remains in force for all geometry for which BO is applicable and accepted.
+
+Details and evidence: `blocks/BO.md` (Sharp rectangular openings, Alternative-description priority), `blocks/AK-IK.md` (Verified viewer observation), `scratch/diagnostic/HE400B_DiagnosticMatrix.md`.
+
+### Verified slot interpretation (2026-09)
+
+Manual viewer testing confirmed that in a slotted `BO` record (`... d ... l W H A`):
+
+- `d` = round-end diameter
+- `l Width` = **centre-to-centre distance** between the slot ends
+- `l Height` = 0.00
+- `l Angle` = slot angle
+
+The earlier interpretation `l Width = overall length` (centre-to-centre + diameter) is **superseded**. See `blocks/BO.md` and `examples.md`.
+
 ## Topic-specific files
 
 - `coordinate-system.md` - curated coordinate-system and reference rules

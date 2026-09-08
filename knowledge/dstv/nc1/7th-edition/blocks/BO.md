@@ -58,6 +58,62 @@ and corresponding `u` and `o` examples later in the same file.
 
 For any disputed interpretation, use the dimensional drawing on the relevant source page rather than relying only on extracted text.
 
-## Alternative description priority
+## Verified slot interpretation (manual viewer evidence)
 
-A hole that can be described as `BO` must use `BO`; describing the same hole with `IK` is forbidden by the 7th edition.
+From manual viewer testing, the slot interpretation in the BO record must use **centre-to-centre distance**, not overall length.
+
+For the HEB400 reference:
+
+```text
+u 1415.00s 251.50 24.00 0.00l 70.00 0.00 0.00
+```
+
+`70.00` is the **centre-to-centre distance** between slot ends, not overall length.
+
+Slot interpretation:
+
+- `d` = round-end diameter
+- `l Width` = centre-to-centre distance
+- `l Height` = 0.00  
+- `l Angle` = slot angle
+
+This supersedes the interpretation that `l Width` = overall length (centreDist + diameter).
+
+## Sharp rectangular openings
+
+The target NC1 viewer rejects sharp-corner rectangular openings represented as BO with `d=0.00` and accepts the same geometry as an IK internal contour.
+
+BO representation that fails:
+
+```text
+o 395.00u 230.00 0.00 0.00l 50.00 80.00 0.00
+```
+
+Changing only `d`:
+
+- `d = 1.00` → PASS
+- `d = 10.00` → PASS
+- `d = 20.00` → PASS
+
+The same physical sharp rectangle represented as an IK internal contour using its corner coordinates produces:
+
+```text
+IK ... (closed clockwise contour, radius=0.0 at corners)
+```
+
+Result: PASS — no validation warning.
+
+## Alternative-description priority
+
+The DSTV 7th edition requires that a hole that can be described by BO must use BO; using IK for that same hole is forbidden.
+
+However, the available DSTV specification does not explicitly state that `d=0.00` is invalid for a rectangular BO record. This is a **verified viewer/exporter compatibility rule**, not an unconditional DSTV specification requirement.
+
+Current working guidance:
+
+- Round hole → BO
+- Rounded-end slot → BO  
+- Rectangular opening with non-zero rounded/corner diameter → BO
+- Sharp-corner internal rectangle → IK is the verified working representation for this exporter/viewer combination
+
+This is a **verified viewer/exporter compatibility rule**, not a universal DSTV specification rule.

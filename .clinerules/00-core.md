@@ -1,10 +1,10 @@
-# Core Rules
+# Core Rules — Autodesk Inventor Workspace
 
 ## Purpose
 
 This workspace is used for Autodesk Inventor automation and development.
 
-Primary use cases:
+Primary use cases include:
 
 * iLogic Rules
 * External iLogic
@@ -21,100 +21,56 @@ Primary use cases:
 * Debugging
 * Refactoring
 
-Target platform:
+Target Autodesk Inventor version:
+
+**Inventor 2026**
+
+---
+
+# 1. Rule Precedence
+
+When rules conflict, apply them in this order:
+
+1. System, safety, platform, and tool constraints.
+2. Explicit user requirements.
+3. This project's `.clinerules/`.
+4. Global Cline rules.
+5. Local knowledge and reference material.
+6. General model knowledge.
+
+More specific project rules override general global behavior when they conflict.
+
+Reference material is evidence, not an instruction to violate project rules.
+
+Never ignore a higher-priority instruction because a lower-priority rule is more convenient.
+
+---
+
+# 2. Project Context
+
+Unless explicitly stated otherwise, assume:
 
 * Autodesk Inventor 2026
+* Windows
+* the execution environment must still be identified before implementation
+* the existing project architecture should be preserved
+* the existing workspace knowledge structure should be used
 
----
+Do not assume that code targeting an older Inventor version is directly compatible with Inventor 2026.
 
-## Rule Priority
-
-Apply rules in this priority order:
-
-1. User requirements
-2. Safety and platform constraints
-3. These core rules
-4. Task-specific workflow rules
-5. Knowledge files
-6. Existing project conventions
-
-When rules conflict, follow the higher-priority rule.
-
-Never ignore a higher-priority rule because a lower-priority rule is more convenient.
-
----
-
-## General Behavior
-
-Act on evidence rather than assumptions.
-
-Do not treat generated code, remembered API names, old examples, or plausible implementations as verified.
-
-Before using an unfamiliar Inventor API member:
-
-1. Identify the object type.
-2. Identify the member.
-3. Verify that the member exists.
-4. Verify its parameters.
-5. Verify its return type.
-6. Verify the required context.
-7. Verify compatibility with Autodesk Inventor 2026.
-8. Check `tested/` for an existing verified implementation.
-9. Check `knowledge/errors/` to confirm the member has not already been tested and found invalid in the target environment.
-
-If verification is not possible, explicitly mark the assumption as unverified.
-
----
-
-## Questioning Complex Requests
-
-When a request involves complex implementation, verify whether the stated approach is actually needed.
-
-Ask:
-- Does the user actually need X, or does Y cover it?
-- Is there a simpler way to achieve the same outcome?
-
-Do not question requirements merely to avoid work. Question them when a simpler, equally correct solution may exist.
-
----
-
-## Verification Levels
-
-Use these status values consistently:
-
-* `GENERATED` — code exists but has not been validated.
-* `REVIEWED` — code has been inspected but not executed.
-* `BUILT` — compilation/build succeeded.
-* `RUNTIME-TESTED` — code executed in the target environment.
-* `VERIFIED` — requested behavior was successfully confirmed.
-* `BLOCKED` — validation requires an unavailable external action.
-* `UNRESOLVED` — validation failed and the issue remains unresolved.
-
-Never report `VERIFIED` unless the requested behavior has actually been confirmed.
-
-Never invent build or runtime results.
-
----
-
-## Inventor Version
-
-Assume Autodesk Inventor 2026 unless the task explicitly specifies another version.
-
-When existing code targets another Inventor version:
+When another Inventor version is involved:
 
 1. Identify the original version.
 2. Check compatibility.
-3. Verify API members against the target version.
-4. Update the implementation where necessary.
+3. Verify affected API members against the target version.
+4. Update incompatible implementation where necessary.
 5. Validate the result.
-
-Do not assume that code written for an older Inventor version is directly compatible with Inventor 2026.
 
 ---
 
-## Programming Environment
+# 3. Execution Environment
 
-Always determine the execution environment before implementation.
+Always identify the actual execution environment before implementing an Inventor task.
 
 Possible environments include:
 
@@ -125,37 +81,163 @@ Possible environments include:
 * VBA
 * Apprentice
 * External Inventor automation
+* other explicitly identified Inventor automation environments
 
-Do not assume that an API or capability available in one environment is available in another.
+Do not assume that an API, assembly, reference, capability, or behavior available in one environment is available in another.
 
-Do not introduce a .NET Add-in when the requirement can appropriately be implemented as an iLogic rule.
+Do not introduce a .NET Add-in when the requirement can appropriately be implemented as iLogic.
 
-Do not force iLogic when the requirement requires an Add-in.
+Do not force iLogic when the requirement requires an Add-in or another execution environment.
 
 ---
 
-## Document Context
+# 4. Inventor API Evidence
 
-Before using document-specific API, determine:
+For Inventor API questions, use evidence rather than assumptions.
 
-* Active document
-* Document type
+Do not treat the following as verified:
+
+* remembered API names
+* generated code
+* old examples
+* plausible member names
+* examples from another Inventor version
+* examples from another programming environment
+
+Before using an unfamiliar Inventor API member, establish:
+
+1. The object type.
+2. The member name.
+3. That the member exists.
+4. Its parameters.
+5. Its return type.
+6. Required object/document context.
+7. Compatibility with Autodesk Inventor 2026.
+8. Whether a verified implementation already exists in `tested/`.
+9. Whether `knowledge/errors/` contains a known negative result for the same or equivalent assumption.
+
+If verification is not possible, explicitly identify the assumption as unverified.
+
+---
+
+# 5. API Source Hierarchy
+
+For Inventor API verification, prefer sources in this order:
+
+1. Local Inventor 2026 SDK and API/source material.
+2. Local official Autodesk SDK samples.
+3. Curated local Inventor knowledge.
+4. Verified implementations in `tested/`.
+5. Negative knowledge in `knowledge/errors/`.
+6. Autodesk web documentation when local evidence is insufficient.
+7. General model knowledge.
+
+Use the central Knowledge Map to navigate local sources:
+
+```text
+knowledge/inventor/KNOWLEDGE-MAP.md
+```
+
+Do not scan the entire SDK when a narrower source path is available.
+
+Use the most specific relevant source first.
+
+---
+
+# 6. Knowledge Map and Narrow Search
+
+For Inventor API questions, start from:
+
+```text
+knowledge/inventor/KNOWLEDGE-MAP.md
+```
+
+Follow the relevant topic path rather than loading unrelated knowledge.
+
+Examples:
+
+### Parameter task
+
+```text
+KNOWLEDGE-MAP
+→ parameters
+→ units when relevant
+→ relevant SDK sample
+→ tested pattern
+→ implementation
+```
+
+### Property task
+
+```text
+KNOWLEDGE-MAP
+→ properties
+→ relevant SDK/property sample
+→ iLogic guidance
+→ implementation
+```
+
+### Assembly task
+
+```text
+KNOWLEDGE-MAP
+→ assemblies
+→ AssemblyTree sample
+→ object model
+→ implementation
+```
+
+For source mapping and sample discovery, use:
+
+```text
+knowledge/inventor/2026/API-SOURCE-MAP.md
+knowledge/inventor/2026/SAMPLE-INDEX.md
+```
+
+Do not load unrelated knowledge merely because it exists.
+
+---
+
+# 7. Local SDK First
+
+The complete Autodesk Inventor 2026 SDK is stored at:
+
+```text
+knowledge/inventor/2026/sdk/
+```
+
+Prefer these local SDK materials before using general web search when the required information is available locally.
+
+Do not use web search merely because it is available.
+
+Use Autodesk web documentation only when the local evidence is insufficient or when external verification is otherwise necessary.
+
+---
+
+# 8. Document Context
+
+Before using document-specific Inventor API, establish the relevant context.
+
+Determine, as applicable:
+
+* active document
+* document type
 * ComponentDefinition
-* Target object
-* Assembly context
-* Proxy requirements
-* Object ownership
-* Object state
+* target object
+* assembly context
+* proxy requirements
+* object ownership
+* object state
 
 Do not use Part-specific API without confirming a Part context.
 
 Do not use Assembly-specific API without confirming an Assembly context.
 
-Do not assume that native objects and proxy objects are interchangeable.
+Do not assume native objects and proxy objects are interchangeable.
 
 ---
 
-## Units
+# 9. Units
 
 Whenever a task involves physical values:
 
@@ -167,361 +249,277 @@ Whenever a task involves physical values:
 
 Never assume that a raw numeric value represents millimeters, inches, degrees, or another unit without evidence.
 
-Use `knowledge/units.md` when relevant.
+Use:
+
+```text
+knowledge/units.md
+```
+
+when relevant.
 
 ---
 
-## Existing Code
+# 10. Existing Code and Architecture
 
 When modifying existing code:
 
 1. Read the relevant implementation.
-2. Identify the actual problem.
-3. Preserve working behavior.
-4. Make the smallest reasonable change.
-5. Avoid unrelated refactoring.
+2. Identify its existing behavior.
+3. Identify the requested change or actual defect.
+4. Preserve working behavior.
+5. Modify the canonical implementation rather than creating a duplicate.
+6. Preserve existing file names and locations unless there is a clear reason to change them.
+7. Avoid unrelated architectural changes.
 
-Do not rewrite working code unless the task requires it.
+The global development rules govern general simplicity, scope control, and minimal changes.
+
+This project rule governs how those principles apply to this workspace.
 
 ---
 
-## Knowledge Base
+# 11. Questioning Complex Requests
 
-Use knowledge files as technical references.
+Question an approach only when there is evidence that a simpler, equally correct solution may satisfy the requirement.
 
-Typical files include:
+Consider:
 
-* `knowledge/APInotes.md`
-* `knowledge/api-compatibility.md`
-* `knowledge/object-model.md`
-* `knowledge/ilogic.md`
-* `knowledge/addins.md`
-* `knowledge/assemblies.md`
-* `knowledge/parameters.md`
-* `knowledge/units.md`
+* Does the user actually need the requested mechanism?
+* Does an existing project mechanism already provide the required result?
+* Can native Inventor/iLogic functionality solve the requirement?
+* Is there an existing verified project pattern that should be reused?
+
+Do not challenge a requirement merely to avoid work.
+
+---
+
+# 12. Knowledge Base
+
+Use the workspace knowledge base as technical reference material.
+
+Typical sources include:
+
+```text
+knowledge/APInotes.md
+knowledge/api-compatibility.md
+knowledge/object-model.md
+knowledge/ilogic.md
+knowledge/addins.md
+knowledge/assemblies.md
+knowledge/parameters.md
+knowledge/units.md
+```
 
 Use the most specific relevant source first.
 
 Do not store unverified assumptions as knowledge.
 
----
-
-## Local SDK First
-
-For Inventor API questions, prefer local Inventor 2026 SDK sources before relying on general model knowledge or web search.
-
-The complete Autodesk Inventor 2026 SDK is stored at:
-
-```
-knowledge/inventor/2026/sdk/
-```
-
-The central navigation point for Inventor knowledge is:
-
-```
-knowledge/inventor/KNOWLEDGE-MAP.md
-```
-
-Do not use web search merely because a local SDK source exists.
+Technical API knowledge belongs in `knowledge/`, not primarily in `.clinerules/`.
 
 ---
 
-## Source Hierarchy
+# 13. Knowledge Source Handling
 
-Use sources in this priority order:
+The original authoritative source must remain identifiable.
 
-1. Local Inventor 2026 API/source material
-2. Local official Autodesk SDK samples
-3. Local curated Inventor knowledge
-4. `tested/`
-5. `knowledge/errors/`
-6. Autodesk web documentation when necessary
-7. General model knowledge
+For derived or curated technical sources:
 
----
-
-## Search Narrowly
-
-Do not scan the entire SDK for every task.
-
-Start from:
-
-```
-knowledge/inventor/KNOWLEDGE-MAP.md
-```
-
-Then follow the most relevant source path.
-
-Examples:
-
-### Parameter task
-
-```
-KNOWLEDGE-MAP.md -> parameters -> units (if required) -> relevant SDK sample -> tested pattern -> implementation
-```
-
-### Property task
-
-```
-KNOWLEDGE-MAP.md -> properties -> relevant SDK property sample -> iLogic guidance -> implementation
-```
-
-### Assembly task
-
-```
-KNOWLEDGE-MAP.md -> assemblies -> AssemblyTree sample -> object model -> implementation
-```
+* preserve the original source;
+* clearly treat derived material as an interpretation or retrieval aid;
+* do not silently replace the original source with a derived representation;
+* consult the original source when exact verification, visual relationships, or potentially lost information matter.
 
 ---
 
-## API Verification
+# 14. PDF and Document Sources
 
-When an unfamiliar API member is encountered:
+The local SDK and reference material may contain PDF, DOC, and DOCX files.
 
-1. Check the Knowledge Map.
-2. Check curated knowledge.
-3. Check relevant local SDK source.
-4. Check `knowledge/errors/`.
-5. Check `tested/`.
-6. Use web documentation only when local evidence is insufficient.
+Do not automatically convert every document to Markdown.
 
-Do not guess API members.
-
----
-
-## PDF/DOC Source Handling
-
-The local SDK contains PDF and document files that may be difficult to search efficiently. Do not treat all PDF/DOC/DOCX files the same.
-
-For each PDF or document:
+For each source:
 
 1. Determine what information it contains.
-2. Determine whether the information is useful for future Inventor API development.
-3. Determine whether the original document is already sufficiently searchable.
-4. Determine whether an AI-friendly derived representation would materially improve retrieval.
-5. Keep the original Autodesk document unchanged as the authoritative source.
+2. Determine whether the information is useful for future development.
+3. Determine whether the original is already sufficiently searchable.
+4. Determine whether a derived representation materially improves retrieval.
+5. Preserve the original as authoritative.
 
-### Source Types
+Source types:
 
-| Type | Description |
-|---|---|
-| `RAW SOURCE` | Original Autodesk document |
+| Type             | Description                        |
+| ---------------- | ---------------------------------- |
+| `RAW SOURCE`     | Original Autodesk document         |
 | `CURATED SOURCE` | AI-friendly derived representation |
 
-The curated source must never silently replace the raw source.
+A curated source must never silently replace a raw source.
 
-### PDF Retrieval Sequence
+Normal retrieval should use the best available searchable representation, but return to the original when exact verification or missing context requires it.
 
-```
-PDF/DOC source
-    ↓
-Check curated representation
-    ↓
-Use curated representation for normal retrieval
-    ↓
-Consult original document when:
-- visual relationships matter;
-- the curated representation is ambiguous;
-- exact source verification is required;
-- information may have been lost during derivation.
-```
-
-After creating a derived representation, compare it with the original source, verify that important relationships and information were not lost, check for unsupported assumptions, and mark the derived document as a curated interpretation. Do not claim that the derived representation is authoritative.
-
-Do not automatically convert every PDF/DOC file to Markdown. Only create a derived representation when it materially improves AI retrieval.
 ---
 
-## Tested Implementations
+# 15. Tested Implementations
 
-`tested/` is a knowledge library of reusable implementation patterns, not a storage location for completed functions.
+`tested/` is a reusable knowledge library.
 
-Use `tested/` for concise reusable patterns, verified API usage patterns, and verified code fragments useful for future development.
+It is not a general archive of completed work.
 
-Do NOT use `tested/` for completed production functions, complete user-facing iLogic tools, every successfully tested function, project-specific implementations, user manuals, or release documentation.
+Use `tested/` only for verified, reusable implementation patterns.
 
-Before implementing new functionality:
+Before implementing unfamiliar or reusable functionality:
 
-1. Search `tested/` for relevant patterns.
-2. Identify the closest verified pattern.
+1. Search `tested/`.
+2. Identify the closest relevant pattern.
 3. Compare Inventor version.
-4. Compare programming environment.
+4. Compare execution environment.
 5. Compare document context.
 6. Compare API context.
-7. Reuse the pattern when applicable.
-
-Do not blindly copy a tested pattern when its context differs.
+7. Reuse the pattern only when the context matches sufficiently.
 
 A tested pattern is evidence, not universal proof.
 
-A successful validation does not automatically create a `tested/` entry.
+Do not assume that a successful test automatically creates a `tested/` entry.
 
-Only create or update a `tested/` entry when the result contains a genuinely reusable implementation pattern.
+Detailed rules for `tested/` storage are defined in:
 
----
-
-## Completed Functions
-
-When an iLogic function is fully completed, validated, and ready for use, it belongs in `addins/`.
-
-Use this structure:
-
-```
-addins/
-└── <FunctionName>/
-    ├── <FunctionName>.vb
-    └── README.md
+```text
+.clinerules/10-coding-standards.md
 ```
 
-The folder name must match the function name.
+---
 
-A function may only be promoted to `addins/` when it is explicitly considered ready for use.
+# 16. Error Knowledge
 
-Do not promote unfinished or unresolved functionality to `addins/`.
+Reusable negative knowledge belongs in:
 
-For detailed promotion rules, see `.clinerules/10-coding-standards.md` section 21.
+```text
+knowledge/errors/
+```
+
+Examples include:
+
+* API members confirmed invalid
+* incorrect API assumptions
+* version-specific limitations
+* environment-specific limitations
+* verified failed approaches
+
+Do not store failed or unverified attempts as established knowledge.
+
+Detailed error-memory rules are defined in:
+
+```text
+.clinerules/15-validation-loop.md
+```
 
 ---
 
-## Validation vs Promotion
+# 17. Completed Functions
 
-`VALIDATED` means the implementation has been tested successfully.
+Completed user-ready iLogic functions belong in:
 
-`PROMOTED` means the implementation has been intentionally placed in `addins/` as a completed reusable function.
+```text
+addins/<FunctionName>/
+```
 
-A function can be `VALIDATED` without being `PROMOTED`.
+with:
 
-Never assume promotion is implied by validation.
+```text
+<FunctionName>.vb
+README.md
+```
 
-Do NOT automatically promote every successfully completed task to `addins/`.
+Only explicitly ready-for-use functions should be promoted there.
 
----
+Validation does not automatically imply promotion.
 
-## Error Handling
+Detailed promotion and storage rules are defined in:
 
-Treat compile errors, runtime errors, API errors, and incorrect behavior as feedback.
-
-When validation fails:
-
-1. Capture the exact failure.
-2. Classify the failure.
-3. Identify the most likely root cause.
-4. Check previous attempts.
-5. Check `tested/`.
-6. Check relevant knowledge.
-7. Apply the smallest reasonable correction.
-8. Validate again.
-
-Follow `.clinerules/15-validation-loop.md`.
+```text
+.clinerules/10-coding-standards.md
+```
 
 ---
 
-## Error Memory
+# 18. Status Values
 
-Do not discard reusable information discovered during debugging.
+Use these status values consistently:
 
-When a failure reveals reusable knowledge, preserve:
+| Status           | Meaning                                                            |
+| ---------------- | ------------------------------------------------------------------ |
+| `GENERATED`      | Code exists but has not been validated.                            |
+| `REVIEWED`       | Code has been inspected but not executed.                          |
+| `BUILT`          | Compilation/build succeeded.                                       |
+| `RUNTIME-TESTED` | Code executed successfully enough to produce runtime evidence.     |
+| `VERIFIED`       | Requested behavior was confirmed.                                  |
+| `BLOCKED`        | Validation requires an unavailable external action or environment. |
+| `UNRESOLVED`     | Available evidence does not establish a correct solution.          |
 
-* Error
-* Context
-* Root cause
-* Incorrect assumption
-* Correct implementation
-* Inventor version
-* Programming environment
-* Document context
-* Verification status
+Never report `VERIFIED` unless the requested behavior was actually confirmed.
 
-Promote verified reusable information to the appropriate location:
-
-* `tested/` for verified implementation patterns
-* `knowledge/` for general technical facts
-* `knowledge/errors/` for verified negative knowledge (API members tested and found invalid, incorrect assumptions, confirmed limitations)
-
-Do not store failed or unverified implementations as tested solutions.
+Never invent build, runtime, or validation results.
 
 ---
 
-## External Tools and Environments
+# 19. Validation and Repair
 
-Use:
+Executable Inventor work must follow:
 
-* VS Code / Cline for planning, editing, repository navigation, documentation, and knowledge management.
-* Visual Studio for .NET Add-in builds and debugging.
-* Autodesk Inventor for runtime validation.
+```text
+.clinerules/15-validation-loop.md
+```
 
-Do not claim that an external operation succeeded unless its result is available.
+The development sequence is defined in:
 
-If an external validation step cannot be executed, report `BLOCKED`.
+```text
+.clinerules/20-workflow.md
+```
 
----
-
-## Autonomous Repair
-
-For executable code, do not stop at the first generated implementation.
-
-The required sequence is:
-
-1. Implement
-2. Validate
-3. Capture failure
-4. Analyze failure
-5. Check previous knowledge
-6. Patch
-7. Validate again
-
-Repeat until the implementation is verified, blocked, or unresolved.
-
-Do not repeat an unsuccessful approach without new evidence.
+Do not duplicate those complete procedures here.
 
 ---
 
-## Repair Iteration Limit
+# 20. External Environments
 
-Default maximum repair iterations:
+Use the appropriate application for the operation:
 
-`5`
+| Operation                                               | Preferred environment |
+| ------------------------------------------------------- | --------------------- |
+| Planning, editing, repository navigation, documentation | VS Code / Cline       |
+| .NET Add-in build and debugging                         | Visual Studio         |
+| Inventor runtime validation                             | Autodesk Inventor     |
 
-The initial implementation is iteration `1`.
+Do not claim that an external operation succeeded unless the result is available.
 
-When the maximum is reached:
+When external validation is required but unavailable, use:
 
-1. Stop speculative changes.
-2. Preserve relevant evidence.
-3. Summarize the failed hypotheses.
-4. Report the current status as `UNRESOLVED`.
-5. State what external validation or information is required.
+`BLOCKED`
 
-Never loop indefinitely.
-
----
-
-## Claims About Results
-
-Never claim that code:
-
-* compiles;
-* builds;
-* loads;
-* executes;
-* passes runtime validation;
-* fixes the original issue;
-* is compatible with Inventor 2026;
-
-unless the relevant result has actually been established.
-
-Use explicit status values.
+rather than inventing a result.
 
 ---
 
-## Definition of Done
+# 21. General Project Principle
 
-A task is complete only when all applicable conditions are satisfied:
+This workspace follows:
 
-1. The requested functionality is implemented.
-2. Relevant API assumptions are verified.
-3. Validation has been attempted.
-4. Failures have been repaired, explained, or blocked.
-5. The final status is explicitly known.
-6. Reusable verified knowledge has been preserved where appropriate.
+```text
+Evidence
+    ↓
+Correct context
+    ↓
+Verified implementation
+    ↓
+Validation
+    ↓
+Reusable knowledge
+```
 
-A solution that merely looks correct is not considered verified.
+Project-specific technical knowledge belongs in `knowledge/`.
+
+Reusable verified implementation patterns belong in `tested/`.
+
+Completed user-ready functions belong in `addins/`.
+
+Temporary experiments belong in `scratch/`.
+
+Behavioral instructions belong in `.clinerules/`.

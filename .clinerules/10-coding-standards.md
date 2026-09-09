@@ -2,167 +2,172 @@
 
 ## Purpose
 
-Define coding standards for Inventor automation and Add-in development.
+Define coding standards for Autodesk Inventor automation and Add-in development.
 
-These rules apply primarily to:
+These standards apply primarily to:
 
-- C#
-- VB.NET
-- iLogic
+* C#
+* VB.NET
+* iLogic
 
----
+The global Cline development rule defines general coding philosophy and communication behavior.
 
-## 1. General Principles
-
-Generated code should be:
-
-- clear;
-- maintainable;
-- predictable;
-- testable;
-- explicit;
-- as simple as reasonably possible.
-
-Avoid unnecessary abstraction.
-
-Prefer deletion over addition. Remove unnecessary code when it is safe to do so.
-
-Avoid adding new dependencies when existing project capabilities or native Inventor/iLogic functionality can solve the problem.
-
-Avoid boilerplate that nobody asked for.
+This file defines **Inventor-specific coding and workspace standards**.
 
 ---
 
-## 2. Naming
+# 1. Naming
 
-Use meaningful names.
+Use meaningful names that communicate the purpose of the value or object.
 
 Prefer:
 
-    componentOccurrence
-    targetParameter
-    activeDocument
-    selectedFace
+```text
+componentOccurrence
+targetParameter
+activeDocument
+selectedFace
+```
 
 Avoid meaningless names such as:
 
-    x
-    tmp
-    obj1
-    data2
-    thing
+```text
+x
+tmp
+obj1
+data2
+thing
+```
 
-unless the scope makes the meaning obvious.
+Short names are acceptable when their meaning is obvious from the scope and context.
 
 ---
 
-## 3. Methods
+# 2. Methods
 
 Prefer methods with one clear responsibility.
 
-Avoid large methods that:
+Avoid methods that unnecessarily combine unrelated responsibilities such as:
 
-- find objects;
-- validate input;
-- modify the model;
-- update the UI;
-- handle errors;
-- perform unrelated operations.
+* finding objects;
+* validating input;
+* modifying the model;
+* updating the UI;
+* handling errors;
+* performing unrelated operations.
 
-Split responsibilities when this improves clarity.
+Separate responsibilities when doing so improves clarity and maintainability.
 
----
-
-## 4. API Context
-
-Do not hide important Inventor API context.
-
-Code should make it reasonably clear:
-
-- which document is being accessed;
-- which ComponentDefinition is being used;
-- which occurrence is targeted;
-- whether the operation is Part or Assembly specific.
+Do not create abstractions solely to satisfy an idealized architecture.
 
 ---
 
-## 5. Null / Nothing Handling
+# 3. Inventor API Context
 
-Do not assume Inventor API objects always exist.
+Code should make important Inventor context reasonably clear.
+
+Where relevant, make it clear:
+
+* which document is being accessed;
+* which ComponentDefinition is being used;
+* which occurrence is targeted;
+* whether the operation is Part or Assembly specific;
+* whether an object is native or a proxy;
+* whether the operation depends on document state.
+
+Do not hide critical Inventor context behind unnecessary abstraction.
+
+---
+
+# 4. Null / Nothing Handling
+
+Do not assume Inventor API references always exist.
 
 Check relevant references before use.
 
 Potentially missing objects include:
 
-- ActiveDocument
-- ComponentOccurrence
-- Parameter
-- Feature
-- Sketch
-- Face
-- Edge
-- referenced Document
+* `ActiveDocument`
+* `ComponentOccurrence`
+* `Parameter`
+* `Feature`
+* `Sketch`
+* `Face`
+* `Edge`
+* referenced `Document`
+
+Handle missing references according to the actual requirements of the operation.
 
 ---
 
-## 6. Error Handling
+# 5. Error Handling
 
 Handle expected failures explicitly.
 
-Examples:
+Examples include:
 
-- wrong document type;
-- missing parameter;
-- missing feature;
-- invalid value;
-- missing file;
-- API exception;
-- unavailable reference;
-- invalid Assembly context.
+* wrong document type;
+* missing parameter;
+* missing feature;
+* invalid value;
+* missing file;
+* API exception;
+* unavailable reference;
+* invalid Assembly context.
 
-Do not silently swallow exceptions unless that behavior is intentional.
+Do not silently swallow exceptions unless that behavior is intentional and appropriate.
 
 ---
 
-## 7. Error Messages
+# 6. Error Messages
 
 Error messages should provide useful context.
 
 Prefer:
 
-    Unable to find parameter 'Width' in the active Part document.
+```text
+Unable to find parameter 'Width' in the active Part document.
+```
 
 over:
 
-    Error.
+```text
+Error.
+```
 
-For development and debugging, include relevant context where appropriate.
+For development and debugging, include relevant context when useful.
 
 ---
 
-## 8. Magic Numbers
+# 7. Magic Numbers
 
 Avoid unexplained numeric constants.
 
 Bad:
 
-    value = 25
+```text
+value = 25
+```
 
 Better:
 
-    minimumThickness = 25
+```text
+minimumThickness = 25
+```
 
-For unit-sensitive values, explicitly document or encode the intended unit.
+For unit-sensitive values, explicitly identify the intended unit or use an appropriate unit-aware representation.
 
 ---
 
-## 9. Hardcoded Paths
+# 8. Hardcoded Paths
 
 Avoid hardcoded Autodesk installation paths.
 
-Do not assume that:
+Do not assume:
 
-    C:\Program Files\Autodesk\Inventor 2026\
+```text
+C:\Program Files\Autodesk\Inventor 2026\
+```
 
 is valid on every machine.
 
@@ -170,7 +175,7 @@ Use configurable paths or discover installation paths where appropriate.
 
 ---
 
-## 10. Units
+# 9. Units
 
 Do not hide unit conversions inside arbitrary calculations.
 
@@ -178,31 +183,37 @@ Prefer explicit unit handling.
 
 When a value represents a physical quantity, make the intended unit clear.
 
-See:
+Use:
 
-    knowledge/units.md
+```text
+knowledge/units.md
+```
+
+when relevant.
 
 ---
 
-## 11. Performance
+# 10. Performance
 
 Avoid unnecessary:
 
-- Inventor API calls;
-- document updates;
-- geometry queries;
-- recursive traversal;
-- UI updates;
-- document opens/closes;
-- repeated parameter lookups.
+* Inventor API calls;
+* document updates;
+* geometry queries;
+* recursive traversal;
+* UI updates;
+* document opens/closes;
+* repeated parameter lookups.
 
-For large assemblies, performance considerations become especially important.
+Performance becomes particularly important for large assemblies.
+
+Do not sacrifice correctness merely to reduce API calls.
 
 ---
 
-## 12. Model Updates
+# 11. Model Updates
 
-Do not trigger unnecessary model updates.
+Do not trigger unnecessary Inventor model updates.
 
 When multiple related changes are required, consider whether they can safely be performed before a final update.
 
@@ -212,7 +223,7 @@ Correct model state takes priority.
 
 ---
 
-## 13. Transactions
+# 12. Transactions
 
 Use Inventor transactions when they provide a meaningful undo/rollback boundary.
 
@@ -220,73 +231,87 @@ Do not use transactions for purely read-only operations.
 
 When using transactions:
 
-- start at the appropriate scope;
-- commit on success;
-- abort on failure where appropriate.
+* start at the appropriate scope;
+* commit on success;
+* abort on failure where appropriate.
 
 ---
 
-## 14. Comments
+# 13. Comments
 
-Comments should explain:
+Comments should explain non-obvious reasons, including:
 
-- why something is done;
-- API workarounds;
-- non-obvious Inventor behavior;
-- version-specific behavior;
-- important limitations.
+* why something is done;
+* API workarounds;
+* non-obvious Inventor behavior;
+* version-specific behavior;
+* important limitations.
 
-Avoid comments that merely restate obvious code.
+Avoid comments that merely restate the code.
 
 Bad:
 
-    // Set width to 20
-    width = 20
+```vb
+' Set width to 20
+width = 20
+```
 
 Better:
 
-    // Inventor requires this value to be supplied in the API's expected unit.
+```vb
+' Inventor requires this value to be supplied in the API's expected unit.
+```
 
 ---
 
-## 15. Existing Code
-
-When modifying existing code:
-
-- preserve working functionality;
-- avoid unrelated formatting changes;
-- avoid unnecessary rewrites;
-- keep the diff focused;
-- preserve established architecture unless there is a clear reason to change it.
-
----
-
-## 16. API Calls
-
-Prefer direct, well-understood API usage over complicated chains of speculative calls.
-
-When an API call is uncertain, verify it before committing the implementation.
-
----
-
-## 17. Logging and Diagnostics
+# 14. Logging and Diagnostics
 
 For Add-ins and complex automation, diagnostic logging can be useful.
 
 Log meaningful information such as:
 
-- operation;
-- document;
-- object identifier;
-- error;
-- exception;
-- relevant state.
+* operation;
+* document;
+* object identifier;
+* error;
+* exception;
+* relevant state.
 
 Do not flood logs with unnecessary API details.
 
 ---
 
-## 18. Security and Reliability
+# 15. Existing Code
+
+When modifying existing code:
+
+1. Preserve working functionality.
+2. Avoid unrelated formatting changes.
+3. Avoid unnecessary rewrites.
+4. Keep the diff focused.
+5. Preserve established architecture unless there is a clear reason to change it.
+
+The global development rule defines the general minimal-change principle.
+
+This section applies that principle specifically to Inventor code.
+
+---
+
+# 16. API Calls
+
+Prefer direct, well-understood API usage over complicated chains of speculative calls.
+
+When an API call is uncertain, verify it before committing the implementation.
+
+Follow the API evidence hierarchy defined in:
+
+```text
+.clinerules/00-core.md
+```
+
+---
+
+# 17. Security and Reliability
 
 Do not execute external files, commands, scripts, or installers unless explicitly required.
 
@@ -294,38 +319,15 @@ Do not silently modify files outside the intended workspace or document context.
 
 ---
 
-## 19. General Rule
-
-Prefer:
-
-Simple
->
-Explicit
->
-Verified
->
-Maintainable
-
-over:
-
-Clever
->
-Implicit
->
-Speculative
->
-Over-engineered
-
----
-
-## 20. Debug Mode for Testing
+# 18. Debug Mode for iLogic Testing
 
 When developing iLogic rules that will be validated in Autodesk Inventor:
 
 1. Add a `DebugMode` constant at the rule level.
 2. When `DebugMode = True`, write the report to a text file in `scratch/`.
-3. When `DebugMode = False`, only show the MessageBox (production behavior).
-4. After verification, set `DebugMode = False` and remove text files from `scratch/`.
+3. When `DebugMode = False`, use the intended production behavior.
+4. After verification, set `DebugMode = False`.
+5. Remove temporary text files from `scratch/`.
 
 Pattern:
 
@@ -334,6 +336,7 @@ Const DebugMode As Boolean = True
 Const DebugOutputFile As String = "<path-to-scratch>\Output.txt"
 
 ' ... after building the report ...
+
 If DebugMode Then
     Try
         System.IO.File.WriteAllText(DebugOutputFile, report.ToString())
@@ -341,59 +344,62 @@ If DebugMode Then
         ' Ignore file write failures
     End Try
 End If
+
 MessageBox.Show(report.ToString(), "RuleName")
 ```
 
 ---
 
-## 21. File Management
+# 19. File Management
 
-When modifying, extending, debugging, or improving functionality that already exists:
+When modifying, extending, debugging, or improving existing functionality:
 
-1. Always search the workspace for an existing implementation before creating a new source file.
-2. When the requested functionality already exists, identify the canonical source file.
-3. Read the existing implementation completely before making changes.
+1. Search the workspace for an existing implementation before creating a new source file.
+2. Identify the canonical source file.
+3. Read the existing implementation completely before changing it.
 4. Modify the existing implementation in place.
 5. Preserve its file name and location unless there is an explicit reason to change them.
 6. Do not create duplicate implementations of the same functionality.
-7. During repair iterations, continue modifying the existing implementation instead of creating replacement files.
-8. Only create a new file when:
-   - the user explicitly requests one;
-   - the functionality is genuinely separate;
-   - the architecture requires a separate file;
-   - or a new implementation is explicitly required.
-9. Apply the same rule to `tested/`: when an existing tested implementation is extended, update the existing file rather than creating a second version.
-10. Before creating any file, verify that the requested functionality does not already exist elsewhere in the workspace.
+7. During repair iterations, continue modifying the existing implementation.
+8. Create a new file only when:
 
-Violating this rule produces duplicate implementations, scattered functionality, and maintenance burden.
+   * the user explicitly requests one;
+   * the functionality is genuinely separate;
+   * the architecture requires a separate file;
+   * or a new implementation is explicitly required.
+9. Apply the same principle to `tested/`: extend an existing tested implementation when appropriate instead of creating a duplicate.
+10. Before creating any file, verify that the requested functionality does not already exist elsewhere in the workspace.
 
 ---
 
-## 22. Function Promotion and Storage
+# 20. Storage Locations
 
-### Storage Locations
+Use these storage conventions:
 
-| Output type | Location |
-|---|---|
-| New or modified production function | source/project location |
-| Reusable verified implementation pattern | `tested/` |
-| General reusable technical knowledge | `knowledge/` |
-| Verified negative knowledge | `knowledge/errors/` |
-| Completed user-ready iLogic function | `addins/<FunctionName>/` |
-| Completed function documentation | `addins/<FunctionName>/README.md` |
+| Output type                              | Location                          |
+| ---------------------------------------- | --------------------------------- |
+| New or modified production function      | source/project location           |
+| Reusable verified implementation pattern | `tested/`                         |
+| General reusable technical knowledge     | `knowledge/`                      |
+| Verified negative knowledge              | `knowledge/errors/`               |
+| Completed user-ready iLogic function     | `addins/<FunctionName>/`          |
+| Completed function documentation         | `addins/<FunctionName>/README.md` |
+| Temporary experiments                    | `scratch/`                        |
 
-### tested/ — Reusable Patterns Only
+---
+
+# 21. `tested/` — Reusable Patterns Only
 
 `tested/` is a knowledge library, not a storage location for completed functions.
 
-Use `tested/` for:
+Use it for:
 
 * concise reusable implementation patterns;
 * verified API usage patterns;
 * verified code fragments;
 * reusable examples useful for future development.
 
-Do NOT use `tested/` for:
+Do not use it for:
 
 * completed production functions;
 * complete user-facing iLogic tools;
@@ -405,112 +411,55 @@ Do NOT use `tested/` for:
 
 A successful validation does not automatically create a `tested/` entry.
 
-Only create or update a `tested/` entry when the result contains a genuinely reusable implementation pattern.
+Create or update `tested/` only when the result contains a genuinely reusable implementation pattern.
 
-### Reusable Enough for tested/
+---
 
-A pattern is eligible for `tested/` only when ALL of the following are true:
+# 22. Eligibility for `tested/`
 
-1. It is actually verified in the stated environment.
+A pattern is eligible for `tested/` only when all of the following are true:
+
+1. It is verified in the stated environment.
 2. It has meaningful reuse value beyond the current function.
 3. It is not trivial boilerplate or an obvious one-line API call.
 4. It is not specific to one business function.
 5. It is independently useful in future Inventor/iLogic development.
 6. Storing it will materially help future development, reliability, or API discovery.
 
-If any mandatory criterion is false, do not create a `tested/` entry.
+When in doubt, do not promote it to `tested/`.
 
-When in doubt, do not promote to `tested/`.
-
-The source implementation and relevant `knowledge/` files are the default locations for verified work.
-
-`tested/` should be a small, high-confidence library rather than a comprehensive archive of successful work.
-
-#### Decision process
-
-```
-Successful implementation
-        |
-        v
-Is it reusable beyond this specific function?
-        |
-    +---+---+
-    |       |
-   NO      YES
-    |       |
-    v       v
-Keep      Is it
-source    meaningful
-only      enough?
-              |
-          +---+---+
-          |       |
-         NO      YES
-          |       |
-          v       v
-        Keep   tested/
-        source
-        only
-```
-
-#### Examples
-
-This should generally NOT become a `tested/` entry:
-
-```vb
-Dim doc = ThisApplication.ActiveDocument
-```
-
-unless it demonstrates some non-obvious, verified Inventor/iLogic behavior that is useful beyond the current task.
-
-This may be appropriate for `tested/`:
-
-* a verified pattern for safely obtaining a PartComponentDefinition in iLogic;
-* a verified pattern for setting Inventor parameter expressions with explicit units;
-* a verified pattern for handling assembly occurrences recursively;
-* a verified pattern for safely working with Inventor proxies;
-* a verified pattern for converting or displaying Inventor internal units.
-
-The goal is reusable knowledge, not a collection of tiny snippets.
-
-#### File granularity
+The goal is a small, high-confidence library rather than an archive of successful tasks.
 
 Prefer:
 
-```
+```text
 tested/ilogic/parameter-expression-and-units.md
 ```
 
-over:
+over many tiny files when related patterns form one reusable topic.
 
+---
+
+# 23. `addins/` — Completed Functions
+
+When an iLogic function is fully completed, validated, and explicitly ready for use, it belongs in:
+
+```text
+addins/<FunctionName>/
 ```
-tested/ilogic/SetExpression.vb
-tested/ilogic/GetValue.vb
-tested/ilogic/GetParameter.vb
-```
 
-when the related patterns belong to the same reusable topic.
+with:
 
-A `tested/` file should represent a meaningful reusable pattern or topic, not merely one API call.
-
-### addins/ — Completed Functions
-
-When an iLogic function is fully completed, validated, and ready for use, it belongs in `addins/`.
-
-Use this structure:
-
-```
-addins/
-└── <FunctionName>/
-    ├── <FunctionName>.vb
-    └── README.md
+```text
+<FunctionName>.vb
+README.md
 ```
 
 The folder name must match the function name.
 
 Example:
 
-```
+```text
 addins/
 └── ValidateAndSetParameters/
     ├── ValidateAndSetParameters.vb
@@ -520,178 +469,119 @@ addins/
 Before promotion:
 
 1. The function must be implemented.
-2. The function must pass relevant validation.
+2. Relevant validation must pass.
 3. Known runtime and compile errors must be resolved.
-4. The requested behavior must be verified.
-5. The function must have a known validation status.
-6. The final implementation must be clean enough for reuse.
-7. The function must not contain temporary debugging code unless that debugging behavior is intentionally part of the function.
+4. Requested behavior must be verified.
+5. Validation status must be known.
+6. The implementation must be clean enough for reuse.
+7. Temporary debugging code must be removed unless intentionally part of the function.
 
-Do not promote unfinished or unresolved functionality to `addins/`.
+Do not promote unfinished or unresolved functionality.
 
-### Modifying an Existing Function in addins/
+---
 
-If the function already exists in `addins/<FunctionName>/`, treat that as the primary completed implementation unless the task explicitly requires a new function.
+# 24. Modifying an Existing Function in `addins/`
+
+If the function already exists in:
+
+```text
+addins/<FunctionName>/
+```
+
+treat it as the primary completed implementation unless the task explicitly requires a new function.
 
 After modification:
 
 * validate it;
-* update the existing README when behavior or usage changed;
-* update relevant `knowledge/` or `tested/` entries when genuinely reusable knowledge was discovered.
+* update the existing README when behavior or usage changes;
+* update relevant `knowledge/` or `tested/` entries when genuinely reusable knowledge is discovered.
 
-Do not create a new folder for every modification.
+Do not create:
 
-Do not create `<FunctionName>V2`, `<FunctionName>Final`, `<FunctionName>New`, etc. unless explicitly requested.
-
-### No Automatic Promotion
-
-Do NOT automatically promote every successfully completed task to `addins/`.
-
-Promotion should happen when the function is explicitly considered ready for use.
-
-The default workflow is:
-
+```text
+<FunctionName>V2
+<FunctionName>Final
+<FunctionName>New
 ```
-New Function
-    ->
-Develop in source/project location
-    ->
+
+unless explicitly requested.
+
+---
+
+# 25. No Automatic Promotion
+
+Do not automatically promote every successfully completed task to `addins/`.
+
+The default lifecycle is:
+
+```text
+Develop
+    ↓
 Validate
-    ->
+    ↓
 Repair if necessary
-    ->
+    ↓
 Verified
-    ->
+    ↓
 Ready for use?
-    |
-    +-- NO --> Keep in source/project location
-    |
-    +-- YES
-          ->
-    Promote to addins/<FunctionName>/
-          ->
-    Add <FunctionName>.vb
-          ->
-    Add README.md
+    ├── No → keep in source/project location
+    └── Yes → promote to addins/<FunctionName>/
 ```
-
-### README in addins/<FunctionName>/
-
-A completed function in `addins/` may contain a `README.md`.
-
-Unlike `tested/`, a Markdown file in an `addins/<FunctionName>/` folder IS appropriate because it documents the completed function for practical use.
-
-The README may contain:
-
-* Purpose
-* What the function does
-* Requirements
-* Supported document types
-* Required parameters
-* Required setup
-* How to install/use it
-* Expected behavior
-* Validation result
-* Known limitations
-* Important configuration
-* Example usage
-
-Keep the README focused on using and understanding the completed function.
-
-Do not use the README as a development diary.
-
-Do not include a long list of every failed API experiment unless that information is genuinely useful to future developers. Store reusable negative knowledge in `knowledge/errors/` instead.
 
 ---
 
-## 24. DSTV/NC1 Knowledge Usage
+# 26. `README.md` for Completed Functions
 
-When a task involves DSTV/NC1 file-format questions:
+A README in:
 
-1. Start from the canonical entry point: `knowledge/dstv/nc1/7th-edition/DSTV-KNOWLEDGE-MAP.md`.
-2. Follow the route mapping (NC1 concept → DSTV source file) to locate the authoritative topic file.
-3. Consult the original PDF (`reference/dstv/`) for figures, dimensional examples, and layout that are not reliably represented by text extraction.
-4. Use curated sources (`DSTV-7th-edition-extracted.md`) for searchable text only when the PDF page is not available.
-5. Do not infer a DSTV field meaning from a variable name, an existing implementation, or a single software-generated NC1 file when the specification can answer the question.
-6. Preserve the original DSTV PDF as the authoritative source; curated Markdown files are derived interpretations.
-7. Never create a second competing DSTV Knowledge Map — all NC1 routing instructions must funnel through the canonical map.
+```text
+addins/<FunctionName>/README.md
+```
+
+should document practical use.
+
+It may contain:
+
+* purpose;
+* behavior;
+* requirements;
+* supported document types;
+* required parameters;
+* required setup;
+* installation/use;
+* expected behavior;
+* validation result;
+* known limitations;
+* important configuration;
+* example usage.
+
+Keep it focused on using and understanding the completed function.
+
+Do not use it as a development diary.
+
+Reusable negative knowledge belongs in:
+
+```text
+knowledge/errors/
+```
 
 ---
 
-## 23. Tool Usage for File Operations
+# 27. Tool Usage for File Operations
 
-### File edits — use the `editor` tool directly
+When modifying, creating, or replacing file contents, use the Cline editor/file-editing capability directly.
 
-When modifying, creating, or replacing text in any file, use the `editor` tool. Do NOT write a Python or PowerShell script to perform file edits.
+Do not use a shell or programming script for a simple text edit when the editor can perform it safely.
 
-**Correct:**
-```
-editor → path: scratch/dstv_exporter.vb
-       → old_text: "Fmt(widthMm)"
-       → new_text: "Fmt(centerDistMm + widthMm)"
-```
+Use command execution for operations that genuinely require commands, such as:
 
-**Incorrect:**
-```
-run_commands → PowerShell script that reads the file, does string replacement, writes it back
-```
+* Git operations;
+* builds and compilation;
+* file listings and inspections;
+* running external programs;
+* command-line searching;
+* other operations that cannot be performed appropriately by the editor.
 
-The `editor` tool is:
-- faster (no process spawn, no full-file read/write);
-- safer (exact text matching, no regex escaping errors);
-- cleaner (no helper scripts cluttering `scratch/`);
-- reviewable (the diff is in the actual file, not a script).
+Use `scratch/` scripts only for genuinely complex transformations, programming experiments, or one-off operations requiring procedural logic.
 
-### When to use `run_commands`
-
-Use `run_commands` only for operations that cannot be done with `editor` or `read_files`:
-
-- Git operations (status, add, commit, diff, log)
-- Build and compile checks (vbc.exe, MSBuild)
-- File listings and inspections (dir, Get-ChildItem)
-- Running external programs
-- Searching with grep/findstr
-
-### When to use scratch/ scripts
-
-A script in `scratch/` is appropriate when:
-
-- The operation is genuinely complex (multi-step logic, conditional branching)
-- The operation requires a real programming language (loops, data transformation)
-- The operation is a one-off experiment that will be discarded
-
-A script in `scratch/` is NOT appropriate when:
-
-- The operation is a simple find-and-replace (use `editor`)
-- The operation is a single file write (use `editor`)
-- The operation is a build check that will be reused (move to a permanent script location)
-
-### Decision ladder for file operations
-
-```
-Need to change a file?
-    |
-    +-- Is it a simple text replacement?
-    |       |
-    |       +-- YES --> use `editor`
-    |       |
-    |       +-- NO
-    |           |
-    |           +-- Is it a multi-step transformation?
-    |                   |
-    |                   +-- YES --> consider `editor` with multiple calls
-    |                   |       |
-    |                   |       +-- Still too complex?
-    |                   |               |
-    |                   |               +-- YES --> use `run_commands` with a script
-    |                   |               |
-    |                   |               +-- NO --> use `editor`
-    |                   |
-    |                   +-- NO --> use `editor`
-    |
-    +-- Is it a read-only operation?
-            |
-            +-- YES --> use `read_files`
-            |
-            +-- NO --> use `run_commands` (git, build, etc.)
-```
+Do not create scripts merely to perform a simple file write or replacement.

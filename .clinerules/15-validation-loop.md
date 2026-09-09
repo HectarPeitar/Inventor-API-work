@@ -16,13 +16,13 @@ Applies to:
 
 ---
 
-## Mandatory Loop
+# 1. Mandatory Validation Loop
 
 For executable tasks, follow this sequence:
 
 1. Understand the requirement.
 2. Identify the execution context.
-3. Check relevant knowledge.
+3. Check relevant project knowledge.
 4. Check `tested/`.
 5. Implement the smallest reasonable solution.
 6. Validate the implementation.
@@ -34,22 +34,36 @@ For executable tasks, follow this sequence:
 12. Apply a targeted correction.
 13. Validate again.
 
-Repeat steps 7-13 until one of these conditions is met:
+Repeat until one of these conditions is met:
 
 * `VERIFIED`
 * `BLOCKED`
 * `UNRESOLVED`
-* Maximum iteration count reached
+* maximum iteration count reached
 
 ---
 
-## Iteration Tracking
+# 2. API and Knowledge Verification
 
-Track every implementation attempt explicitly.
+For API evidence and source priority, follow:
+
+```text
+.clinerules/00-core.md
+```
+
+Do not create a second source hierarchy here.
+
+This file defines **what to do after validation evidence exists**.
+
+---
+
+# 3. Iteration Tracking
+
+Track each implementation attempt explicitly.
 
 Example:
 
-```
+```text
 Iteration: 1
 Status: FAIL
 Failure: <exact error>
@@ -59,35 +73,37 @@ Change: <change made>
 
 Do not collapse multiple attempts into one.
 
-Each iteration must produce new information or new evidence.
+Each iteration must produce new information, new evidence, or a changed hypothesis.
+
+Do not repeat an unsuccessful approach without new evidence.
 
 ---
 
-## Failure Capture
+# 4. Failure Capture
 
 When validation fails, capture the strongest available evidence.
 
-Record:
+Record, when available:
 
-* Exact error message
-* Error category
-* File
-* Line number, when available
-* API member, when applicable
-* Object type, when applicable
-* Document type
-* Programming environment
-* Inventor version
-* Relevant context
-* Changes made in the current iteration
+* exact error message;
+* error category;
+* file;
+* line number;
+* API member;
+* object type;
+* document type;
+* programming environment;
+* Inventor version;
+* relevant context;
+* changes made in the current iteration.
 
-Do not replace or paraphrase the original error when the exact message is available.
+Do not paraphrase the original error when the exact message is available.
 
 ---
 
-## Failure Classification
+# 5. Failure Classification
 
-Classify each failure before changing code.
+Classify each failure before modifying the code.
 
 Allowed categories:
 
@@ -101,107 +117,105 @@ Allowed categories:
 * `LOGIC_ERROR`
 * `UNKNOWN`
 
-Use `UNKNOWN` when the evidence is insufficient.
+Use `UNKNOWN` when evidence is insufficient.
 
-Do not force a failure into an incorrect category.
-
----
-
-## Root Cause Analysis
-
-Before changing code, determine the most likely root cause.
-
-Use evidence in this order:
-
-1. Exact validation output
-2. Actual object type and document context
-3. Current implementation
-4. Previous iterations
-5. `tested/`
-6. `knowledge/errors/` — check before repeating an API assumption that previously failed
-7. Relevant `knowledge/`
-8. Official Autodesk documentation
-9. Local SDK or Interop information
-10. Other reliable sources
-
-Do not replace an API member solely because another name appears plausible.
-
-When fixing a bug, check whether the problem originates in a shared implementation. Inspect relevant callers and usages. Fixing the root cause in one shared location is preferred over adding repeated workarounds at each call site.
+Do not force an unsupported classification.
 
 ---
 
-## Failure Must Change the Next Attempt
+# 6. Root Cause Analysis
+
+Before changing code, determine the most likely root cause using available evidence.
+
+Consider:
+
+1. Exact validation output.
+2. Actual object type and document context.
+3. Current implementation.
+4. Previous iterations.
+5. `tested/`.
+6. `knowledge/errors/`.
+7. Relevant project knowledge.
+8. Verified API/source evidence defined by `00-core.md`.
+
+When fixing a bug in shared code, inspect relevant callers and usages.
+
+Prefer correcting a shared root cause over adding repeated workarounds at each call site.
+
+---
+
+# 7. Failure Must Change the Next Attempt
 
 A failed iteration must affect the next hypothesis.
 
 Required pattern:
 
-```
+```text
 Iteration N
-    ->
+    ↓
 Failure
-    ->
+    ↓
 New evidence
-    ->
+    ↓
 Revised hypothesis
-    ->
+    ↓
 Targeted change
-    ->
+    ↓
 Validation
 ```
 
 Forbidden pattern:
 
-```
+```text
 Failure
-    ->
+    ↓
 Guess
-    ->
+    ↓
 Guess
-    ->
+    ↓
 Guess
 ```
 
 ---
 
-## Repeated Failure
+# 8. Repeated Failure
 
 When the same or substantially equivalent failure appears twice:
 
 1. Stop cosmetic changes.
 2. Compare the affected iterations.
-3. Check `knowledge/errors/` — confirm the failed API member or assumption is not already recorded as invalid for the current environment.
-4. Determine why the previous correction did not resolve the failure.
+3. Check `knowledge/errors/`.
+4. Determine why the previous correction failed.
 5. Re-evaluate the root cause.
 6. Re-verify the relevant API, object type, or context.
 7. Apply a new targeted correction.
 8. Validate again.
 
-Do not repeat the same failed approach without checking `knowledge/errors/` first.
+Do not repeat the same failed approach without new evidence.
 
 ---
 
-## No Blind Regeneration
+# 9. No Blind Regeneration
 
-When code fails, do not regenerate the entire implementation unless the evidence shows that the implementation approach is fundamentally incorrect.
+When code fails, do not regenerate the entire implementation unless evidence shows that the implementation approach is fundamentally incorrect.
 
 Prefer:
 
-```
+```text
 Existing implementation
-    ->
+    ↓
 Identify failing assumption
-    ->
+    ↓
 Small correction
-    ->
+    ↓
 Retest
 ```
 
-Do not discard working code without evidence that the architecture is wrong.
+Do not discard working code without evidence that the approach itself is wrong.
 
 ---
 
-## Minimal Repair Principle
+# 10. Minimal Repair
 
 Each repair should:
 
@@ -209,62 +223,62 @@ Each repair should:
 * modify the smallest relevant code region;
 * preserve working behavior;
 * avoid unrelated changes;
-* be testable.
+* remain testable.
 
 Do not make unrelated changes in the same repair iteration unless required by the root cause.
 
 ---
 
-## Validation Levels
+# 11. Validation Levels
 
-### GENERATED
+## `GENERATED`
 
 Implementation exists but has not been validated.
 
-### REVIEWED
+## `REVIEWED`
 
 Implementation has been inspected but not executed.
 
-### BUILT
+## `BUILT`
 
 Compilation/build succeeded.
 
-### RUNTIME-TESTED
+## `RUNTIME-TESTED`
 
-Implementation executed successfully enough to obtain runtime evidence.
+Implementation executed successfully enough to provide runtime evidence.
 
-### VERIFIED
+## `VERIFIED`
 
 The requested behavior has been confirmed.
 
-### BLOCKED
+## `BLOCKED`
 
 Validation cannot continue because an external action or unavailable environment is required.
 
-### UNRESOLVED
+## `UNRESOLVED`
 
-The available evidence does not establish a correct solution within the permitted iterations.
+Available evidence does not establish a correct solution within the permitted iterations.
 
 ---
 
-## Success Criteria
+# 12. Success Criteria
 
 Do not mark a task `VERIFIED` merely because:
 
 * code compiles;
 * no syntax errors remain;
 * an API member appears plausible;
-* the Add-in loads;
-* the rule starts;
+* an Add-in loads;
+* a rule starts;
 * no immediate exception occurs.
 
 `VERIFIED` requires confirmation that the requested behavior works.
 
 ---
 
-## External Validation
+# 13. External Validation
 
-When validation requires Autodesk Inventor or Visual Studio and the environment is not directly available:
+When validation requires Autodesk Inventor or Visual Studio and the environment is unavailable:
 
 1. Prepare the required files.
 2. State exactly what must be executed.
@@ -272,21 +286,21 @@ When validation requires Autodesk Inventor or Visual Studio and the environment 
 4. Request the exact output or error.
 5. Resume the repair loop using that result.
 
-Prefer precise requests such as:
+Prefer:
 
-```
+```text
 Run the rule in Autodesk Inventor 2026 and return the complete error message, including the line number if available.
 ```
 
-Avoid vague requests such as:
+Avoid:
 
-```
+```text
 Let me know whether it works.
 ```
 
 ---
 
-## Build Validation
+# 14. Build Validation
 
 For .NET Add-ins:
 
@@ -299,25 +313,25 @@ A successful build does not imply runtime correctness.
 
 ---
 
-## Runtime Validation
+# 15. Runtime Validation
 
 For iLogic or Add-ins:
 
 1. Execute in the target Inventor environment.
 2. Capture exceptions and error messages.
-3. Confirm the expected behavior.
+3. Confirm expected behavior.
 4. Check for obvious regressions.
 5. Only then mark the result `VERIFIED`.
 
 ---
 
-## Error Memory
+# 16. Error Memory
 
 When a failure produces reusable knowledge, create or update a reusable record.
 
-Use this structure:
+Use:
 
-```
+```text
 # <Short Error Description>
 
 ## Error
@@ -356,42 +370,42 @@ Only create a verified error/solution record after the corrected implementation 
 
 ---
 
-## Knowledge Promotion
+# 17. Knowledge Promotion
 
-A successful test does not automatically mean that the entire development result belongs in `tested/`.
+After validation, classify reusable information correctly.
 
-After validation, classify the result into the correct location:
-
-| Result type | Destination |
-|---|---|
-| Reusable verified implementation pattern | `tested/` |
-| General technical knowledge | `knowledge/` |
-| Verified negative knowledge (invalid API member, incorrect assumption, confirmed limitation) | `knowledge/errors/` |
-| Project-specific documentation | project documentation |
-| Future idea or enhancement proposal | backlog or `scratch/` |
-| Completed user-ready iLogic function | `addins/<FunctionName>/` |
-| Temporary debugging information | discard |
+| Result type                              | Destination              |
+| ---------------------------------------- | ------------------------ |
+| Reusable verified implementation pattern | `tested/`                |
+| General technical knowledge              | `knowledge/`             |
+| Verified negative knowledge              | `knowledge/errors/`      |
+| Project-specific documentation           | project documentation    |
+| Future idea or enhancement               | `scratch/` or backlog    |
+| Completed user-ready iLogic function     | `addins/<FunctionName>/` |
+| Temporary debugging information          | discard                  |
 
 Do not promote unverified information.
 
 ---
 
-## Repair Limit
+# 18. Repair Limit
 
 Default maximum:
 
-`5 iterations`
+```text
+5 iterations
+```
 
-Count the initial implementation as iteration `1`.
+Count the initial implementation as iteration 1.
 
 Example:
 
-```
-Iteration 1 -> Initial implementation
-Iteration 2 -> Repair 1
-Iteration 3 -> Repair 2
-Iteration 4 -> Repair 3
-Iteration 5 -> Repair 4
+```text
+Iteration 1 → Initial implementation
+Iteration 2 → Repair 1
+Iteration 3 → Repair 2
+Iteration 4 → Repair 3
+Iteration 5 → Repair 4
 ```
 
 After the maximum:
@@ -399,34 +413,36 @@ After the maximum:
 1. Stop automatic repair.
 2. Preserve the evidence.
 3. Summarize the failed hypotheses.
-4. Report `UNRESOLVED` unless the problem is externally blocked.
+4. Report `UNRESOLVED` unless the issue is externally blocked.
 5. State what additional evidence is required.
+
+Never loop indefinitely.
 
 ---
 
-## Environment Failures
+# 19. Environment Failures
 
 Do not modify application code to compensate for an unrelated environment problem.
 
 Examples:
 
-* Inventor is not running.
-* Visual Studio is unavailable.
-* A required reference is not installed.
-* A test document is missing.
-* A required dependency is unavailable.
+* Inventor is not running;
+* Visual Studio is unavailable;
+* required reference is not installed;
+* test document is missing;
+* required dependency is unavailable.
 
-Classify the issue as `ENVIRONMENT_ERROR` or `DEPENDENCY_ERROR` when appropriate.
+Classify as `ENVIRONMENT_ERROR` or `DEPENDENCY_ERROR` when appropriate.
 
 Report `BLOCKED` when code cannot be meaningfully validated because of the environment.
 
 ---
 
-## Final Validation Report
+# 20. Final Validation Report
 
 At the end of the task, report:
 
-```
+```text
 Status: <status>
 Iterations: <number>
 Environment: <environment>
@@ -435,60 +451,21 @@ Validation: <result>
 Remaining Issues: <none or description>
 ```
 
-Do not omit unresolved issues.
+When relevant, also report:
+
+* files created or modified;
+* important API decisions;
+* known limitations;
+* reusable knowledge created.
+
+Never claim a result that has not been verified.
 
 ---
 
-## Core Principle
+# 21. Runnable Checks for Non-Trivial Logic
 
-A failure is feedback.
+Non-trivial iLogic or Inventor logic should leave a small runnable check behind when practical — the smallest thing that would fail if the logic breaks later.
 
-Feedback must change the next hypothesis.
+This is not a replacement for the validation loop.
 
-The next hypothesis must produce a targeted change.
-
-The change must be validated.
-
-Verified discoveries must be preserved when reusable.
-
-Therefore:
-
-```
-FAIL
-    ->
-CAPTURE
-    ->
-CLASSIFY
-    ->
-ANALYZE
-    ->
-CHECK KNOWLEDGE
-    ->
-PATCH
-    ->
-RETEST
-    ->
-PASS or REPEAT
-```
-
-Never use:
-
-```
-FAIL
-    ->
-BLIND REGENERATE
-    ->
-FAIL
-    ->
-BLIND REGENERATE
-```
-
----
-
-## Runnable Checks for Non-Trivial Logic
-
-Non-trivial iLogic or Inventor logic should leave a small runnable check behind — the smallest thing that fails if the logic breaks.
-
-This is not a replacement for the validation loop. It is a lightweight safeguard for logic that may be modified later.
-
-Trivial one-liners do not need a standalone check.
+Trivial one-line operations do not require a standalone check.

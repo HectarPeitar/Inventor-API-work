@@ -1,4 +1,4 @@
-' =====================================================================
+﻿' =====================================================================
 ' EXPORT_DSTV2
 '
 ' DSTV export
@@ -2411,6 +2411,376 @@ Sub Main()
 		debugSb.AppendLine("Total BO records: " & holeLines.Count.ToString())
 		debugSb.AppendLine("")
 	End If
+' =============================================================
+	' END-CUT DETECTION (ST skew-angle fields 17-20)
+	'
+	' Doel:  een SIMPEL, enkel-vlakkig eindeinde (schuin zaagsneden)
+	'        detecteren uit de werkelijke body-geometrie en de vier
+	'        ST-skew-hoeken berekenen. Dit is fase 1 van de
+	'        end-cut-ondersteuning; SC/AK worden hier NIET gebruikt.
+	'
+	' Werkwijze (geometrie, geen feature-history):
+	'   1. Alle vlakken van body 1 doorlopen (het stuk; een eventuele
+	'      tweede body - Split-sliver - hoort niet bij het stuk).
+	'   2. Een "eindvlak" is een planair vlak waarvan de normaal
+	'      hoofdzakelijk langs de lengte-as (xUnit) staat en waarvan
+	'      de ECHTE X-extent (bepaald uit de face-vertices) de
+	'      uiterste X (minX of maxX) raakt. NB: Face.Evaluator.RangeBox
+	'      geeft de box van het ONderliggende ongetrimde vlak en is
+	'      daarmee onbruikbaar voor face-positie.
+	'      - de vlakpositie (vertex-extent) bepaalt START (minX =
+	'        Np-eind) versus END (maxX);
+	'      - de vlaknormaal wordt daarna genormaliseerd naar NAAR
+	'        BUITEN gericht (start: -X-component, end: +X-component),
+	'        zodat de lean-tekens consequent zijn.
+	'   3. Start-end en end-end apart groeperen.
+	'   4. Als een eind ALLE vlakken met dezelfde normaal heeft
+	'      (enkele kopse plane), is het een SIMPELE rechte schuine
+	'      snede: hoekgrootte uit de normaal.
+	'      - Web-Start/End-Cut: hoek in het vooraanzicht (X-Z vlak),
+	'        via de Z-component van de normaal.
+	'      - Flens-Start/End-Cut: hoek in het onderaanzicht (X-Y vlak),
+	'        via de Y-component van de normaal.
+	'   5. ST-signaal: de hoekgrootte is positief; het teken volgt de
+	'      GEVERIFIEERDE conventie (viewer 2026-09): START-eind
+	'      +lean, END-eind -lean. Vastgelegd in blocks/ST.md als
+	'      EXPORTER/VIEWER VERIFIED CONVENTION.
+	'   6. Als een eind NIET als één enkel vlak beschrijfbaar is
+	'      (meerdere niet-coplanaire vlakken, special cut), dan
+	'      worden de ST-waarden NIET berekend en blijft 0.00 staan;
+	'      de debug meldt "UNSUPPORTED (special end cut)".
+	'
+	' NB: Alleen de vier ST-hoeken worden aangepast. Veld 9
+	'     (dLengthMm) blijft ongewijzigd (maxX - minX) - zie het
+	'     apart geregistreerde item "DSTV length semantics for skew
+	'     cuts".
+	' =============================================================
+
+	Dim webStartCutDeg As Double = 0.0
+	Dim webEndCutDeg As Double = 0.0
+	Dim flangeStartCutDeg As Double = 0.0
+	Dim flangeEndCutDeg As Double = 0.0
+
+	' Kopse vlakken groeperen per eind (parallel: vlak + genormaliseerde
+	' naar-buiten gerichte normaal)
+	Dim startEndFaces As New List(Of Face)
+	Dim endEndFaces As New List(Of Face)
+	Dim startFaceNormals As New List(Of Vector)
+	Dim endFaceNormals As New List(Of Vector)
+
+	' Tolerantie voor "raakt de extreem-X": 0.05 cm = 0.5 mm
+	Dim endFaceTolCm As Double = 0.05
+
+	' Minimale paralelliteit van de eindvlak-normaal met de
+	' lengte-as (|cos|). 0.7 = tot ~45 graden scheefstand.
+	Dim endNormalMinCos As Double = 0.7
+
+	' Alleen body 1 doorlopen: het stuk waarop ook de extremen en het
+	' referentiepunt gebaseerd zijn. Een eventuele tweede body (een
+	' Split-sliver) hoort niet bij het stuk en mag de classificatie
+	' niet vervuilen.
+	For Each oFace2 As Face In oBody.Faces
+
+		If oFace2.SurfaceType <> SurfaceTypeEnum.kPlaneSurface Then
+			Continue For
+		End If
+
+		Dim oPlane2 As Plane = Nothing
+
+		Try
+			oPlane2 = CType(oFace2.Geometry, Plane)
+		Catch
+			oPlane2 = Nothing
+		End Try
+
+		If oPlane2 Is Nothing Then
+			Continue For
+		End If
+
+		Dim oNormal2 As Vector = oPlane2.Normal.AsVector.Copy
+		oNormal2.Normalize()
+
+		' Normaal langs de lengte-as?
+		Dim dotLen As Double = Math.Abs(DotVector(oNormal2, xUnit.AsVector))
+			
+
+		' Echte X-extent uit de FACE-VERTICES (DSTV-frame, cm).
+		' NB: Face.Evaluator.RangeBox geeft de box van het onderliggende
+		' (ongetrimde) vlak en is onbruikbaar voor face-positie; de
+		' vertices geven de werkelijke begrenzing. Zelfde projectie
+		' (referentiepunt + xUnit) als bij de extremen hierboven.
+		Dim nrm2X As Double = DotVector(oNormal2, xUnit.AsVector)
+
+		If dotLen < endNormalMinCos Then
+			Continue For
+		End If
+
+		Dim faceMinX As Double = Double.MaxValue
+		Dim faceMaxX As Double = Double.MinValue
+
+		For Each oVtx2 As Vertex In oFace2.Vertices
+
+			Dim relV As Vector = oRefPoint.VectorTo(oVtx2.Point)
+			Dim vx As Double = DotVector(relV, xUnit.AsVector)
+
+			If vx < faceMinX Then
+				faceMinX = vx
+			End If
+
+			If vx > faceMaxX Then
+				faceMaxX = vx
+			End If
+
+		Next
+
+		' Positie bepaalt START vs END (de rauwe vlaknormaal mag naar
+		' binnen of naar buiten wijzen): een eindvlak dat de minX-zijde
+		' raakt is een START-vlak, een eindvlak dat de maxX-zijde raakt
+		' is een END-vlak. De normaal wordt daarna genormaliseerd naar
+		' NAAR BUITEN gericht (start: -X-component, end: +X-component),
+		' zodat de lean-tekens consequent zijn.
+		If faceMinX <= minX + endFaceTolCm Then
+
+			If nrm2X > 0 Then
+				oNormal2 = ThisApplication.TransientGeometry.CreateVector( _
+					-oNormal2.X, -oNormal2.Y, -oNormal2.Z)
+			End If
+
+			startEndFaces.Add(oFace2)
+			startFaceNormals.Add(oNormal2)
+
+			If DebugMode Then
+				debugSb.AppendLine("    [endcut] START-face: faceMinX=" + Fmt(faceMinX) + " faceMaxX=" + Fmt(faceMaxX) + " outwardN=(" + Fmt(DotVector(oNormal2, xUnit.AsVector)) + "," + Fmt(DotVector(oNormal2, yUnit.AsVector)) + "," + Fmt(DotVector(oNormal2, zUnit.AsVector)) + ")")
+			End If
+
+		ElseIf faceMaxX >= maxX - endFaceTolCm Then
+
+			If nrm2X < 0 Then
+				oNormal2 = ThisApplication.TransientGeometry.CreateVector( _
+					-oNormal2.X, -oNormal2.Y, -oNormal2.Z)
+			End If
+
+			endEndFaces.Add(oFace2)
+			endFaceNormals.Add(oNormal2)
+
+			If DebugMode Then
+				debugSb.AppendLine("    [endcut] END-face: faceMinX=" + Fmt(faceMinX) + " faceMaxX=" + Fmt(faceMaxX) + " outwardN=(" + Fmt(DotVector(oNormal2, xUnit.AsVector)) + "," + Fmt(DotVector(oNormal2, yUnit.AsVector)) + "," + Fmt(DotVector(oNormal2, zUnit.AsVector)) + ")")
+			End If
+
+		End If
+		Next
+
+
+	' -------------------------------------------------------------
+	' Klassificeer elk eind: enkel vlak (simpele snede) of speciaal
+	' -------------------------------------------------------------
+Dim startNormal As Vector = Nothing
+	Dim endNormal As Vector = Nothing
+
+	Dim startIsSingle As Boolean = False
+	Dim endIsSingle As Boolean = False
+
+	' --- START-end ---
+	If startEndFaces.Count > 0 Then
+
+		' Genormaliseerde NAAR BUITEN gerichte normaal van het eerste
+		' start-vlak; die bepaalt de lean-tekens. De rauwe vlaknormaal
+		' kan ook naar binnen wijzen.
+		Dim firstNormal As Vector = startFaceNormals(0)
+
+		Dim bSingle As Boolean = True
+
+		For iSn As Integer = 0 To startEndFaces.Count - 1
+
+			Dim pn As Plane = CType(startEndFaces(iSn).Geometry, Plane)
+			Dim sn As Vector = startFaceNormals(iSn)
+
+			If Math.Abs(DotVector(sn, firstNormal)) < 0.9995 Then
+				' Niet-coplanaire normaal -> meerdere vlakken
+				bSingle = False
+			Else
+				' Ook de vlak-afstand controleren (parallel maar
+				' verschoven vlakken = getrapte snede). |distDiff|
+				' is teken-onafhankelijk.
+				Dim sp As Point = pn.RootPoint
+				Dim root0 As Point = CType(startEndFaces(0).Geometry, Plane).RootPoint
+				Dim distDiff As Double = _
+					(sn.X * sp.X + sn.Y * sp.Y + sn.Z * sp.Z) - _
+					(sn.X * root0.X + sn.Y * root0.Y + sn.Z * root0.Z)
+
+				If Math.Abs(distDiff) > 0.01 Then
+					bSingle = False
+				End If
+
+			End If
+
+		Next
+
+		startIsSingle = bSingle
+		startNormal = firstNormal
+
+		If DebugMode Then
+			debugSb.AppendLine("  END-CUT START (minX): faces=" + startEndFaces.Count.ToString() + " singlePlane=" + startIsSingle.ToString())
+		End If
+
+	End If
+
+
+	' --- END-end ---
+	If endEndFaces.Count > 0 Then
+
+		Dim firstNormal As Vector = endFaceNormals(0)
+
+		Dim bSingle As Boolean = True
+
+		For iEn As Integer = 0 To endEndFaces.Count - 1
+
+			Dim pn As Plane = CType(endEndFaces(iEn).Geometry, Plane)
+			Dim sn As Vector = endFaceNormals(iEn)
+
+			If Math.Abs(DotVector(sn, firstNormal)) < 0.9995 Then
+				bSingle = False
+			Else
+				Dim sp As Point = pn.RootPoint
+				Dim root0 As Point = CType(endEndFaces(0).Geometry, Plane).RootPoint
+				Dim distDiff As Double = _
+					(sn.X * sp.X + sn.Y * sp.Y + sn.Z * sp.Z) - _
+					(sn.X * root0.X + sn.Y * root0.Y + sn.Z * root0.Z)
+
+				If Math.Abs(distDiff) > 0.01 Then
+					bSingle = False
+				End If
+
+			End If
+
+		Next
+
+		endIsSingle = bSingle
+		endNormal = firstNormal
+
+		If DebugMode Then
+			debugSb.AppendLine("  END-CUT END (maxX): faces=" + endEndFaces.Count.ToString() + " singlePlane=" + endIsSingle.ToString())
+		End If
+
+	End If
+' -------------------------------------------------------------
+	' Hoekgrootte en teken (GEVERIFIEERDE conventie 2026-09)
+	' -------------------------------------------------------------
+
+	' ST-tekenconventie: EXPORTER/VIEWER VERIFIED CONVENTION
+	' (Inventor 2026 + target-viewer, HE 400 B, 2026-09):
+	'   - hoekgrootte = hellingshoek van het eindvlak t.o.v. de
+	'     loodrende eindplane (0.00 bij een haaks einde), in graden;
+	'   - lean = teken van de transversale component van de NAAR
+	'     BUITEN gerichte eindvlaknormaal (web: Z-component in het
+	'     vooraanzicht; flens: Y-component in het onderaanzicht);
+	'   - tekens per veld (flens en web zijn TEGENGESTELD, want het
+	'     vooraanzicht en het onderaanzicht hebben een tegengestelde
+	'     draairichting in de DSTV-projectie):
+	'       veld 17 web-start:    -lean x grootte
+	'       veld 18 web-end:      +lean x grootte
+	'       veld 19 flens-start:  +lean x grootte
+	'       veld 20 flens-end:    -lean x grootte
+	'     Identieke (parallelle) schuine sneden krijgen aan beide
+	'     einden TEGENGESTELDE tekens - consistent met de +15/-15
+	'     labels in de p. 9-10 figuur.
+	'   - Viewer-bevestiging: flens start 15 graden (beide
+	'     richtingen) + flens end 10 graden correct; een web-snede
+	'     met de oude uniforme regel rendert gespiegeld ->
+	'     web-correctie doorgevoerd (web = spiegelbeeld van flens).
+	'   - Vastgelegd in knowledge/dstv/nc1/7th-edition/blocks/ST.md.
+
+	If startIsSingle AndAlso startNormal IsNot Nothing Then
+
+		' Web-Start-Cut: hoek in vooraanzicht (X-Z)
+		Dim nxS As Double = DotVector(startNormal, xUnit.AsVector)
+		Dim nzS As Double = DotVector(startNormal, zUnit.AsVector)
+		Dim nyS As Double = DotVector(startNormal, yUnit.AsVector)
+
+		Dim webStartMag As Double = Math.Atan2(Math.Abs(nzS), Math.Abs(nxS)) * 180.0 / Math.PI
+		Dim flangeStartMag As Double = Math.Atan2(Math.Abs(nyS), Math.Abs(nxS)) * 180.0 / Math.PI
+
+		webStartMag = Math.Round(webStartMag, 2)
+		flangeStartMag = Math.Round(flangeStartMag, 2)
+
+		' Leunrichting: het teken van de transversale component
+		Dim webLeanSign As Integer = 0
+		If nzS > 0.0001 Then webLeanSign = 1
+		If nzS < -0.0001 Then webLeanSign = -1
+
+		Dim flangeLeanSign As Integer = 0
+		If nyS > 0.0001 Then flangeLeanSign = 1
+		If nyS < -0.0001 Then flangeLeanSign = -1
+
+		' GEVERIFIEERDE conventie (viewer 2026-09): het START-eind
+		' krijgt +lean voor de flens (onderaanzicht) maar -lean voor
+		' het web (vooraanzicht): vooraanzicht en onderaanzicht
+		' hebben een tegengestelde draairichting in de DSTV-
+		' projectie; het web is het spiegelbeeld van de flens.
+		webStartCutDeg = -webLeanSign * webStartMag
+		flangeStartCutDeg = flangeLeanSign * flangeStartMag
+
+		If DebugMode Then
+			debugSb.AppendLine("    START: normal=(" + Fmt(nxS) + "," + Fmt(nyS) + "," + Fmt(nzS) + ")")
+			debugSb.AppendLine("      webStart magnitude=" + Fmt(webStartMag) + " lean=(" + webLeanSign.ToString() + ") => field=" + Fmt(webStartCutDeg))
+			debugSb.AppendLine("      flangeStart magnitude=" + Fmt(flangeStartMag) + " lean=(" + flangeLeanSign.ToString() + ") => field=" + Fmt(flangeStartCutDeg))
+		End If
+
+	ElseIf startEndFaces.Count > 0 Then
+
+		If DebugMode Then
+			debugSb.AppendLine("    START: UNSUPPORTED (special end cut) - cannot be represented as one planar cut")
+		End If
+
+	End If
+
+
+	If endIsSingle AndAlso endNormal IsNot Nothing Then
+
+		Dim nxE As Double = DotVector(endNormal, xUnit.AsVector)
+		Dim nzE As Double = DotVector(endNormal, zUnit.AsVector)
+		Dim nyE As Double = DotVector(endNormal, yUnit.AsVector)
+
+		Dim webEndMag As Double = Math.Atan2(Math.Abs(nzE), Math.Abs(nxE)) * 180.0 / Math.PI
+		Dim flangeEndMag As Double = Math.Atan2(Math.Abs(nyE), Math.Abs(nxE)) * 180.0 / Math.PI
+
+		webEndMag = Math.Round(webEndMag, 2)
+		flangeEndMag = Math.Round(flangeEndMag, 2)
+
+		Dim webLeanSign As Integer = 0
+		If nzE > 0.0001 Then webLeanSign = 1
+		If nzE < -0.0001 Then webLeanSign = -1
+
+		Dim flangeLeanSign As Integer = 0
+		If nyE > 0.0001 Then flangeLeanSign = 1
+		If nyE < -0.0001 Then flangeLeanSign = -1
+
+		' GEVERIFIEERDE conventie (viewer 2026-09): het END-eind
+		' krijgt het TEGENGESTELDE teken van het START-eind:
+		' flens -lean (bevestigd, 10 graden end), web +lean
+		' (spiegelbeeld van de flens; zonder deze web-correctie
+		' rendert een web-snede gespiegeld - gebruikerstest 2026-09).
+		webEndCutDeg = webLeanSign * webEndMag
+		flangeEndCutDeg = -flangeLeanSign * flangeEndMag
+
+		If DebugMode Then
+			debugSb.AppendLine("    END: normal=(" + Fmt(nxE) + "," + Fmt(nyE) + "," + Fmt(nzE) + ")")
+			debugSb.AppendLine("      webEnd magnitude=" + Fmt(webEndMag) + " lean=(" + webLeanSign.ToString() + ") => field=" + Fmt(webEndCutDeg))
+			debugSb.AppendLine("      flangeEnd magnitude=" + Fmt(flangeEndMag) + " lean=(" + flangeLeanSign.ToString() + ") => field=" + Fmt(flangeEndCutDeg))
+		End If
+
+	ElseIf endEndFaces.Count > 0 Then
+
+		If DebugMode Then
+			debugSb.AppendLine("    END: UNSUPPORTED (special end cut) - cannot be represented as one planar cut")
+		End If
+
+	End If
+
+	If DebugMode Then
+		debugSb.AppendLine("  SKEW FIELDS (ST 17-20): webStart=" + Fmt(webStartCutDeg) + " webEnd=" + Fmt(webEndCutDeg) + " flangeStart=" + Fmt(flangeStartCutDeg) + " flangeEnd=" + Fmt(flangeEndCutDeg))
+		debugSb.AppendLine("")
+	End If
 
 	' =============================================================
 	' DSTV BESTAND OPBOUWEN
@@ -2441,10 +2811,10 @@ Sub Main()
 	sb.AppendLine("  " & Fmt(dRadiusMm))
 	sb.AppendLine("  " & Fmt3(dWeightPerMeter))
 	sb.AppendLine("  " & Fmt3(dAreaPerMeter))
-	sb.AppendLine("  " & Fmt(0.0))
-	sb.AppendLine("  " & Fmt(0.0))
-	sb.AppendLine("  " & Fmt(0.0))
-	sb.AppendLine("  " & Fmt(0.0))
+	sb.AppendLine("  " & Fmt(webStartCutDeg))
+	sb.AppendLine("  " & Fmt(webEndCutDeg))
+	sb.AppendLine("  " & Fmt(flangeStartCutDeg))
+	sb.AppendLine("  " & Fmt(flangeEndCutDeg))
 
 
 	' =============================================================

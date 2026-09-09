@@ -12,26 +12,28 @@ zUnit (height axis): 0.00, 1.00, 0.00
 
 Right-handed check (x cross y dot z): 1.00
 
-Reference point (model coords): -4.00, 20.00, 37.50
-Extremes (DSTV frame, mm): minX=-375.00 maxX=150.00 minY=-110.00 maxY=190.00 minZ=-400.00 maxZ=0.00
+Reference point (model coords): -15.00, 20.00, 47.21
+Extremes (DSTV frame, mm): minX=-472.10 maxX=52.90 minY=0.00 maxY=300.00 minZ=-400.00 maxZ=0.00
 Computed piece size (mm): X=525.00 Y=300.00 Z=400.00
 SurfaceBody vertex count: 64
 =====================================
 
   FEATURE (not extrude): Driven Length type=kClientFeatureObject
   FEATURE (cut extrude): Extrusion3
-  OPENING (rect): face=u facePos=245.00 holeX=120.00u holeY=245.00 holeZ=0.00 sizeX=60.00 sizeY=100.00 angle=0.00 repr=IK probe=FACE probeLines=4 probeArcs=0
-    IK contour: face=u corners=(70.00,215.00)(70.00,275.00)(170.00,275.00)(170.00,215.00) closed=yes radius=0.00
+  OPENING (rect): face=u facePos=245.00 holeX=150.00u holeY=245.00 holeZ=0.00 sizeX=60.00 sizeY=100.00 angle=0.00 repr=IK probe=FACE probeLines=4 probeArcs=0
+    IK contour: face=u corners=(100.00,215.00)(100.00,275.00)(200.00,275.00)(200.00,215.00) closed=yes radius=0.00
   FEATURE (cut extrude): Extrusion4
   OPENING (slot): face=o facePos=50.00 holeX=150.00u holeY=50.00 holeZ=400.00 width=24.00 centerDist=70.00 angle=0.00
   FEATURE (cut extrude): Extrusion5
   OPENING (rect): face=o facePos=230.00 holeX=395.00u holeY=230.00 holeZ=400.00 sizeX=80.00 sizeY=50.00 angle=0.00 repr=BO-3DFILLET probe=FACE probeLines=4 probeArcs=4
   OPENING (rect-3dfillet): face=o holeX=395.00u facePos=230.00 d=10.00 width=50.00 height=80.00 angle=0.00 repr=BO
   FEATURE (not extrude): Fillet2 type=kFilletFeatureObject
+  FEATURE (not extrude): Split3 type=kSplitFeatureObject
+  FEATURE (not extrude): Split5 type=kSplitFeatureObject
 
 === FEATURE CENSUS ===
-Total features: 6
-Not extrude (skipped): 2
+Total features: 8
+Not extrude (skipped): 4
 Extrude but not cut (skipped): 1
 Cut extrudes processed: 3
 ======================
@@ -39,4 +41,22 @@ Cut extrudes processed: 3
 === B-REP HOLE DETECTION ===
 Holes detected: 0
 Total BO records: 2
+
+    [diag] face dotLen=0.98 normal=(-0.98,0.17,0.00) rbX=[-15.00,15.00] minX=-47.21 maxX=5.29
+    [endcut] END-face: faceMinX=0.00 faceMaxX=5.29 outwardN=(0.98,-0.17,-0.00)
+    [diag] face dotLen=1.00 normal=(-1.00,0.00,-0.09) rbX=[-15.00,15.00] minX=-47.21 maxX=5.29
+    [endcut] START-face: faceMinX=-47.21 faceMaxX=-43.71 outwardN=(-1.00,0.00,-0.09)
+    [diag] face dotLen=1.00 normal=(-1.00,0.00,0.00) rbX=[-11.50,-4.50] minX=-47.21 maxX=5.29
+    [diag] face dotLen=1.00 normal=(1.00,0.00,0.00) rbX=[-11.50,-4.50] minX=-47.21 maxX=5.29
+    [diag] face dotLen=1.00 normal=(-1.00,0.00,0.00) rbX=[-12.50,-6.50] minX=-47.21 maxX=5.29
+    [diag] face dotLen=1.00 normal=(1.00,0.00,0.00) rbX=[-12.50,-6.50] minX=-47.21 maxX=5.29
+  END-CUT START (minX): faces=1 singlePlane=True
+  END-CUT END (maxX): faces=1 singlePlane=True
+    START: normal=(-1.00,0.00,-0.09)
+      webStart magnitude=5.00 lean=(-1) => field=5.00
+      flangeStart magnitude=0.00 lean=(0) => field=0.00
+    END: normal=(0.98,-0.17,-0.00)
+      webEnd magnitude=0.00 lean=(0) => field=0.00
+      flangeEnd magnitude=10.00 lean=(-1) => field=10.00
+  SKEW FIELDS (ST 17-20): webStart=5.00 webEnd=0.00 flangeStart=0.00 flangeEnd=10.00
 

@@ -1,18 +1,32 @@
-# Development Workflow
+# Development Workflow — Autodesk Inventor
 
 ## Purpose
 
 This file defines the standard execution workflow for Autodesk Inventor development tasks.
 
-The validation and repair behavior is defined in:
+Detailed validation and repair behavior is defined in:
 
-`.clinerules/15-validation-loop.md`
+```text
+.clinerules/15-validation-loop.md
+```
 
-All executable development tasks must follow that loop.
+Project context, API evidence, source hierarchy, and knowledge-base policy are defined in:
+
+```text
+.clinerules/00-core.md
+```
+
+Coding and storage standards are defined in:
+
+```text
+.clinerules/10-coding-standards.md
+```
+
+Do not duplicate those detailed rules here.
 
 ---
 
-## Phase 1 — Understand
+# 1. Phase 1 — Understand
 
 Before writing code:
 
@@ -29,87 +43,85 @@ Do not implement before the required context is understood.
 
 ---
 
-## Phase 2 — Inspect
+# 2. Phase 2 — Inspect
 
-Inspect the existing project before creating or changing files.
+Inspect the existing project before creating or modifying files.
 
-Check:
+Check, as relevant:
 
-* Existing source code
-* Existing project structure
-* Existing iLogic rules
-* Existing Add-ins
-* Existing templates
-* `knowledge/`
-* `tested/`
-* `scratch/`
+* existing source code;
+* project structure;
+* existing iLogic rules;
+* existing Add-ins;
+* existing templates;
+* `knowledge/`;
+* `tested/`;
+* `scratch/`.
 
-Prefer reuse over duplication.
-
----
-
-## Phase 3 — Knowledge Lookup
-
-Search the most relevant knowledge sources.
-
-Start from the central Knowledge Map:
-
-* `knowledge/inventor/KNOWLEDGE-MAP.md`
-
-For Inventor API questions, prefer local Inventor 2026 SDK sources before general model knowledge or web search.
-
-For iLogic:
-
-* `knowledge/inventor/2026/ilogic.md`
-* `knowledge/ilogic.md`
-* `knowledge/parameters.md`
-* `knowledge/units.md`
-
-For Add-ins:
-
-* `knowledge/addins.md`
-* `knowledge/api-compatibility.md`
-
-For object relationships:
-
-* `knowledge/inventor/2026/object-model.md`
-* `knowledge/object-model.md`
-* relevant domain-specific knowledge
-
-For topic-to-SDK-source mapping:
-
-* `knowledge/inventor/2026/API-SOURCE-MAP.md`
-
-For sample lookup:
-
-* `knowledge/inventor/2026/SAMPLE-INDEX.md`
-
-Do not load unrelated knowledge.
-
-Do not scan the entire SDK for every task — start from the Knowledge Map and follow the most relevant source path.
+Search for an existing implementation before creating a new one.
 
 ---
 
-## Phase 4 — Tested Pattern Lookup
+# 3. Phase 3 — Knowledge Lookup
 
-Search `tested/` before implementing unfamiliar or reusable functionality.
+For Inventor API work, follow the source hierarchy defined in:
 
-Evaluate:
+```text
+.clinerules/00-core.md
+```
 
-* Inventor version
-* Programming environment
-* Document type
-* Object context
-* API context
-* Validation status
+Start from:
 
-Reuse an existing verified pattern when it matches the current context.
+```text
+knowledge/inventor/KNOWLEDGE-MAP.md
+```
+
+Use only the knowledge relevant to the current task.
+
+Typical sources include:
+
+```text
+knowledge/inventor/2026/ilogic.md
+knowledge/ilogic.md
+knowledge/parameters.md
+knowledge/units.md
+
+knowledge/addins.md
+knowledge/api-compatibility.md
+
+knowledge/inventor/2026/object-model.md
+knowledge/object-model.md
+
+knowledge/inventor/2026/API-SOURCE-MAP.md
+knowledge/inventor/2026/SAMPLE-INDEX.md
+```
+
+Do not scan the entire SDK when a narrower source path is available.
 
 ---
 
-## Phase 5 — API Verification
+# 4. Phase 4 — Tested Pattern Lookup
 
-For every unfamiliar API member:
+Before implementing unfamiliar or reusable functionality:
+
+1. Search `tested/`.
+2. Identify the closest relevant pattern.
+3. Compare Inventor version.
+4. Compare programming environment.
+5. Compare document type.
+6. Compare object context.
+7. Compare API context.
+8. Reuse only when the pattern is applicable.
+
+A tested pattern is evidence, not universal proof.
+
+Do not blindly copy a pattern whose context differs.
+
+---
+
+# 5. Phase 5 — API Verification
+
+For each unfamiliar Inventor API member:
 
 1. Verify object type.
 2. Verify member existence.
@@ -117,73 +129,74 @@ For every unfamiliar API member:
 4. Verify return type.
 5. Verify object/context requirements.
 6. Verify target Inventor version.
-7. Check for an existing tested implementation.
-
-Source order for verification (prefer local sources first):
-
-1. `knowledge/inventor/KNOWLEDGE-MAP.md`
-2. Curated knowledge (`knowledge/inventor/2026/*.md`)
-3. Relevant local SDK source (`knowledge/inventor/2026/sdk/`)
-4. `knowledge/errors/`
-5. `tested/`
-6. Autodesk web documentation only when local evidence is insufficient
+7. Follow the authoritative source hierarchy in `00-core.md`.
+8. Check `knowledge/errors/` for previously confirmed invalid assumptions.
+9. Check `tested/` for verified implementations when relevant.
 
 Do not guess API members.
-
-Do not rely on guessed member names.
+Do not rely on guessed member names merely because they appear plausible.
 
 ---
 
-## Phase 6 — Plan
+# 6. Phase 6 — Plan
 
-Before implementation, define:
+Before implementation, establish:
 
-* Required behavior
-* Relevant API objects
-* Main execution flow
-* Validation method
-* Expected failure points
-* Required external environment
+* required behavior;
+* relevant API objects;
+* main execution flow;
+* validation method;
+* expected failure points;
+* required external environment.
 
 Keep the plan proportional to the task.
 
-Do not introduce unnecessary architecture.
+Do not introduce architecture that is not required.
 
 ---
 
-## Phase 7 — Implement
+# 7. Phase 7 — Choose the Implementation
 
-Before implementation, climb this decision ladder. Stop at the first rung that holds:
+After understanding the task, use this decision ladder:
 
-1. Does this need to be built at all? (YAGNI)
-2. Does the functionality already exist in the codebase? Reuse it.
-3. Can native Inventor/iLogic functionality solve it? Use it.
-4. Can an existing project helper, utility, or verified pattern from `tested/` solve it? Use it.
-5. Can an already-installed dependency solve it? Use it.
+1. Does this need to be built at all?
+2. Does the functionality already exist in the codebase?
+3. Can native Inventor/iLogic functionality solve it?
+4. Can an existing project helper, utility, or verified `tested/` pattern solve it?
+5. Can an already-installed dependency solve it?
 6. Can the solution be simplified without reducing correctness?
-7. Only then: implement the minimum necessary solution.
+7. Implement the minimum necessary solution.
 
-The ladder runs after you understand the problem, not instead of it. Read the task and the code it touches, trace the real flow, then climb.
+The ladder is applied **after understanding the problem**, not instead of understanding it.
 
-Correctness and verified Inventor behavior always take priority over code minimization.
-
-Implement the smallest reasonable solution.
-
-Requirements:
-
-* Follow existing project conventions.
-* Use verified API.
-* Handle expected failure cases.
-* Respect document context.
-* Respect units.
-* Preserve existing working behavior.
-* Avoid unrelated refactoring.
-
-For temporary experiments, use `scratch/`.
+Correctness and verified Inventor behavior take priority over minimizing code.
 
 ---
 
-## Phase 8 — Review
+# 8. Phase 8 — Implement
+
+During implementation:
+
+1. Follow existing project conventions.
+2. Use verified API usage.
+3. Respect document context.
+4. Respect units.
+5. Handle expected failure cases.
+6. Preserve working behavior.
+7. Avoid unrelated refactoring.
+8. Follow `10-coding-standards.md`.
+
+For temporary experiments, use:
+
+```text
+scratch/
+```
+
+Do not treat scratch work as production-ready.
+
+---
+
+# 9. Phase 9 — Review
 
 Before validation:
 
@@ -193,13 +206,13 @@ Before validation:
 4. Check null/reference risks.
 5. Check units.
 6. Check error handling.
-7. Check whether the implementation satisfies the original requirement.
+7. Check that the implementation satisfies the original requirement.
 
-Do not treat review as runtime verification.
+Review is not runtime verification.
 
 ---
 
-## Phase 9 — Validate
+# 10. Phase 10 — Validate
 
 Validate in the appropriate environment.
 
@@ -219,105 +232,100 @@ Execute the experiment in the relevant Inventor environment.
 
 Validate after the required dependency becomes available.
 
-Capture exact errors and results.
+Capture exact results and errors.
+
+Follow:
+
+```text
+.clinerules/15-validation-loop.md
+```
+
+for failures and repair.
 
 ---
 
-## Phase 10 — Repair
+# 11. Phase 11 — Repair
 
-When validation fails:
+When validation fails, enter the validation and repair loop defined in:
 
-1. Capture the exact failure.
-2. Classify the failure.
-3. Determine the most likely root cause.
-4. Compare with previous iterations.
-5. Check `tested/`.
-6. Check relevant `knowledge/`.
-7. Verify the relevant API/context.
-8. Apply the smallest reasonable fix.
-9. Validate again.
+```text
+.clinerules/15-validation-loop.md
+```
 
-Do not restart from scratch unless evidence shows the implementation approach is fundamentally incorrect.
+Do not create a separate informal repair process.
 
-Follow `.clinerules/15-validation-loop.md`.
+Do not restart from scratch unless evidence shows that the implementation approach is fundamentally incorrect.
 
 ---
 
-## Phase 11 — Repeated Failure Handling
+# 12. Phase 12 — Repeated Failure
 
 When the same error appears more than once:
 
 1. Stop repeating the current approach.
 2. Identify the repeated assumption.
 3. Determine why the previous correction failed.
-4. Obtain additional evidence.
-5. Change the hypothesis.
-6. Apply a targeted correction.
-7. Validate again.
+4. Check `knowledge/errors/`.
+5. Obtain additional evidence.
+6. Change the hypothesis.
+7. Apply a targeted correction.
+8. Validate again.
 
 A repeated failure is evidence that the current reasoning is insufficient.
 
 ---
 
-## Phase 12 — Completion
-
-A task is complete only when:
-
-* requested behavior is implemented;
-* relevant API assumptions are verified;
-* validation has been attempted;
-* known errors are resolved or explained;
-* final status is known;
-* reusable verified information is preserved.
-
----
-
-## iLogic Workflow
+# 13. iLogic Workflow
 
 For an iLogic task:
 
 1. Identify the active document.
 2. Identify the document type.
 3. Identify the required Inventor objects.
-4. Check `knowledge/ilogic.md`.
+4. Check relevant iLogic knowledge.
 5. Check relevant parameter and unit knowledge.
 6. Search `tested/`.
 7. Verify unfamiliar API members.
 8. Implement.
 9. Review.
 10. Run in Autodesk Inventor.
-11. Capture exact result.
+11. Capture the exact result.
 12. Enter the repair loop when validation fails.
 13. Confirm requested behavior.
 14. Record reusable verified findings.
 
-Do not mark an iLogic rule `VERIFIED` merely because the rule was saved.
-
-### iLogic Testing Workflow
-
-For iLogic rules that require iterative testing in Autodesk Inventor:
-
-1. **Create a test case file** in `scratch/` with setup instructions and expected results for each scenario.
-2. **Create a test Part document** (`.ipt`) with the required User Parameters and iProperty states.
-3. **Enable `DebugMode`** in the rule to write output to a text file in `scratch/` (see `.clinerules/10-coding-standards.md` section 20).
-4. **Run the rule** in Inventor and share the output text file for analysis.
-5. **Repair** any issues and repeat until all test cases pass.
-6. **After verification**:
-   - Set `DebugMode = False` in the rule.
-   - Delete the test case file, test document, and output files from `scratch/`.
-   - Promote the rule to `addins/<FunctionName>/` if it is explicitly ready for use.
+Do not mark an iLogic rule `VERIFIED` merely because it was saved.
 
 ---
 
-## Add-in Workflow
+# 14. iLogic Testing Workflow
+
+For iLogic rules requiring iterative Inventor testing:
+
+1. Create a temporary test-case file in `scratch/` containing setup instructions and expected results.
+2. Create a test Part or other required Inventor document with the required state.
+3. Enable `DebugMode` as specified by `10-coding-standards.md`.
+4. Run the rule in Inventor.
+5. Capture the output or error.
+6. Repair using `15-validation-loop.md`.
+7. Repeat until the required test cases pass or the task becomes blocked/unresolved.
+8. After verification:
+
+   * set `DebugMode = False`;
+   * remove temporary test files and output from `scratch/`;
+   * promote to `addins/<FunctionName>/` only when explicitly ready for use.
+
+---
+
+# 15. Add-in Workflow
 
 For a .NET Add-in:
 
-1. Identify language.
-2. Identify Add-in architecture.
-3. Identify target Inventor version.
-4. Check `knowledge/addins.md`.
-5. Check `knowledge/api-compatibility.md`.
+1. Identify the language.
+2. Identify the Add-in architecture.
+3. Identify the target Inventor version.
+4. Check relevant Add-in knowledge.
+5. Check API compatibility information.
 6. Search `tested/`.
 7. Verify API usage.
 8. Implement or modify the solution.
@@ -334,30 +342,33 @@ A successful build is not sufficient for `VERIFIED`.
 
 ---
 
-## Existing Code Workflow
+# 16. Existing Code Workflow
 
 When modifying existing code:
 
-1. Read the full relevant section.
+1. Read the full relevant implementation.
 2. Identify existing behavior.
 3. Identify the failure or requested change.
-4. Avoid changing unrelated functionality.
-5. Make the smallest reasonable modification.
-6. Validate existing and new behavior where practical.
-7. Enter the repair loop if validation fails.
+4. Search for related callers/usages.
+5. Modify the canonical implementation.
+6. Avoid unrelated functionality changes.
+7. Validate existing and new behavior where practical.
+8. Enter the repair loop if validation fails.
+
+Do not create replacement files merely because the existing implementation needs repair.
 
 ---
 
-## Migration Workflow
+# 17. Migration Workflow
 
-When updating old Inventor code:
+When updating older Inventor code:
 
-1. Determine original Inventor version.
-2. Determine programming environment.
-3. Determine framework/runtime version.
-4. Determine Interop version where applicable.
-5. Check `knowledge/api-compatibility.md`.
-6. Verify every affected API member.
+1. Determine the original Inventor version.
+2. Determine the programming environment.
+3. Determine the framework/runtime version.
+4. Determine the Interop version where applicable.
+5. Check API compatibility knowledge.
+6. Verify each affected API member.
 7. Update incompatible code.
 8. Build if applicable.
 9. Runtime-test in Autodesk Inventor.
@@ -368,104 +379,59 @@ Do not modernize unrelated code during a migration unless required.
 
 ---
 
-## Scratch Workflow
+# 18. Scratch Workflow
 
 Use `scratch/` for temporary experiments.
 
 Typical sequence:
 
-```
+```text
 Create experiment
-    ->
+    ↓
 Run in target environment
-    ->
+    ↓
 Capture result
-    ->
+    ↓
 Repair if required
-    ->
+    ↓
 Validate
-    ->
+    ↓
 Promote verified result or discard
 ```
 
-Do not treat files in `scratch/` as production-ready.
+Do not treat `scratch/` as production storage.
 
 Do not promote failed experiments to `tested/`.
 
 ---
 
-## Knowledge Classification After Validation
+# 19. Knowledge Classification After Validation
 
-After a task is verified, all information produced during development must be classified and placed in the correct location. Do not leave all information in a single large report file.
+After successful validation, classify the resulting information.
 
-### Information types and their target locations
+| Information                                        | Location                 |
+| -------------------------------------------------- | ------------------------ |
+| Reusable verified implementation pattern           | `tested/`                |
+| General technical fact or API behavior             | `knowledge/`             |
+| Verified failed API attempt / confirmed limitation | `knowledge/errors/`      |
+| Project-specific documentation                     | project folder           |
+| Future idea / enhancement                          | `scratch/` or backlog    |
+| Completed user-ready iLogic function               | `addins/<FunctionName>/` |
+| Temporary development history                      | discard                  |
 
-| Information type | Target location | Notes |
-|---|---|---|
-| Reusable, verified implementation pattern | `tested/<environment>/<name>.md` + code file | Concise. Purpose, context, implementation reference, limitations only. For patterns, not completed functions. |
-| General technical fact or API behaviour | `knowledge/<topic>.md` | Reusable across tasks. Update existing files rather than creating new ones when the topic already exists. |
-| Verified failed API attempt / confirmed limitation | `knowledge/errors/<environment>/<name>.md` | Use the template in `.clinerules/15-validation-loop.md` → Error Memory section. |
-| Project-specific documentation | Project folder | Keep task-specific docs with the project, not in `tested/`. |
-| Future idea / enhancement proposal | `scratch/` or a backlog file | Not in `tested/` or `knowledge/` unless it is a verified technical fact. |
-| Usage instructions for a specific task | Project documentation, not `tested/` | `tested/` is not a how-to-run manual. |
-| Completed user-ready iLogic function | `addins/<FunctionName>/` | Contains `.vb` source and `README.md`. Folder name matches function name. Only when explicitly ready for use. |
-| Development history / repair log | Discard | Not needed after verification. Save only the final working state. |
+Do not leave all discovered information in one large report.
 
-### `tested/` file structure
+Update an existing knowledge file when the finding extends an existing topic.
 
-`tested/` is for reusable implementation patterns only, not completed functions.
-
-A `tested/` entry should normally contain:
-
-- **Purpose** — one sentence describing what the pattern does.
-- **Context** — Inventor version, programming environment, document type, relevant objects.
-- **Verified pattern** — a reference to the code file, plus a short prose description of the reusable pattern. Do not paste the full code again if the file already exists.
-- **Validation** — how the pattern was tested and when.
-- **Status** — `VERIFIED`.
-- **Important limitations** — context-specific constraints that affect reuse.
-- **Related** — links to relevant `knowledge/` and `knowledge/errors/` files.
-
-Do **not** put in `tested/`:
-
-- completed production functions (use `addins/<FunctionName>/` instead);
-- complete user-facing iLogic tools (use `addins/<FunctionName>/` instead);
-- every successfully tested function;
-- step-by-step usage instructions;
-- expected MessageBox content or UI screenshots;
-- development history;
-- failed attempts (those belong in `knowledge/errors/`);
-- future ideas;
-- automatic copies of completed source files.
-
-A successful validation does not automatically create a `tested/` entry.
-
-### Updating existing knowledge files
-
-When a verified finding extends an existing topic, append to the existing `knowledge/` file rather than creating a new file. When creating a new topic, place it in the most specific existing subdirectory or create a new subdirectory if warranted.
-
-### Keeping `tested/` and `knowledge/` in sync
-
-When a new `tested/` entry is created, update the **Related** section of that entry to point to any relevant `knowledge/errors/` entries that were also discovered during the task.
-
-### Promoting reusable findings from `tested/`
-
-If a `tested/` file contains a general lesson (e.g., "prefer Try/Catch over DocumentTypeEnum"), extract it and move the lesson to the appropriate `knowledge/` file. The `tested/` entry should then only reference the knowledge file, not duplicate its content.
+Do not create duplicate competing knowledge files.
 
 ---
 
-## Knowledge Promotion
-
-See the **Knowledge Classification After Validation** section above for the complete routing table and rules.
-
-The key rule: a successful test does not automatically mean that the entire development result belongs in `tested/`. Classify each piece of information separately.
-
----
-
-## Final Response Format
+# 20. Final Response
 
 At the end of a development task, report:
 
-```
+```text
 Status: <GENERATED | REVIEWED | BUILT | RUNTIME-TESTED | VERIFIED | BLOCKED | UNRESOLVED>
 Iterations: <number>
 Environment: <environment>
@@ -481,12 +447,19 @@ When relevant, also report:
 * known limitations;
 * reusable knowledge created.
 
-Never claim a result that has not been verified.
+Never claim a result that has not been established.
 
 ---
 
-## Definition of Done
+# 21. Definition of Done
 
-The task is done only when the requested behavior is implemented and the final validation status is known.
+A task is complete only when:
 
-A solution that only appears correct is not considered verified.
+1. The requested behavior is implemented.
+2. Relevant API assumptions are verified.
+3. Validation has been attempted.
+4. Known errors are resolved, explained, or blocked.
+5. Final validation status is known.
+6. Reusable verified knowledge has been preserved where appropriate.
+
+A solution that merely appears correct is not considered verified.

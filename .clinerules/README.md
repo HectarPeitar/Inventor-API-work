@@ -1,75 +1,231 @@
-# .clinerules
+# Cline Project Rules — Autodesk Inventor
 
 ## Purpose
 
-This directory contains behavioral rules for the AI assistant working on the Autodesk Inventor workspace.
+This directory contains behavioral rules for Cline working on the Autodesk Inventor workspace.
 
-The rules define how the AI should:
+The rules define:
 
-- reason about tasks;
-- use the knowledge base;
-- write code;
-- verify API usage;
-- handle uncertainty;
-- debug problems;
-- work with existing code;
-- maintain the workspace.
+* how Cline should apply Inventor-specific project policy;
+* how Inventor code should be written;
+* how API usage should be verified;
+* how executable code should be validated and repaired;
+* how knowledge and reusable implementations should be maintained;
+* how completed functions should be stored and promoted.
+
+Technical Inventor API knowledge belongs in `knowledge/`, not primarily in `.clinerules/`.
 
 ---
 
-## What belongs here?
+# Rule Architecture
 
-Only rules that describe how the AI should behave.
+The project rules are divided by concern.
+
+```text
+00-core.md
+    ↓
+Project context, rule precedence, API evidence,
+knowledge sources, workspace conventions
+
+10-coding-standards.md
+    ↓
+Inventor coding standards, file management,
+tested/, addins/, debugging and storage
+
+15-validation-loop.md
+    ↓
+Validation, failure analysis, repair iterations,
+status tracking and evidence preservation
+
+20-workflow.md
+    ↓
+Standard execution sequence for development tasks
+```
+
+Each file should have one primary responsibility.
+
+Do not duplicate a complete rule from one file into another.
+
+---
+
+# Current Files
+
+## `00-core.md`
+
+Defines:
+
+* Autodesk Inventor workspace context;
+* target Inventor version;
+* rule precedence;
+* execution environments;
+* API evidence requirements;
+* source hierarchy;
+* Knowledge Map usage;
+* local SDK usage;
+* document context;
+* units;
+* knowledge-base policy;
+* status definitions;
+* project-wide conventions.
+
+This is the authoritative project rule for API/source evidence and project context.
+
+---
+
+## `10-coding-standards.md`
+
+Defines:
+
+* Inventor-specific coding standards;
+* naming;
+* method structure;
+* API context;
+* null/reference handling;
+* error handling;
+* units;
+* performance;
+* transactions;
+* comments;
+* logging;
+* file management;
+* `tested/`;
+* `addins/`;
+* DebugMode;
+* storage and promotion rules.
+
+---
+
+## `15-validation-loop.md`
+
+Defines:
+
+* mandatory validation behavior;
+* validation levels;
+* failure classification;
+* root-cause analysis;
+* repair iterations;
+* repeated-failure handling;
+* external validation;
+* error-memory rules;
+* knowledge promotion;
+* repair limits;
+* final validation reporting.
+
+Executable Inventor work must follow this loop.
+
+---
+
+## `20-workflow.md`
+
+Defines the standard development sequence:
+
+```text
+Understand
+    ↓
+Inspect
+    ↓
+Knowledge Lookup
+    ↓
+Tested Pattern Lookup
+    ↓
+API Verification
+    ↓
+Plan
+    ↓
+Choose Implementation
+    ↓
+Implement
+    ↓
+Review
+    ↓
+Validate
+    ↓
+Repair
+    ↓
+Complete
+```
+
+The detailed repair procedure is defined in `15-validation-loop.md`.
+
+---
+
+# What Belongs in `.clinerules/`
+
+Store rules describing how Cline should behave in this workspace.
 
 Examples:
 
-- coding standards;
-- development workflow;
-- API verification rules;
-- testing expectations;
-- source priority;
-- error-handling principles;
-- rules for maintaining the workspace.
+* coding standards;
+* development workflow;
+* API verification policy;
+* validation requirements;
+* source priority;
+* error-handling policy;
+* file-management rules;
+* promotion rules;
+* project conventions.
 
 ---
 
-## What does NOT belong here?
+# What Does Not Belong Here?
 
 Do not store large amounts of technical API knowledge here.
 
-For example:
+Do not put detailed reference information about:
 
-Do not put detailed information about Parameters, Assemblies, Units, or iLogic in this directory.
+* Parameters;
+* Assemblies;
+* Units;
+* iLogic;
+* Inventor object models;
+* API members;
+* SDK documentation.
 
-That information belongs in:
+Store that information in:
 
-    knowledge/
+```text
+knowledge/
+```
+
+Keep `.clinerules/` focused on:
+
+> How should Cline work?
+
+Keep `knowledge/` focused on:
+
+> What is known about the technology?
 
 ---
 
-## Current Files
+# Related Workspace Locations
 
-- `00-core.md`
-  Core rules and general AI behavior.
+```text
+knowledge/
+    Technical Inventor knowledge
 
-- `10-coding-standards.md`
-  Coding standards for Inventor automation.
-  Includes file-management rules (section 20), function promotion/storage rules (section 21), and tool usage for file operations (section 23).
+tested/
+    Verified reusable implementation patterns
 
-- `20-workflow.md`
-  Development and debugging workflow.
-  Includes the decision ladder for choosing the simplest correct solution (integrated into Phase 7 — Implement).
+knowledge/errors/
+    Verified negative knowledge and confirmed limitations
+
+addins/
+    Completed user-ready functions
+
+scratch/
+    Temporary experiments and validation artifacts
+```
+
+The rules in `.clinerules/` determine how these locations are used.
 
 ---
 
-## Design Principle
+# Global Cline Rules
 
-`.clinerules/` answers:
+Global Cline rules are intentionally separate from these project rules.
 
-> "How should the AI work?"
+Global rules define general development behavior and communication preferences.
 
-It should not primarily answer:
+These project rules define Autodesk Inventor-specific behavior.
 
-> "How does the Inventor API work?"
-
-That belongs in `knowledge/`.
+Project-specific rules take precedence when they conflict with general global guidance.

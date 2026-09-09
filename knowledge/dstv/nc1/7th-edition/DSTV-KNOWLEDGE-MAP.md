@@ -140,6 +140,8 @@ Manual testing in the target NC1 viewer established a project-specific compatibi
 
 Classification: this is a **verified viewer/exporter compatibility rule**, not a universal DSTV specification rule. The DSTV 7th edition defines rectangular `BO` records and does not explicitly state that `d = 0.00` is invalid. Do not record or quote it as an unconditional DSTV requirement. The BO-over-IK priority rule from the specification remains in force for all geometry for which BO is applicable and accepted.
 
+**Rounded/filleted rectangles (verified 2026-09-09):** a rectangle whose corners are filleted is BO-describable (non-zero `d` = 2 × fillet radius) and must be exported as `BO`. Verified for both detection paths — fillets drawn in the sketch (4 lines + 4 arcs profile) and fillets applied with the 3D Fillet tool (detected via the hole's actual inner edge loop on the face, `ProbeHoleBoundaryLoop`). No viewer warning for either path on the tested part.
+
 Details and evidence: `blocks/BO.md` (Sharp rectangular openings, Alternative-description priority), `blocks/AK-IK.md` (Verified viewer observation), `scratch/diagnostic/HE400B_DiagnosticMatrix.md`.
 
 ### Verified slot interpretation (2026-09)

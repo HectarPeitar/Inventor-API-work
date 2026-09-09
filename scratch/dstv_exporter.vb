@@ -27,6 +27,17 @@
 ' - F2: BO slot breedte (hart-tot-hart vs totale lengte)
 '   RESOLVED: centre-to-centre = correct; slotvelden niet gewijzigd'
 ' - F3: BO rechthoek O-kolom
+'   RESOLVED voor scherpe rechthoeken: BO d=0.00 wordt door de
+'   target-viewer geweigerd (1 validatiewaarschuwing, geverifieerd
+'   2026-09). Scherpe rechthoekige openingen worden nu als gesloten,
+'   clockwise IK-contour (radius 0.0) geexport. Zie
+'   knowledge/dstv/nc1/7th-edition/blocks/BO.md en AK-IK.md.
+'   Ronde gaten, slots en vierhoeken die geen rechthoek zijn
+'   behouden het bestaande BO-gedrag.
+'   3D-fillet (Fillet-tool na de cut): de cut-sketch blijft dan
+'   scherp; de werkelijke gatrandloop op het vlak wordt geprobeerd
+'   (ProbeHoleBoundaryLoop). 4 lijnen + 4 uniforme bogen -> BO met
+'   d = 2 x boogstraal; 4 lijnen -> IK.
 '
 ' Belangrijk:
 ' Inventor collections zijn 1-based
@@ -649,6 +660,13 @@ Sub Main()
 	' =============================================================
 
 	Dim holeLines As New List(Of String)
+
+	' IK internal-contour blocks (scherpe rechthoekige openingen).
+	' Elk element is een compleet blok: "IK"-kop + puntdatalijnen.
+	' De target-viewer weigert scherpe rechthoeken als BO d=0.00
+	' maar accepteert ze als gesloten clockwise IK-contour
+	' (geverifieerd 2026-09; zie knowledge/dstv/nc1/7th-edition/).
+	Dim ikBlocks As New List(Of String)
 
 	Dim holeToleranceMm As Double = 0.05
 
@@ -1294,6 +1312,7 @@ Sub Main()
 
 
 				Dim rectPoints As New List(Of Point2d)
+				Dim rectSegments As New List(Of LineSegment2d)
 				Dim rectLongestEdgeLen As Double = 0.0
 				Dim rectDirSketch As Point2d = _
 					ThisApplication.TransientGeometry.CreatePoint2d(1.0, 0.0)
@@ -1361,6 +1380,10 @@ Sub Main()
 
 						rectPoints.Add( _
 							line2d.EndPoint)
+
+						' Segmenten bewaren voor de hoekpuntketen
+						' (IK-classificatie uit de werkelijke geometrie).
+						rectSegments.Add(line2d)
 					' Track longest edge for angle computation
 					Dim edgeLen As Double = line2d.StartPoint.DistanceTo(line2d.EndPoint)
 					If edgeLen > rectLongestEdgeLen Then
@@ -1477,7 +1500,352 @@ Sub Main()
 							holeY, _
 							holeZ)
 
-					' Compute rectangle angle in face frame (relative to piece X)
+					' -------------------------------------------------
+					' Scherpe rechthoek vs overige vierhoek
+					'
+					' De target-viewer weigert een scherpe rechthoekige
+					' opening als BO met d=0.00 (geverifieerd 2026-09,
+					' zie knowledge/dstv/nc1/7th-edition/blocks/BO.md)
+					' en accepteert dezelfde geometrie als gesloten,
+					' clockwise IK-contour. De classificatie komt uit
+					' de werkelijke geometrie: dit profile-path heeft
+					' 4 lijnen en 0 bogen (branchvoorwaarde hierboven),
+					' dus de hoeken zijn scherp; BuildOrderedCornerChain
+					' + IsRectangleFromCorners bepalen uit de sketch-
+					' geometrie of het een echte rechthoek is. Alleen
+					' een echte scherpe rechthoek gaat naar IK; elke
+					' andere vierhoek behoudt het bestaande BO-gedrag.
+					' -------------------------------------------------
+					Dim rectCorners As New List(Of Point2d)
+					Dim isSharpRectangle As Boolean = _
+						BuildOrderedCornerChain(rectSegments, rectCorners) AndAlso _
+						IsRectangleFromCorners(rectCorners, 0.01)
+
+					' -------------------------------------------------
+					' 3D-FILLET-PROBE
+					'
+					' De sketch beschrijft een scherpe rechthoek, maar de
+					' WERKELIJKE gatrand op het vlak kan door een latere
+					' 3D-fillet (Fillet-tool) afgerond zijn: de cut-sketch
+					' verandert dan niet, alleen de body. De binnenrandloop
+					' van het sketch-vlak bevat de echte gatcontour na alle
+					' features (ProbeHoleBoundaryLoop):
+					'   4 lijnen + 4 uniforme bogen -> afgeronde rechthoek
+					'     -> BO met d = 2 x boogstraal (viewer-geverifieerd);
+					'   4 lijnen -> werkelijk scherp -> IK;
+					'   anders -> IK (bestaand gedrag) met debug-regel.
+					' -------------------------------------------------
+					Dim exportMode As String = "BO-QUAD"
+					Dim probeStatus As String = ""
+					Dim probeFilletCm As Double = 0.0
+					Dim probeLines As New List(Of LineSegment)
+					Dim probeArcs As New List(Of Arc3d)
+					Dim fullLenMm(3) As Double
+					Dim edgeAngleDeg(3) As Double
+					Dim parallelIdx3 As Integer = -1
+					Dim perpIdx3 As Integer = -1
+
+					If isSharpRectangle Then
+
+						probeStatus = ProbeHoleBoundaryLoop(oSketch, modelCenter, probeLines, probeArcs)
+
+						If probeStatus = "FACE" AndAlso _
+							probeLines.Count = 4 AndAlso probeArcs.Count = 4 Then
+
+							Dim uniformOk As Boolean = True
+
+							For Each pa As Arc3d In probeArcs
+								If Math.Abs(pa.Radius - probeArcs(0).Radius) > 0.0001 Then
+									uniformOk = False
+								End If
+							Next
+
+							If uniformOk Then
+
+								' Per rand: volledige lengte (mm) en hoek in
+								' het DSTV-vlakframe (zelfde transformatie als
+								' de IK-hoekpunten). Volledige randlengte =
+								' lijnlengte + 2 x straal.
+								Dim pairOk As Boolean = True
+								Dim perpCount3 As Integer = 0
+
+								For i As Integer = 0 To 3
+
+									Dim ln3d As LineSegment = probeLines(i)
+
+									Dim vEx As Double = ln3d.EndPoint.X - ln3d.StartPoint.X
+									Dim vEy As Double = ln3d.EndPoint.Y - ln3d.StartPoint.Y
+									Dim vEz As Double = ln3d.EndPoint.Z - ln3d.StartPoint.Z
+
+									Dim lenCm As Double = Math.Sqrt(vEx * vEx + vEy * vEy + vEz * vEz)
+
+									fullLenMm(i) = (lenCm + 2.0 * probeArcs(0).Radius) * 10.0
+
+									Dim axDstv As Double = GetDstvX(ln3d.StartPoint, oRefPoint, xUnit, minX)
+									Dim ayDstv As Double
+
+									If sFace = "v" OrElse sFace = "h" Then
+										ayDstv = GetDstvZ(ln3d.StartPoint, oRefPoint, zUnit, minZ)
+									Else
+										ayDstv = GetDstvY(ln3d.StartPoint, oRefPoint, yUnit, maxY)
+									End If
+
+									Dim bxDstv As Double = GetDstvX(ln3d.EndPoint, oRefPoint, xUnit, minX)
+									Dim byDstv As Double
+
+									If sFace = "v" OrElse sFace = "h" Then
+										byDstv = GetDstvZ(ln3d.EndPoint, oRefPoint, zUnit, minZ)
+									Else
+										byDstv = GetDstvY(ln3d.EndPoint, oRefPoint, yUnit, maxY)
+									End If
+
+									Dim aDeg As Double = Math.Atan2(byDstv - ayDstv, bxDstv - axDstv) * 180.0 / Math.PI
+
+									If aDeg < 0 Then
+										aDeg = aDeg + 180.0
+									End If
+
+									If aDeg >= 180.0 Then
+										aDeg = aDeg - 180.0
+									End If
+
+									edgeAngleDeg(i) = aDeg
+
+								Next
+
+								For i As Integer = 1 To 3
+
+									Dim dAng As Double = Math.Abs(edgeAngleDeg(0) - edgeAngleDeg(i))
+									If dAng > 90.0 Then
+										dAng = 180.0 - dAng
+									End If
+
+									If dAng < 0.01 Then
+										If parallelIdx3 < 0 Then
+											parallelIdx3 = i
+										Else
+											pairOk = False
+										End If
+									ElseIf Math.Abs(dAng - 90.0) < 0.01 Then
+										perpCount3 = perpCount3 + 1
+										perpIdx3 = i
+									Else
+										pairOk = False
+									End If
+
+								Next
+
+								If pairOk AndAlso parallelIdx3 >= 0 AndAlso perpCount3 = 2 Then
+
+									If Math.Abs(fullLenMm(0) - fullLenMm(parallelIdx3)) > 0.01 Then
+										pairOk = False
+									End If
+
+									Dim otherIdx3 As Integer = -1
+
+									For i As Integer = 1 To 3
+										If i <> parallelIdx3 Then
+											If otherIdx3 < 0 Then
+												otherIdx3 = i
+											ElseIf Math.Abs(fullLenMm(otherIdx3) - fullLenMm(i)) > 0.01 Then
+												pairOk = False
+											End If
+										End If
+									Next
+
+								Else
+									pairOk = False
+								End If
+
+								If pairOk Then
+									exportMode = "BO-3DFILLET"
+									probeFilletCm = probeArcs(0).Radius
+								Else
+									exportMode = "IK"
+								End If
+
+							Else
+								exportMode = "IK"
+							End If
+
+						ElseIf probeStatus = "FACE" AndAlso _
+							probeLines.Count = 4 AndAlso probeArcs.Count = 0 Then
+
+							exportMode = "IK"
+
+						Else
+
+							exportMode = "IK"
+
+						End If
+
+					End If
+
+					' DEBUG: per-opening face decision (rectangle)
+					If DebugMode Then
+						debugSb.AppendLine("  OPENING (rect): face=" + sFace + " facePos=" + Fmt(facePos) + " holeX=" + Fmt(holeX) + GetDstvXref(sFace) + " holeY=" + Fmt(holeY) + " holeZ=" + Fmt(holeZ) + " sizeX=" + Fmt(sizeXmm) + " sizeY=" + Fmt(sizeYmm) + " angle=" + Fmt(rectAngleDeg) + " repr=" + exportMode + " probe=" + probeStatus + " probeLines=" + probeLines.Count.ToString() + " probeArcs=" + probeArcs.Count.ToString())
+					End If
+
+
+					If exportMode = "IK" Then
+
+						' ---------------------------------------------
+						' IK internal contour (scherpe rechthoek)
+						'
+						' Puntopbouw volgens DSTV 7e editie p. 13-14 en
+						' het HEB400-voorbeeld (p. 22):
+						'   face X[ref] Y radius
+						' radius 0.0 bij scherpe hoeken; het eerste punt
+						' wordt als laatste punt herhaald (gesloten
+						' contour, p. 13); interne contouren clockwise.
+						' ---------------------------------------------
+
+						' Hoekpunten naar het DSTV-vlakframe. De Y-as
+						' volgt dezelfde mapping als de BO-records van
+						' dit vlak (zie GetFacePosition): GetDstvY voor
+						' o/u-vlakken, GetDstvZ voor v/h-vlakken.
+						Dim cornerX As New List(Of Double)
+						Dim cornerY As New List(Of Double)
+
+						For Each rectCorner As Point2d In rectCorners
+
+							Dim cornerModel As Point = _
+								oSketch.SketchToModelSpace(rectCorner)
+
+							Dim cDstvX As Double = _
+								GetDstvX( _
+									cornerModel, _
+									oRefPoint, _
+									xUnit, _
+									minX)
+
+							Dim cDstvY As Double
+
+							If sFace = "v" OrElse sFace = "h" Then
+								cDstvY = GetDstvZ( _
+									cornerModel, _
+									oRefPoint, _
+									zUnit, _
+									minZ)
+							Else
+								cDstvY = GetDstvY( _
+									cornerModel, _
+									oRefPoint, _
+									yUnit, _
+									maxY)
+							End If
+
+							cornerX.Add(cDstvX)
+							cornerY.Add(cDstvY)
+
+						Next
+
+						' Interne contouren clockwise (DSTV p. 13).
+						' Shoelace getekende oppervlakte: positief =
+						' wiskundige (CCW) orientatie -> volgorde
+						' omkeren; het eerste hoekpunt blijft anker.
+						Dim signedArea As Double = 0.0
+
+						For ci As Integer = 0 To cornerX.Count - 1
+							Dim cj As Integer = (ci + 1) Mod cornerX.Count
+							signedArea += cornerX(ci) * cornerY(cj) - _
+								cornerX(cj) * cornerY(ci)
+						Next
+
+						If signedArea > 0 Then
+							cornerX.Reverse(1, cornerX.Count - 1)
+							cornerY.Reverse(1, cornerY.Count - 1)
+						End If
+
+						Dim ikSb As New System.Text.StringBuilder
+
+						ikSb.AppendLine("IK")
+
+						For ci As Integer = 0 To cornerX.Count - 1
+
+							ikSb.AppendLine( _
+								"  " & sFace & " " & _
+								Fmt(cornerX(ci)) & GetDstvXref(sFace) & " " & _
+								Fmt(cornerY(ci)) & " " & _
+								Fmt(0.0))
+
+						Next
+
+						' Sluitpunt = eerste punt (gesloten contour).
+						ikSb.AppendLine( _
+							"  " & sFace & " " & _
+							Fmt(cornerX(0)) & GetDstvXref(sFace) & " " & _
+							Fmt(cornerY(0)) & " " & _
+							Fmt(0.0))
+
+						ikBlocks.Add(ikSb.ToString())
+
+						If DebugMode Then
+							Dim ikDbg As New System.Text.StringBuilder
+							For ci As Integer = 0 To cornerX.Count - 1
+								ikDbg.Append("(" + Fmt(cornerX(ci)) + "," + Fmt(cornerY(ci)) + ")")
+							Next
+							debugSb.AppendLine("    IK contour: face=" + sFace + " corners=" + ikDbg.ToString() + " closed=yes radius=0.00")
+						End If
+
+					ElseIf exportMode = "BO-3DFILLET" Then
+
+						' ---------------------------------------------
+						' BO-record vanaf de werkelijke gatrandloop
+						' (3D-fillet op de gatranden). d = 2 x boogstraal;
+						' width/height = volledige randlengten uit de loop;
+						' hoek in het DSTV-vlakframe. Toewijzing: de rand
+						' met de kleinste hoek t.o.v. stuk-X is de breedte
+						' (viewer-geverifieerde conventie bij hoek 0).
+						' Alle validatie is al gedaan in de probe-fase;
+						' hier is geen faalpad meer.
+						' ---------------------------------------------
+
+						Dim fillet3dDiamMm As Double = probeFilletCm * 20.0
+
+						Dim filletAngleDeg As Double
+						Dim filletWidthMm As Double
+						Dim filletHeightMm As Double
+
+						If edgeAngleDeg(0) <= edgeAngleDeg(perpIdx3) Then
+							filletAngleDeg = edgeAngleDeg(0)
+							filletWidthMm = fullLenMm(0)
+							filletHeightMm = fullLenMm(perpIdx3)
+						Else
+							filletAngleDeg = edgeAngleDeg(perpIdx3)
+							filletWidthMm = fullLenMm(perpIdx3)
+							filletHeightMm = fullLenMm(0)
+						End If
+
+						If DebugMode Then
+							debugSb.AppendLine("  OPENING (rect-3dfillet): face=" + sFace + " holeX=" + Fmt(holeX) + GetDstvXref(sFace) + " facePos=" + Fmt(facePos) + " d=" + Fmt(fillet3dDiamMm) + " width=" + Fmt(filletWidthMm) + " height=" + Fmt(filletHeightMm) + " angle=" + Fmt(filletAngleDeg) + " repr=BO")
+						End If
+
+						Dim sHoleLine As String = _
+							"  " & _
+							sFace & " " & _
+							Fmt(holeX) & GetDstvXref(sFace) & " " & _
+							Fmt(facePos) & " " & _
+							Fmt(fillet3dDiamMm) & " " & _
+							Fmt(0.0) & _
+							"l " & _
+							Fmt(filletWidthMm) & " " & _
+							Fmt(filletHeightMm) & " " & _
+							Fmt(filletAngleDeg)
+
+						AddHoleLineUnique( _
+							holeLines, _
+							sHoleLine, _
+							holeToleranceMm)
+
+					Else
+
+						' ---------------------------------------------
+						' BO-record (bestaand gedrag voor een vierhoek
+						' die geen rechthoek is). Onveranderd gelaten.
+						' ---------------------------------------------
+
+						' Compute rectangle angle in face frame (relative to piece X)
 					rectAngleDeg = ComputeFaceFrameAngle( _
 						oSketch, _
 						rectDirSketch, _
@@ -1498,10 +1866,8 @@ Sub Main()
 
 
 
-					' DEBUG: per-opening face decision (rectangle)
-					If DebugMode Then
-							debugSb.AppendLine("  OPENING (rect): face=" + sFace + " facePos=" + Fmt(facePos) + " holeX=" + Fmt(holeX) + GetDstvXref(sFace) + " holeY=" + Fmt(holeY) + " holeZ=" + Fmt(holeZ) + " sizeX=" + Fmt(sizeXmm) + " sizeY=" + Fmt(sizeYmm) + " angle=" + Fmt(rectAngleDeg))
-					End If
+					' (legacy per-rectangle debug removed 2026-09; superseded by the
+'  repr= debug line above)
 
 
 					' -------------------------------------------------
@@ -1516,6 +1882,10 @@ Sub Main()
 					' Voor deze eerste versie gebruiken we 0 voor
 					' diameter en t. Rotatie van de rechthoek wordt
 					' in fase 2 toegevoegd.
+					'
+					' NB (2026-09): dit BO-pad geldt alleen nog voor
+					' vierhoeken die geen rechthoek zijn; echte scherpe
+					' rechthoeken gaan naar IK (zie hierboven).
 					' -------------------------------------------------
 
 					Dim sHoleLine As String = _
@@ -1536,7 +1906,285 @@ Sub Main()
 						sHoleLine, _
 						holeToleranceMm)
 
+					End If
+
 				End If
+
+				ElseIf lineCount = 4 AndAlso arcCount = 4 AndAlso circleCount = 0 Then
+
+					' =====================================================
+					' FILLETED RECTANGLE (4 lijnen + 4 hoekbogen)
+					'
+					' De target-viewer accepteert een rechthoekige opening
+					' met een geldige, niet-nul hoekdiameter als BO
+					' (geverifieerd: d = 1.00/10.00/20.00 -> PASS; zie
+					' knowledge/dstv/nc1/7th-edition/blocks/BO.md). Zonder
+					' deze branch valt een gejilletteerde rechthoek door
+					' alle classificatie-branches heen en verdwijnt de
+					' opening volledig uit het NC-bestand.
+					'
+					' Classificatie uit de werkelijke geometrie. Gevallen
+					' die niet als een enkele BO-rechthoek representeerbaar
+					' zijn (niet-uniforme hoekstralen, geen rechthoek)
+					' worden overgeslagen met een debug-regel.
+					' =====================================================
+
+					Dim filletLines As New List(Of LineSegment2d)
+					Dim filletArcs As New List(Of Arc2d)
+
+					For entityIndex As Integer = 1 To oPath.Count
+
+						Dim peF As ProfileEntity = Nothing
+
+						Try
+							peF = oPath.Item(entityIndex)
+						Catch
+							Continue For
+						End Try
+
+						If peF Is Nothing Then
+							Continue For
+						End If
+
+						Dim seF As SketchEntity = Nothing
+
+						Try
+							seF = peF.SketchEntity
+						Catch
+							Continue For
+						End Try
+
+						If seF Is Nothing Then
+							Continue For
+						End If
+
+						If TypeOf seF Is SketchLine Then
+
+							Dim slF As SketchLine = CType(seF, SketchLine)
+							Dim lineF As LineSegment2d = Nothing
+
+							Try
+								lineF = CType(slF.Geometry, LineSegment2d)
+							Catch
+								lineF = Nothing
+							End Try
+
+							If lineF IsNot Nothing Then
+								filletLines.Add(lineF)
+							End If
+
+						ElseIf TypeOf seF Is SketchArc Then
+
+							Dim saF As SketchArc = CType(seF, SketchArc)
+							Dim arcF As Arc2d = Nothing
+
+							Try
+								arcF = CType(saF.Geometry, Arc2d)
+							Catch
+								arcF = Nothing
+							End Try
+
+							If arcF IsNot Nothing Then
+								filletArcs.Add(arcF)
+							End If
+
+						End If
+
+					Next
+
+					Dim filletSkipReason As String = ""
+					Dim cornerRadiusCm As Double = 0.0
+
+					If filletLines.Count <> 4 OrElse filletArcs.Count <> 4 Then
+
+						filletSkipReason = "profile is not 4 lines + 4 arcs"
+
+					Else
+
+						cornerRadiusCm = filletArcs(0).Radius
+
+						For Each fa As Arc2d In filletArcs
+							If Math.Abs(fa.Radius - cornerRadiusCm) > 0.0001 Then
+								filletSkipReason = "corner radii are not uniform"
+							End If
+						Next
+
+					End If
+
+					Dim edgeDx(3) As Double
+					Dim edgeDy(3) As Double
+					Dim edgeLenCm(3) As Double
+
+					If filletSkipReason = "" Then
+
+						For i As Integer = 0 To 3
+
+							Dim vEx As Double = filletLines(i).EndPoint.X - filletLines(i).StartPoint.X
+							Dim vEy As Double = filletLines(i).EndPoint.Y - filletLines(i).StartPoint.Y
+
+							edgeLenCm(i) = Math.Sqrt(vEx * vEx + vEy * vEy)
+
+							If edgeLenCm(i) > 0.00001 Then
+								edgeDx(i) = vEx / edgeLenCm(i)
+								edgeDy(i) = vEy / edgeLenCm(i)
+							Else
+								filletSkipReason = "degenerate (zero-length) edge"
+							End If
+
+						Next
+
+					End If
+
+					Dim parallelIdx As Integer = -1
+					Dim perpIdx As Integer = -1
+
+					If filletSkipReason = "" Then
+
+						Dim perpCount As Integer = 0
+
+						For i As Integer = 1 To 3
+
+							Dim dotVal As Double = Math.Abs(edgeDx(0) * edgeDx(i) + edgeDy(0) * edgeDy(i))
+
+							If dotVal >= 0.999 Then
+
+								If parallelIdx < 0 Then
+									parallelIdx = i
+								Else
+									filletSkipReason = "edges do not form a rectangle"
+								End If
+
+							ElseIf dotVal <= 0.01 Then
+								perpCount = perpCount + 1
+								perpIdx = i
+							Else
+								filletSkipReason = "edges do not form a rectangle"
+							End If
+
+						Next
+
+						If filletSkipReason = "" Then
+
+							If parallelIdx < 0 OrElse perpCount <> 2 Then
+
+								filletSkipReason = "edges do not form a rectangle"
+
+							ElseIf Math.Abs(edgeLenCm(0) - edgeLenCm(parallelIdx)) > 0.001 Then
+
+								filletSkipReason = "opposite edges differ in length"
+
+							Else
+
+								Dim otherIdx As Integer = -1
+
+								For i As Integer = 1 To 3
+									If i <> parallelIdx Then
+										If otherIdx < 0 Then
+											otherIdx = i
+										ElseIf Math.Abs(edgeLenCm(otherIdx) - edgeLenCm(i)) > 0.001 Then
+											filletSkipReason = "opposite edges differ in length"
+										End If
+									End If
+								Next
+
+							End If
+
+						End If
+
+					End If
+
+					If filletSkipReason <> "" Then
+
+						If DebugMode Then
+							debugSb.AppendLine("  OPENING (rect-fillet): SKIPPED (" + filletSkipReason + ")")
+						End If
+
+					Else
+
+						' Hoekdiameter d = 2 x filletraadius (sketch cm -> mm).
+						Dim filletDiamMm As Double = cornerRadiusCm * 20.0
+
+						' Volledige randlengte = lijnlengte + 2 x straal
+						' (de fillet kortt elk randeinde met r in).
+						Dim fullLenA_Mm As Double = (edgeLenCm(0) + 2.0 * cornerRadiusCm) * 10.0
+						Dim fullLenB_Mm As Double = (edgeLenCm(perpIdx) + 2.0 * cornerRadiusCm) * 10.0
+
+						' Rechthoekcentrum = gemiddelde van de vier
+						' boogmiddelpunten (exact voor een gejilletteerde
+						' rechthoek; de bbox van lijneindpunten zou door de
+						' tangentpunten naar binnen trekken).
+						Dim sumCx As Double = 0.0
+						Dim sumCy As Double = 0.0
+
+						For Each fa As Arc2d In filletArcs
+							sumCx = sumCx + fa.Center.X
+							sumCy = sumCy + fa.Center.Y
+						Next
+
+						Dim centerSketchF As Point2d = _
+							ThisApplication.TransientGeometry.CreatePoint2d( _
+								sumCx / 4.0, _
+								sumCy / 4.0)
+
+						Dim modelCenterF As Point = _
+							oSketch.SketchToModelSpace(centerSketchF)
+
+						Dim holeX As Double = _
+							GetDstvX(modelCenterF, oRefPoint, xUnit, minX)
+
+						Dim holeY As Double = _
+							GetDstvY(modelCenterF, oRefPoint, yUnit, maxY)
+
+						Dim holeZ As Double = _
+							GetDstvZ(modelCenterF, oRefPoint, zUnit, minZ)
+
+						Dim sFace As String = _
+							GetOpeningFace(oSketch, modelCenterF, oBody, xUnit, yUnit, zUnit, dHeightMm, holeY, holeZ)
+
+						Dim facePos As Double = _
+							GetFacePosition(sFace, holeY, holeZ)
+
+						' Randrichtingen naar het DSTV-vlakframe
+						' (zelfde transformatie als de IK-hoekpunten).
+						Dim angleA As Double = GetDstvFaceFrameAngle(oSketch, centerSketchF, edgeDx(0), edgeDy(0), sFace, oRefPoint, xUnit, yUnit, zUnit, minX, maxY, minZ)
+						Dim angleB As Double = GetDstvFaceFrameAngle(oSketch, centerSketchF, edgeDx(perpIdx), edgeDy(perpIdx), sFace, oRefPoint, xUnit, yUnit, zUnit, minX, maxY, minZ)
+
+						Dim filletAngleDeg As Double
+						Dim filletWidthMm As Double
+						Dim filletHeightMm As Double
+
+						If angleA <= angleB Then
+							filletAngleDeg = angleA
+							filletWidthMm = fullLenA_Mm
+							filletHeightMm = fullLenB_Mm
+						Else
+							filletAngleDeg = angleB
+							filletWidthMm = fullLenB_Mm
+							filletHeightMm = fullLenA_Mm
+						End If
+
+						If DebugMode Then
+							debugSb.AppendLine("  OPENING (rect-fillet): face=" + sFace + " holeX=" + Fmt(holeX) + GetDstvXref(sFace) + " facePos=" + Fmt(facePos) + " d=" + Fmt(filletDiamMm) + " width=" + Fmt(filletWidthMm) + " height=" + Fmt(filletHeightMm) + " angle=" + Fmt(filletAngleDeg) + " repr=BO")
+						End If
+
+						Dim sHoleLine As String = _
+							"  " & _
+							sFace & " " & _
+							Fmt(holeX) & GetDstvXref(sFace) & " " & _
+							Fmt(facePos) & " " & _
+							Fmt(filletDiamMm) & " " & _
+							Fmt(0.0) & _
+							"l " & _
+							Fmt(filletWidthMm) & " " & _
+							Fmt(filletHeightMm) & " " & _
+							Fmt(filletAngleDeg)
+
+						AddHoleLineUnique( _
+							holeLines, _
+							sHoleLine, _
+							holeToleranceMm)
+
+					End If
 
 			End If
 
@@ -1832,6 +2480,23 @@ Sub Main()
 		Next
 
 	End If
+
+
+	' =============================================================
+	' IK - internal contours (scherpe rechthoekige openingen)
+	'
+	' Elke scherpe rechthoekige opening levert 1 IK-blok: "IK"-kop
+	' + puntdatalijnen (2 spaties inspringing). Geplaatst na het
+	' BO-blok, voor EN. DSTV staat een willekeurige blokvolgorde
+	' toe (p. 9); het HEB400-voorbeeld (p. 22) groepeert de
+	' contourblokken per vlak na de BO-blokken.
+	' =============================================================
+
+	For Each sIkBlock As String In ikBlocks
+
+		sb.Append(sIkBlock)
+
+	Next
 
 
 	' =============================================================
@@ -2192,6 +2857,313 @@ Function GetFacePosition( _
 	Return holeY
 
 End Function
+
+
+' =====================================================================
+' ORDERED CORNER CHAIN FROM PROFILE SEGMENTS
+'
+' Loopt de lijnsegmenten van een gesloten profile-path af en geeft
+' de unieke hoekpunten in traversatievolgorde terug. Geeft False als
+' de segmenten geen gesloten keten vormen (gat of vertakking).
+'
+' Tolerantie in sketch-eenheden (cm): 1e-5 cm = 1e-4 mm.
+' =====================================================================
+
+Function BuildOrderedCornerChain( _
+	ByVal oSegments As List(Of LineSegment2d), _
+	ByRef oCorners As List(Of Point2d)) As Boolean
+
+	oCorners = New List(Of Point2d)
+
+	If oSegments.Count < 3 Then
+		Return False
+	End If
+
+	Dim chainTol As Double = 0.00001
+
+	Dim segUsed(oSegments.Count - 1) As Boolean
+
+	Dim walkPt As Point2d = oSegments(0).EndPoint
+
+	segUsed(0) = True
+	oCorners.Add(oSegments(0).StartPoint)
+
+	For stepIndex As Integer = 1 To oSegments.Count - 1
+
+		Dim nextIndex As Integer = -1
+		Dim nextIsStart As Boolean = False
+
+		For si As Integer = 0 To oSegments.Count - 1
+
+			If segUsed(si) Then
+				Continue For
+			End If
+
+			If walkPt.DistanceTo(oSegments(si).StartPoint) <= chainTol Then
+				nextIndex = si
+				nextIsStart = False
+				Exit For
+			End If
+
+			If walkPt.DistanceTo(oSegments(si).EndPoint) <= chainTol Then
+				nextIndex = si
+				nextIsStart = True
+				Exit For
+			End If
+
+		Next
+
+		If nextIndex < 0 Then
+			oCorners = New List(Of Point2d)
+			Return False
+		End If
+
+		segUsed(nextIndex) = True
+		oCorners.Add(walkPt)
+
+		If nextIsStart Then
+			walkPt = oSegments(nextIndex).StartPoint
+		Else
+			walkPt = oSegments(nextIndex).EndPoint
+		End If
+
+	Next
+
+	If walkPt.DistanceTo(oCorners(0)) > chainTol Then
+		oCorners = New List(Of Point2d)
+		Return False
+	End If
+
+	Return True
+
+End Function
+
+
+' =====================================================================
+' RECTANGLE CHECK FROM CORNER CHAIN
+'
+' True als de vier hoekpunten een rechthoek vormen: alle vier de
+' binnenhoeken zijn rechte hoeken (een gesloten vierhoek met vier
+' rechte hoeken is een rechthoek). dCosTol = maximaal toegestane
+' |cos(hoek)| (0 = perfect haaks). Nul-lengte randen worden
+' geweigerd (degenereerde keten).
+' =====================================================================
+
+Function IsRectangleFromCorners( _
+	ByVal oCorners As List(Of Point2d), _
+	ByVal dCosTol As Double) As Boolean
+
+	If oCorners.Count <> 4 Then
+		Return False
+	End If
+
+	For i As Integer = 0 To 3
+
+		Dim prevIdx As Integer = (i + 3) Mod 4
+		Dim nextIdx As Integer = (i + 1) Mod 4
+
+		Dim vx As Double = oCorners(prevIdx).X - oCorners(i).X
+		Dim vy As Double = oCorners(prevIdx).Y - oCorners(i).Y
+		Dim wx As Double = oCorners(nextIdx).X - oCorners(i).X
+		Dim wy As Double = oCorners(nextIdx).Y - oCorners(i).Y
+
+		Dim lenV As Double = Math.Sqrt(vx * vx + vy * vy)
+		Dim lenW As Double = Math.Sqrt(wx * wx + wy * wy)
+
+		If lenV <= 0.00001 OrElse lenW <= 0.00001 Then
+			Return False
+		End If
+
+		Dim dCos As Double = Math.Abs((vx * wx + vy * wy) / (lenV * lenW))
+
+		If dCos > dCosTol Then
+			Return False
+		End If
+
+	Next
+
+	Return True
+
+End Function
+
+
+' =====================================================================
+' DSTV FACE-FRAME ANGLE OF A SKETCH DIRECTION
+'
+' Transformeert het middelpunt en een punt verschoven in de
+' randrichting naar het DSTV-vlakframe (zelfde mapping als de
+' IK-hoekpunten: GetDstvY voor o/u-vlakken, GetDstvZ voor v/h)
+' en geeft de richtingshoek in dat frame terug, genormaliseerd
+' naar [0, 180). De rechthoek is symmetrisch onder 180 graden.
+' NB: de hoekteken-conventie in het DSTV-vlakframe is voor
+' werkelijk gedraaide rechthoeken nog niet viewer-geverifieerd
+' (PENDING-item F3); voor vlakke-uitgelijnde gevallen is de
+' hoek 0.00.
+' =====================================================================
+
+Function GetDstvFaceFrameAngle( _
+	ByVal oSketch As PlanarSketch, _
+	ByVal oCenterSketch As Point2d, _
+	ByVal dDirX As Double, _
+	ByVal dDirY As Double, _
+	ByVal sFace As String, _
+	ByVal oRefPoint As Point, _
+	ByVal xUnit As UnitVector, _
+	ByVal yUnit As UnitVector, _
+	ByVal zUnit As UnitVector, _
+	ByVal dMinX As Double, _
+	ByVal dMaxY As Double, _
+	ByVal dMinZ As Double) As Double
+
+	Dim ptA As Point = oSketch.SketchToModelSpace(oCenterSketch)
+
+	Dim ptB As Point = oSketch.SketchToModelSpace( _
+		ThisApplication.TransientGeometry.CreatePoint2d( _
+			oCenterSketch.X + dDirX, _
+			oCenterSketch.Y + dDirY))
+
+	Dim axDstv As Double = GetDstvX(ptA, oRefPoint, xUnit, dMinX)
+	Dim ayDstv As Double
+
+	If sFace = "v" OrElse sFace = "h" Then
+		ayDstv = GetDstvZ(ptA, oRefPoint, zUnit, dMinZ)
+	Else
+		ayDstv = GetDstvY(ptA, oRefPoint, yUnit, dMaxY)
+	End If
+
+	Dim bxDstv As Double = GetDstvX(ptB, oRefPoint, xUnit, dMinX)
+	Dim byDstv As Double
+
+	If sFace = "v" OrElse sFace = "h" Then
+		byDstv = GetDstvZ(ptB, oRefPoint, zUnit, dMinZ)
+	Else
+		byDstv = GetDstvY(ptB, oRefPoint, yUnit, dMaxY)
+	End If
+
+	Dim dAng As Double = Math.Atan2(byDstv - ayDstv, bxDstv - axDstv) * 180.0 / Math.PI
+
+	If dAng < 0 Then
+		dAng = dAng + 180.0
+	End If
+
+	If dAng >= 180.0 Then
+		dAng = dAng - 180.0
+	End If
+
+	Return dAng
+
+End Function
+
+
+
+' =====================================================================
+' HOLE BOUNDARY LOOP PROBE (3D-fillet detectie)
+'
+' Zoekt op het vlak waarin de opening is gesneden de binnenrandloop
+' (EdgeLoop, IsOuterEdgeLoop = False) die het dichtst bij het
+' gatmiddelpunt ligt en classificeert de randen daarvan. De loop is
+' de WERKELIJKE gatcontour na alle features: een 3D-fillet (Fillet-
+' tool) op de gatranden geeft hier 4 lijnen + 4 bogen, terwijl de
+' cut-sketch nog een scherpe rechthoek beschrijft.
+'
+' Statuswaarden:
+'   "FACE"              - planaire face gevonden; de dichtstbijzijnde
+'                         binnenloop staat in oBoundaryLines /
+'                         oBoundaryArcs
+'   "NO-FACE"           - sketch staat niet op een body-face
+'                         (bijv. werkvlak) -> geen probe mogelijk
+'   "NO-LOOP"           - geen binnenloop binnen de afstandstolerantie
+'   "UNRECOGNIZED-EDGE" - loop bevat een ander randtype dan lijn/boog
+'
+' Toleranties: loop-matching 0.05 cm (0.5 mm) op het RangeBox-
+' middelpunt; boogstraal-uniformiteit 0.0001 cm.
+' =====================================================================
+
+Function ProbeHoleBoundaryLoop( _
+	ByVal oSketch As PlanarSketch, _
+	ByVal oModelCenter As Point, _
+	ByRef oBoundaryLines As List(Of LineSegment), _
+	ByRef oBoundaryArcs As List(Of Arc3d)) As String
+
+	oBoundaryLines = New List(Of LineSegment)
+	oBoundaryArcs = New List(Of Arc3d)
+
+	Dim planarObject As Object = Nothing
+
+	Try
+		planarObject = oSketch.PlanarEntity
+	Catch
+		planarObject = Nothing
+	End Try
+
+	If Not (TypeOf planarObject Is Face) Then
+		Return "NO-FACE"
+	End If
+
+	Dim oFace As Face = CType(planarObject, Face)
+
+	Dim matchTolCm As Double = 0.05
+
+	Dim bestLoop As EdgeLoop = Nothing
+	Dim bestDist As Double = 0.0
+
+	For Each oEdgeLoop As EdgeLoop In oFace.EdgeLoops
+
+		If oEdgeLoop.IsOuterEdgeLoop Then
+			Continue For
+		End If
+
+		Dim rb As Box = oEdgeLoop.RangeBox
+
+		Dim cx As Double = (rb.MinPoint.X + rb.MaxPoint.X) / 2.0
+		Dim cy As Double = (rb.MinPoint.Y + rb.MaxPoint.Y) / 2.0
+		Dim cz As Double = (rb.MinPoint.Z + rb.MaxPoint.Z) / 2.0
+
+		Dim dx As Double = cx - oModelCenter.X
+		Dim dy As Double = cy - oModelCenter.Y
+		Dim dz As Double = cz - oModelCenter.Z
+
+		Dim dist As Double = Math.Sqrt(dx * dx + dy * dy + dz * dz)
+
+		If bestLoop Is Nothing OrElse dist < bestDist Then
+			bestDist = dist
+			bestLoop = oEdgeLoop
+		End If
+
+	Next
+
+	If bestLoop Is Nothing OrElse bestDist > matchTolCm Then
+		Return "NO-LOOP"
+	End If
+
+	For Each oEdge As Edge In bestLoop.Edges
+
+		Dim oGeom As Object = Nothing
+
+		Try
+			oGeom = oEdge.Geometry
+		Catch
+			oGeom = Nothing
+		End Try
+
+		If TypeOf oGeom Is LineSegment Then
+
+			oBoundaryLines.Add(CType(oGeom, LineSegment))
+
+		ElseIf TypeOf oGeom Is Arc3d Then
+
+			oBoundaryArcs.Add(CType(oGeom, Arc3d))
+
+		Else
+			Return "UNRECOGNIZED-EDGE"
+		End If
+
+	Next
+
+	Return "FACE"
+
+End Function
+
 
 
 ' =====================================================================

@@ -117,3 +117,14 @@ Current working guidance:
 - Sharp-corner internal rectangle → IK is the verified working representation for this exporter/viewer combination
 
 This is a **verified viewer/exporter compatibility rule**, not a universal DSTV specification rule.
+
+### Implementation status (verified 2026-09)
+
+The exporter (`scratch/dstv_exporter.vb`) implements:
+
+- **sharp rectangle** (4-line closed profile, 4 right angles from actual sketch geometry) → **IK** closed clockwise contour, radius 0.0;
+- **rounded rectangle** with **equal corner fillets** → **BO** with `d` = 2 × fillet radius, `l width/height` = full edge lengths (line + 2r) in the DSTV face frame. Two detection paths:
+  - fillets drawn **in the sketch** → profile is 4 lines + 4 arcs;
+  - fillets applied **with the 3D Fillet tool** after the cut → the sketch stays a 4-line rectangle; the exporter probes the hole's **actual boundary edge loop** on the face (`ProbeHoleBoundaryLoop`: inner `EdgeLoop` nearest the rectangle center) and detects 4 lines + 4 uniform arcs there.
+
+Confirmed 2026-09-09 (Inventor 2026 + target NC1 viewer): sharp→IK and both fillet paths→BO all validate **without any viewer warning** for the tested HE 400 B part (r = 5 mm → `d=10.00`).

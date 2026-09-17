@@ -1,4 +1,10 @@
-﻿' =====================================================================
+﻿Imports System
+Imports System.Collections.Generic
+Imports System.Windows.Forms
+Imports Inventor
+
+Module DstvRule
+' =====================================================================
 ' EXPORT_DSTV2
 '
 ' DSTV export
@@ -4723,3 +4729,8 @@ Function GetWebFace( _
 	Return "v"
 
 End Function
+End Module
+
+Module ILogicHost
+    Public ThisApplication As Inventor.Application = Nothing
+End Module

@@ -49,6 +49,7 @@ SurfaceBody vertex count: 94
   OPENING (rect-fillet): face=v holeX=1558.03u facePos=182.23 d=48.00 width=148.00 height=108.00 angle=9.96 repr=BO
   FEATURE (cut extrude): Extrusion4
   OPENING (rect): face=h facePos=362.50 holeX=1000.00u holeY=300.00 holeZ=362.50 sizeX=2000.00 sizeY=75.00 angle=0.00 repr=BO-QUAD probe= probeLines=0 probeArcs=0
+  OPENING (rect): SKIP (geen snijranden op vlak h, probe=) holeX=1000.00u sizeX=2000.00 sizeY=75.00
   FEATURE (cut extrude): Extrusion5
   FEATURE (cut extrude): Extrusion6
   FEATURE (cut extrude): Extrusion7
@@ -70,7 +71,7 @@ Cut extrudes processed: 6
 
 === B-REP HOLE DETECTION ===
 Holes detected: 8
-Total BO records: 12
+Total BO records: 11
 
     [endcut] END-face: faceMinX=15.00 faceMaxX=25.00 outwardN=(0.95,0.32,0.00)
     [endcut] START-face: faceMinX=-175.00 faceMaxX=-175.00 outwardN=(-1.00,-0.00,-0.00)
@@ -82,3 +83,7 @@ Total BO records: 12
     END: STAIRCASE end (multi-level) - ST skew fields stay 0.00 (contour material, AK)
   SKEW FIELDS (ST 17-20): webStart=0.00 webEnd=0.00 flangeStart=0.00 flangeEnd=0.00
 
+  [AK] v: zijplaat geknipt op lijf-X 0.00 .. 1952.25
+  [AK] v (zijaanzicht): 11 punten, 82 randen
+  [AK] o: hull 4 punten
+  [AK] u: hull 4 punten

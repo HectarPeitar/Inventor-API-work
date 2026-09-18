@@ -82,3 +82,163 @@ Runtime error: "Public member 'Loops' on type 'Face' not found."
 - Lesson: late-bound iLogic compiles pass with wrong member names;
   verify B-REP member names against the interop DLL (reflection) or
   the BRepTraversal sample BEFORE runtime testing.
+
+## ILOGIC COMPILE QUIRK (2026-09): single-letter parameters
+
+iLogic rule compiler error: "'b' is not declared. It may be inaccessible
+due to its protection level." (one error per use) on the only two
+functions whose parameters were SINGLE-LETTER names (a, b, o) — while
+functions with multi-character parameter names compiled fine even with
+two parameters on one continuation line. Raw vbc (standalone harness)
+passes both forms, so this is an iLogic pre-compiler quirk, not VB.
+
+Rule: in iLogic rule code avoid single-letter parameter/local names;
+use descriptive names (pA, pB, pO). Fixed in ComparePoint2d and Cross2.
+
+## STAGE 2 SLOT ITEM CLOSED (2026-09)
+
+NC1 confirmed: `u 1450.00u 251.50 24.00 0.00l 70.00 0.00 0.00` present
+alongside the o record (12 BO records). [pierce] log: MATCH face=u,
+projDistCm=0.00, dedupe correct.
+
+Stage 2 BO summary:
+- all round holes + slot on both faces: matches reference pattern
+- remaining BO deviations (pending AK absorption): `v 1558.03...`
+  (rect-fillet cope) and `h 1000.00u 362.50 ...l 75.00 2000.00`
+  (Extrusion5 cope, misclassified as h-face slot)
+- X-ref letters `u` vs reference `o`/`s`: pending AK-3
+
+## RUN 3 (2026-09): AK-1 first output + h-record root cause + v redefinition
+
+First AK runtime output. Findings vs reference (extracted :1065-1101):
+
+1. **u-AK matches** reference (200/1900/2000/300 + diagonal) except one
+   extra collinear hull point (1961.25,183.75) = root-fillet tangent
+   vertex exactly ON the diagonal; kept by a float-e hull-pop. FIX:
+   RemoveCollinearPoints2d (sin < 1e-6) applied to the hull output.
+2. **o-AK matches** (159.52≈159.50, 1750) except micro-vertex (164,0)
+   = the model's real start-bevel edge (top 164.00 / underside 159.52,
+   10.5° like the reference's 10.2° bevel); same fix merges it. R10
+   corner arc missing = AK-2.
+3. **v-AK structural mismatch**: reference AK(v) = FULL side view
+   (depth 0-400, start tongue at X=0 spanning heights 100-325, start
+   bevel (163.5,400)->(150,325), end staircase 1952/350/1750, notched
+   cope w/t + R10) — NOT the web-face loop (51-349) we emitted. FIX:
+   GetSideViewOutline replaces GetWebPlateContour for the v block:
+   X-Z projection outline via slab sweep (per-X min/max envelope of
+   all projected edges; breakpoints at edge endpoints).
+4. **h-record root cause CLOSED**: `h 1000.00u 362.50 ...l 75.00
+   2000.00` is bogus — its own debug line shows probe= probeLines=0
+   probeArcs=0 (no cut edges on face h) and the AK contours prove no
+   material removed near X=1000. Legacy BO-QUAD path emitted from
+   sketch geometry without intersection evidence. FIX: BO-QUAD
+   emission now requires probeLines+probeArcs > 0, else SKIP with
+   debug line. Expect Extrusion4 -> "OPENING (rect): SKIP".
+5. **NOTE-4 (deliberate deviation)**: reference v bottom edge ends at
+   1952 (plan-diagonal cut crossing the web) although its own u
+   contour proves the bottom flange reaches X=2000 at the far width —
+   the example is internally inconsistent at this corner ("cut path on
+   the side plate" idealization). We emit the true projection outline
+   (flange tip included: bottom edge to 2000, step at the tip).
+6. X-ref letters: reference uses 'o' for the v block, 's' for u/o
+   blocks; we emit 'u' everywhere — AK-3 scope.
+7. ST skew 0.00 x4 matches reference ST; BO hole/slot set matches
+   reference pattern (v 900/300 + 450/280, o/u slot + 3 holes).
+
+## RUN 4 (2026-09): h-record suppressed; u/o EXACT; v side view decoded
+
+1. **h-record GONE**: "OPENING (rect): SKIP (geen snijranden op vlak h)"
+   emitted for Extrusion4; BO records 12 -> 11. BO-QUAD guard verified.
+2. **u-AK = reference EXACTLY**: (200,0),(1900,0),(2000,300),(200,300).
+3. **o-AK = reference** (159.52 vs 159.50 rounding; R10 corner arc = AK-2).
+4. **v-AK = full side view, structure matches reference**: tongue at
+   X=0 spanning heights 100-325 (EXACTLY the reference), tongue bottom
+   edge (0,100)->(190,100) (reference identical), start bevel
+   (164,400)->(150,325) (reference 163.5/150/325), staircase shoulder
+   at Z=350 (reference identical), END BEVEL (1900,350)->(1750,400) =
+   atan(50/150) = 18.43 deg — THE SAME angle the reference encodes as
+   the (-18.430, 13.50) couple on its (1952,0) contour point (AK-4:
+   welding-prep couples). The model replicates the reference geometry.
+5. Defect found + fixed: sweep emitted leaning segment
+   (1961.25,24)->(1952.25,350) across an envelope jump (phantom wedge
+   above Z=24 between 1952.25-1961.25). Fix: per-breakpoint LEFT/RIGHT
+   envelope values (vertical edges excluded from side values); jumps
+   emitted as two points on the same X. Expected v chain now:
+   ...(2000,24),(1952.25,24),(1952.25,350),(1900,350)...
+6. Model-vs-reference note: our cope root is the plain diagonal
+   (190,100)->(200,0); reference draws the notch with w/t lines + R10
+   (kerf through the root). Verify visually whether the modeled cope
+   corner is a plain diagonal or carries the p.14 notch; if the notch
+   exists in the model it should appear as extra contour vertices.
+7. Remaining: AK-2 (R10 corner arc on o; fillet/arc radii), AK-3
+   (x-ref letters o/s/u vs reference 'o'/'s'; w/t notch line), AK-4
+   (the (-18.430,13.50)-style bevel couples), SI (stage 3).
+
+## RUN 5 (2026-09): side-plate clip; bevel-through confirmed by user
+
+User observations on RUN 4 output:
+1. Model's tongue root = the notch (like the reference); viewer showed
+   a diagonal. CONFIRMED cause: the notch's R10 arc is chorded by the
+   sweep (start/stop vertices only) -> the diagonal (190,100)->(200,90)
+   is the arc's CHORD. The jump fix already revealed the notch extent
+   (point 200,90 = reference's (200,90)). Fix belongs to AK-2 (arc
+   support: emit radius instead of chord; reference marks it with the
+   -10 sign) + AK-3 (w/t notch line). NOT an envelope bug.
+2. End bevel: "runs all the way through the beam" in the model but
+   displayed only at the bottom in the v contour. CAUSE: our v contour
+   was the TRUE projection silhouette (flange tip wedge to 2000 +
+   leaning fillet segment), while the reference renders a through-all
+   plan cut in the side plate as the VERTICAL LINE at its web crossing
+   (reference: 1952). FIX (side-plate semantics, reference-exact):
+   GetSideViewOutline now clips all projected segments to the X-range
+   of the WEB faces (GetSideViewOutline got yUnit/minY/maxY/
+   dWebThickMm params). No-op for plain square ends (web spans full
+   length). Debug: "[AK] v: zijplaat geknipt op lijf-X .. ..".
+
+Expected v block now (11 pts + closure):
+  (0,100),(190,100),(200,90),(200,0),(1952.25,0),(1952.25,350),
+  (1750,350),(1750,400),(164,400),(150,325),(0,325)
+- bevel = full-height vertical at 1952.25 (the model's web crossing;
+  reference 1952.00 at their web) -> user issue resolved
+- NOTE-4 RESOLVED: bottom edge now ends at 1952.25 like the reference
+  (flange-tip wedge and (1961.25,24) gone); the earlier "deliberate
+  true-projection deviation" is superseded by reference semantics.
+- remaining deltas vs reference are notation-level: R10 arc (AK-2),
+  w/t notch line + x-ref letters (AK-3), prep couples (AK-4).
+
+Status: VERIFIED (RUN 6, 2026-09). v block = expected 11-pt chain
+exactly (web-clip active: lijf-X 0.00 .. 1952.25); u/o blocks match
+reference; h-record suppressed. AK-1 exit criteria met: u-AK matches
+reference; fictitious/future cope BO records suppressed. Remaining
+notation-level deltas deferred to AK-2 (arcs), AK-3 (w/t + x-ref),
+AK-4 (prep couples).
+
+## AK PLAN (approved direction, 2026-09; v-row superseded by RUN 3 #3)
+
+Plate concept (extracted :626-637): each DSTV face = ideal plate; its
+external contour is the projected chain of the B-REP side faces inside
+the slab band. Cope cut-extrudes dissolve into the chains (no more
+separate-feature misclassification).
+
+| Plate | Slab band | Side faces in band |
+|---|---|---|
+| o | Z 376-400, Y 0-300 | normals +-Y, +-X |
+| u | Z 0-24, Y 0-300 | normals +-Y, +-X |
+| v | Y 143-156.5, Z 24-376 | normals +-Z, +-X |
+
+Sanity vs reference: u-AK = 4 corners + diagonal (matches); v-AK gets
+the cope steps + notch corner from Extrusion5 side walls.
+
+Sub-phases:
+- AK-1: sharp-corner plate outline (slab-band collection -> edge
+  chains -> CCW -> emit). Exit: u-AK matches reference; cope BO
+  records suppressed.
+- AK-2: arc edges -> radius field + sign.
+- AK-3: notch line (w/t) + X-ref letter differentiation (o/s/u).
+- AK-4: welding-prep couples (bevel faces at contour points).
+
+Scratch cleanup 2026-09: removed page renders (knowledge/_renders has
+them), DSTV_Debug_Report.txt, test_sample.nc1, diagnostic/ variants,
+compile_check build artifacts (dll/harness). Kept: exporter, test
+evidence docs, golden files, compile_check.ps1, validate_nc1.ps1,
+check_ik.ps1 + expected ik nc1.

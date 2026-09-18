@@ -1898,6 +1898,16 @@ Sub Main()
 
 					Else
 
+						' NB (2026-09): dit pad draait alleen nog als de
+						' face-probe wel snijranden vond maar de vorm niet
+						' als IK/BO-3DFILLET classificeerde. Zonder
+						' snijranden (lege probe, probeLines=0,
+						' probeArcs=0) is niet aangetoond dat de cut dit
+						' vlak of het materiaal raakt (profiel kan buiten
+						' het lichaam liggen) en mag er geen BO-record
+						' komen (Extrusion4-geval: fictieve "h 75x2000").
+						If probeLines.Count > 0 OrElse probeArcs.Count > 0 Then
+
 						' ---------------------------------------------
 						' BO-record (bestaand gedrag voor een vierhoek
 						' die geen rechthoek is). Onveranderd gelaten.
@@ -1963,6 +1973,17 @@ Sub Main()
 						holeLines, _
 						sHoleLine, _
 						holeToleranceMm)
+
+					Else
+
+						' Geen snijranden op het vlak gevonden: de cut
+						' raakt dit vlak niet aantoonbaar -> geen
+						' BO-record (voorkomt fictieve openingen).
+						If DebugMode Then
+							debugSb.AppendLine("  OPENING (rect): SKIP (geen snijranden op vlak " + sFace + ", probe=" + probeStatus + ") holeX=" + Fmt(holeX) + GetDstvXref(sFace) + " sizeX=" + Fmt(sizeXmm) + " sizeY=" + Fmt(sizeYmm))
+						End If
+
+					End If
 
 					End If
 
@@ -3044,6 +3065,29 @@ Dim startNormal As Vector = Nothing
 
 
 	' =============================================================
+	' AK - externe contouren per plate (AK-1: scherpe hoeken)
+	'
+	' Plate-concept (extracted :626-637): de contour is de omtrek
+	' van het ideale vlak (v = outer loop van het lijf-vlak; o/u =
+	' convex hull van de flens-band). Geplaatst na BO/IK, voor EN
+	' (willekeurige blokvolgorde toegestaan, p. 9; HEB400-voorbeeld
+	' groepeert contourblokken na de BO-blokken).
+	' =============================================================
+
+	Dim akBlocks As List(Of String) = _
+		BuildAkBlocks( _
+			oBody, xUnit, yUnit, zUnit, oRefPoint, _
+			minX, maxX, minY, maxY, minZ, maxZ, _
+			dFlangeThickMm, dWebThickMm, debugSb)
+
+	For Each sAkBlock As String In akBlocks
+
+		sb.Append(sAkBlock)
+
+	Next
+
+
+	' =============================================================
 	' EN
 	' =============================================================
 
@@ -3445,6 +3489,1014 @@ Function GetFaceLetterFromNormal( _
 	End If
 
 	Return ""
+
+End Function
+
+
+' =====================================================================
+' AK-1: EXTERNE CONTOUR PER PLATE (scherpe hoeken)
+'
+' Plate-concept (extracted :626-637): elke DSTV-vlak is een ideale
+' platte "plate"; de externe contour is de omtrek van de plate.
+'
+'   v: de lijf-voorzijde (normaal +yUnit) - zijn outer EdgeLoop IS de
+'      contour; copes/snijden in de lijfrand zitten automatisch in de
+'      loop (geen aparte opening-classificatie meer nodig).
+'
+'   o/u: de flens-band bestaat uit 2 strip-vlakken (links/rechts van
+'      de lijf) + eventueel schuine eindvlakken (bijv. afschuining,
+'      diagonale snede). De plate-omtrek = convex hull van alle
+'      vertices van vlakken in de band (|n.z| >= 0.97). Voor de
+'      gouden referentie (HEB400 p. 21-22) zijn de o/u contouren
+'      convex (rechthoek + diagonale snede) -> hull is correct.
+'      Niet-convexe flenscontouren (inkervingen) komen in een latere
+'      sub-fase (AK-2+).
+'
+' Coordinaten: DSTV mm via GetDstvX / GetDstvY (o/u) / Z-projectie
+' (v), identiek aan de BO-regels. Orientatie: CCW in de emissie-
+' coordinaten; de contour wordt gesloten door het eerste punt te
+' herhalen. Radius 0.00 (scherpe hoeken); bogen volgen in AK-2.
+' Referentieletters en w/t-notaties volgen in AK-3.
+' =====================================================================
+
+Function BuildAkBlocks( _
+	ByVal oBody As SurfaceBody, _
+	ByVal xUnit As UnitVector, _
+	ByVal yUnit As UnitVector, _
+	ByVal zUnit As UnitVector, _
+	ByVal oRefPoint As Point, _
+	ByVal minX As Double, ByVal maxX As Double, _
+	ByVal minY As Double, ByVal maxY As Double, _
+	ByVal minZ As Double, ByVal maxZ As Double, _
+	ByVal dFlangeThickMm As Double, _
+	ByVal dWebThickMm As Double, _
+	ByVal dbg As System.Text.StringBuilder) As List(Of String)
+
+	Dim blocks As New List(Of String)
+
+	Try
+
+		Dim flangeBandCm As Double = dFlangeThickMm / 10.0
+
+		' v = zijplaat-snijprofiel (X-Z enveloppe, geknipt op het
+		' lijf-X-bereik: doorgaande uiteindesnedes verschijnen als
+		' verticale lijn op de kruising met het lijf, zoals in het
+		' referentievoorbeeld).
+		Dim vPoints As List(Of Point2d) = _
+			GetSideViewOutline( _
+				oBody, xUnit, yUnit, zUnit, oRefPoint, _
+				minX, minZ, minY, maxY, dWebThickMm, dbg)
+
+		Dim oPoints As List(Of Point2d) = _
+			GetFlangePlateHull( _
+				oBody, xUnit, yUnit, zUnit, oRefPoint, _
+				minX, minY, maxY, maxZ, flangeBandCm, "o", dbg)
+
+		Dim uPoints As List(Of Point2d) = _
+			GetFlangePlateHull( _
+				oBody, xUnit, yUnit, zUnit, oRefPoint, _
+				minX, minY, maxY, minZ, flangeBandCm, "u", dbg)
+
+		blocks.Add(FormatAkBlock("v", vPoints, dbg))
+		blocks.Add(FormatAkBlock("u", uPoints, dbg))
+		blocks.Add(FormatAkBlock("o", oPoints, dbg))
+
+		' Lege blokken (vlak niet gevonden) verwijderen
+		For i As Integer = blocks.Count - 1 To 0 Step -1
+			If blocks(i) Is Nothing OrElse blocks(i).Length = 0 Then
+				blocks.RemoveAt(i)
+			End If
+		Next
+
+	Catch ex As Exception
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] EXCEPTION: " + ex.Message)
+		End If
+
+	End Try
+
+	Return blocks
+
+End Function
+
+
+Private Sub RemoveCollinearPoints2d(ByVal pts As List(Of Point2d))
+
+	' sin(hoek) < 1e-6 => collineair (schaal-onafhankelijk, anders
+	' dan de exacte hull-pop die een float-fout kan missen)
+	Dim eps As Double = 0.000001
+
+	If pts.Count < 3 Then
+		Return
+	End If
+
+	For i As Integer = pts.Count - 2 To 1 Step -1
+
+		Dim ax As Double = pts(i - 1).X
+		Dim ay As Double = pts(i - 1).Y
+		Dim bx As Double = pts(i).X
+		Dim by As Double = pts(i).Y
+		Dim cx As Double = pts(i + 1).X
+		Dim cy As Double = pts(i + 1).Y
+
+		Dim cross As Double = (bx - ax) * (cy - by) - (by - ay) * (cx - bx)
+
+		Dim len1 As Double = Math.Sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay))
+		Dim len2 As Double = Math.Sqrt((cx - bx) * (cx - bx) + (cy - by) * (cy - by))
+
+		If len1 > 0.0 AndAlso len2 > 0.0 Then
+
+			If Math.Abs(cross) / (len1 * len2) < eps Then
+				pts.RemoveAt(i)
+			End If
+
+		End If
+
+	Next
+
+End Sub
+
+
+' ---------------------------------------------------------------------
+' v-plate (revisie 2, RUN 5): zijplaat-snijprofiel
+'
+' Referentie-inzicht (p. 21, AK-blok v): de v-contour is het snij-
+' profiel van de zijplaat: het volledige zijaanzicht (diepte 0-400:
+' flenzen + lijf + tong), waarbij een doorgaande vlakken-snedes (de
+' diagonale uiteindesnede loopt in het model over de volledige hoogte)
+' wordt weergegeven als verticale lijn op de kruising met het lijfvlak
+' (referentie: 1952) — niet als de werkelijke projectie (met flens-tip
+' tot 2000). Implementatie: X-Z enveloppe-sweep van alle randen,
+' geknipt op het X-bereik van de lijfvlakken; breekpunten op de
+' rand-eindpunten; L/R-enveloppe met verticale sprongen.
+' ---------------------------------------------------------------------
+
+Function GetSideViewOutline( _
+	ByVal oBody As SurfaceBody, _
+	ByVal xUnit As UnitVector, _
+	ByVal yUnit As UnitVector, _
+	ByVal zUnit As UnitVector, _
+	ByVal oRefPoint As Point, _
+	ByVal minX As Double, _
+	ByVal minZ As Double, _
+	ByVal minY As Double, _
+	ByVal maxY As Double, _
+	ByVal dWebThickMm As Double, _
+	ByVal dbg As System.Text.StringBuilder) As List(Of Point2d)
+
+	Dim result As New List(Of Point2d)
+
+	Try
+
+		' Knipbereik = X-bereik van de lijfvlakken (webband). Zonder
+		' lijfvlakken (geen I-profiel) geen knip -> pure projectie.
+		Dim midY As Double = (minY + maxY) / 2.0
+		Dim halfWebCm As Double = dWebThickMm / 20.0
+		Dim webBandTolCm As Double = 0.08
+
+		Dim clipXHi As Double = Double.MinValue
+		Dim clipXLo As Double = Double.MaxValue
+
+		For Each oFace As Face In oBody.Faces
+
+			If oFace.SurfaceType <> SurfaceTypeEnum.kPlaneSurface Then
+				Continue For
+			End If
+
+			Dim oPlane As Plane = Nothing
+			Try
+				oPlane = CType(oFace.Geometry, Plane)
+			Catch
+				oPlane = Nothing
+			End Try
+			If oPlane Is Nothing Then
+				Continue For
+			End If
+
+			Dim nVec As Vector = oPlane.Normal.AsVector.Copy
+			nVec.Normalize()
+
+			If Math.Abs(DotVector(nVec, yUnit.AsVector)) < 0.97 Then
+				Continue For
+			End If
+
+			Dim allInWebBand As Boolean = True
+			Dim faceXMax As Double = Double.MinValue
+			Dim faceXMin As Double = Double.MaxValue
+
+			For Each oVtx As Vertex In oFace.Vertices
+
+				Dim relV As Vector = oRefPoint.VectorTo(oVtx.Point)
+
+				Dim vy As Double = DotVector(relV, yUnit.AsVector)
+
+				If Math.Abs(vy - midY) > halfWebCm + webBandTolCm Then
+					allInWebBand = False
+					Exit For
+				End If
+
+				Dim vX As Double = _
+					(DotVector(relV, xUnit.AsVector) - minX) * 10.0
+
+				If vX > faceXMax Then faceXMax = vX
+				If vX < faceXMin Then faceXMin = vX
+
+			Next
+
+			If Not allInWebBand Then
+				Continue For
+			End If
+
+			If faceXMax > clipXHi Then clipXHi = faceXMax
+			If faceXMin < clipXLo Then clipXLo = faceXMin
+
+		Next
+
+		Dim hasClip As Boolean = (clipXHi > clipXLo)
+
+		If dbg IsNot Nothing Then
+			If hasClip Then
+				dbg.AppendLine("  [AK] v: zijplaat geknipt op lijf-X " + Fmt(clipXLo) + " .. " + Fmt(clipXHi))
+			Else
+				dbg.AppendLine("  [AK] v: geen lijfvlak-bereik - zonder knip")
+			End If
+		End If
+
+		Dim segX1 As New List(Of Double)
+		Dim segZ1 As New List(Of Double)
+		Dim segX2 As New List(Of Double)
+		Dim segZ2 As New List(Of Double)
+		Dim breakXs As New List(Of Double)
+
+		For Each oEdge As Edge In oBody.Edges
+
+			Dim ptStart As Point = oEdge.StartVertex.Point
+			Dim ptStop As Point = oEdge.StopVertex.Point
+
+			Dim ex1 As Double = GetDstvX(ptStart, oRefPoint, xUnit, minX)
+			Dim ez1 As Double = GetDstvZ(ptStart, oRefPoint, zUnit, minZ)
+			Dim ex2 As Double = GetDstvX(ptStop, oRefPoint, xUnit, minX)
+			Dim ez2 As Double = GetDstvZ(ptStop, oRefPoint, zUnit, minZ)
+
+			' Knippen op het lijf-X-bereik (zijplaat-semantiek)
+			If hasClip Then
+
+				If ex1 > clipXHi + 0.005 AndAlso ex2 > clipXHi + 0.005 Then
+					Continue For
+				End If
+
+				If ex1 < clipXLo - 0.005 AndAlso ex2 < clipXLo - 0.005 Then
+					Continue For
+				End If
+
+				If ex1 > clipXHi OrElse ex2 > clipXHi Then
+
+					If ex1 > ex2 Then
+						ez1 = ez1 + (ex1 - clipXHi) / (ex1 - ex2) * (ez2 - ez1)
+						ex1 = clipXHi
+					Else
+						ez2 = ez2 + (ex2 - clipXHi) / (ex2 - ex1) * (ez1 - ez2)
+						ex2 = clipXHi
+					End If
+
+				End If
+
+				If ex1 < clipXLo OrElse ex2 < clipXLo Then
+
+					If ex1 < ex2 Then
+						ez1 = ez1 + (clipXLo - ex1) / (ex2 - ex1) * (ez2 - ez1)
+						ex1 = clipXLo
+					Else
+						ez2 = ez2 + (clipXLo - ex2) / (ex1 - ex2) * (ez1 - ez2)
+						ex2 = clipXLo
+					End If
+
+				End If
+
+			End If
+
+			If Math.Abs(ex2 - ex1) < 0.005 AndAlso _
+				Math.Abs(ez2 - ez1) < 0.005 Then
+
+				Continue For
+			End If
+
+			segX1.Add(ex1)
+			segZ1.Add(ez1)
+			segX2.Add(ex2)
+			segZ2.Add(ez2)
+
+			breakXs.Add(ex1)
+			breakXs.Add(ex2)
+
+		Next
+
+		If segX1.Count = 0 OrElse breakXs.Count < 2 Then
+
+			If dbg IsNot Nothing Then
+				dbg.AppendLine("  [AK] v: geen randen voor zijaanzicht")
+			End If
+
+			Return result
+		End If
+
+		breakXs.Sort()
+
+		' Breekpunten samenvoegen binnen 0.01 mm
+		Dim mergedXs As New List(Of Double)
+
+		For Each bx As Double In breakXs
+
+			If mergedXs.Count = 0 OrElse _
+				bx - mergedXs(mergedXs.Count - 1) > 0.01 Then
+
+				mergedXs.Add(bx)
+			End If
+
+		Next
+
+		Dim breakCount As Integer = mergedXs.Count
+		Dim topL(breakCount - 1) As Double
+		Dim topR(breakCount - 1) As Double
+		Dim botL(breakCount - 1) As Double
+		Dim botR(breakCount - 1) As Double
+
+		For i As Integer = 0 To breakCount - 1
+			topL(i) = Double.MinValue
+			topR(i) = Double.MinValue
+			botL(i) = Double.MaxValue
+			botR(i) = Double.MaxValue
+		Next
+
+		' Per breekpunt de enveloppe vanaf links (L) en vanaf rechts (R).
+		' Verticale randen (nul X-breedte) leveren geen zijwaarde: zij
+		' vormen zelf de sprong en worden via de L/R-jump opgenomen
+		' (anders ontstaat een scheve interpolatie-segment over een
+		' sprong, bijv. (1961.25,24)->(1952.25,350) i.p.v. de echte
+		' verticale rand op X=1952.25).
+		For segIndex As Integer = 0 To segX1.Count - 1
+
+			Dim segLo As Double = Math.Min(segX1(segIndex), segX2(segIndex))
+			Dim segHi As Double = Math.Max(segX1(segIndex), segX2(segIndex))
+
+			If (segHi - segLo) < 0.005 Then
+				Continue For
+			End If
+
+			For i As Integer = 0 To breakCount - 1
+
+				Dim bx As Double = mergedXs(i)
+
+				Dim tt As Double = _
+					(bx - segX1(segIndex)) / (segX2(segIndex) - segX1(segIndex))
+
+				Dim dz As Double = _
+					segZ1(segIndex) + tt * (segZ2(segIndex) - segZ1(segIndex))
+
+				' bereikt het breekpunt vanaf links
+				If segHi >= bx AndAlso segLo < bx - 0.005 Then
+					If dz > topL(i) Then topL(i) = dz
+					If dz < botL(i) Then botL(i) = dz
+				End If
+
+				' loopt vanaf het breekpunt door naar rechts
+				If segLo <= bx AndAlso segHi > bx + 0.005 Then
+					If dz > topR(i) Then topR(i) = dz
+					If dz < botR(i) Then botR(i) = dz
+				End If
+
+			Next
+
+		Next
+
+		' Onderketen links->rechts; bij een sprong beide punten op
+		' dezelfde X (verticale rand)
+		For i As Integer = 0 To breakCount - 1
+
+			Dim bL As Double = botL(i)
+			Dim bR As Double = botR(i)
+
+			If i = 0 Then
+				bL = bR
+			ElseIf i = breakCount - 1 Then
+				bR = bL
+			End If
+
+			result.Add(ThisApplication.TransientGeometry.CreatePoint2d(mergedXs(i), bL))
+
+			If Math.Abs(bR - bL) > 0.005 Then
+				result.Add(ThisApplication.TransientGeometry.CreatePoint2d(mergedXs(i), bR))
+			End If
+
+		Next
+
+		' Bovenketen rechts->links (CCW sluiten); idem sprongen
+		For i As Integer = breakCount - 1 To 0 Step -1
+
+			Dim tL As Double = topL(i)
+			Dim tR As Double = topR(i)
+
+			If i = breakCount - 1 Then
+				tR = tL
+			ElseIf i = 0 Then
+				tL = tR
+			End If
+
+			result.Add(ThisApplication.TransientGeometry.CreatePoint2d(mergedXs(i), tR))
+
+			If Math.Abs(tL - tR) > 0.005 Then
+				result.Add(ThisApplication.TransientGeometry.CreatePoint2d(mergedXs(i), tL))
+			End If
+
+		Next
+
+		RemoveCollinearPoints2d(result)
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] v (zijaanzicht): " + result.Count.ToString() + " punten, " + segX1.Count.ToString() + " randen")
+		End If
+
+	Catch ex As Exception
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] v EXCEPTION: " + ex.Message)
+		End If
+
+	End Try
+
+	Return result
+
+End Function
+
+
+' ---------------------------------------------------------------------
+' v-plate (oud, superseded door GetSideViewOutline voor het AK-blok;
+' behouden voor AK-2+ vlakloop-werk): outer loop van het lijf-vlak
+' ---------------------------------------------------------------------
+' ---------------------------------------------------------------------
+' v-plate: outer loop van het lijf-vlak -> DSTV (X, Z) mm
+' ---------------------------------------------------------------------
+
+' ---------------------------------------------------------------------
+' v-plate (oud, superseded door GetSideViewOutline voor het AK-blok;
+' behouden voor AK-2+ vlakloop-werk): outer loop van het lijf-vlak
+' ---------------------------------------------------------------------
+
+Function GetWebPlateContour( _
+	ByVal oBody As SurfaceBody, _
+	ByVal xUnit As UnitVector, _
+	ByVal yUnit As UnitVector, _
+	ByVal zUnit As UnitVector, _
+	ByVal oRefPoint As Point, _
+	ByVal minX As Double, ByVal minZ As Double, _
+	ByVal minY As Double, ByVal maxY As Double, _
+	ByVal dWebThickMm As Double, _
+	ByVal dbg As System.Text.StringBuilder) As List(Of Point2d)
+
+	Dim result As New List(Of Point2d)
+
+	Try
+
+		Dim midY As Double = (minY + maxY) / 2.0
+		Dim halfWebCm As Double = dWebThickMm / 20.0
+		Dim bandTolCm As Double = 0.08
+
+		Dim bestFace As Face = Nothing
+		Dim bestExt As Double = -1.0
+
+		For Each oFace As Face In oBody.Faces
+
+			If oFace.SurfaceType <> SurfaceTypeEnum.kPlaneSurface Then
+				Continue For
+			End If
+
+			Dim oPlane As Plane = Nothing
+			Try
+				oPlane = CType(oFace.Geometry, Plane)
+			Catch
+				oPlane = Nothing
+			End Try
+			If oPlane Is Nothing Then
+				Continue For
+			End If
+
+			Dim n As Vector = oPlane.Normal.AsVector.Copy
+			n.Normalize()
+
+			' v = lijf-voorzijde: normaal langs +yUnit
+			' (zelfde conventie als GetOpeningFace)
+			If DotVector(n, yUnit.AsVector) < 0.97 Then
+				Continue For
+			End If
+
+			Dim inBand As Boolean = True
+			Dim zMinF As Double = Double.MaxValue
+			Dim zMaxF As Double = Double.MinValue
+
+			For Each oVtx As Vertex In oFace.Vertices
+
+				Dim rel As Vector = oRefPoint.VectorTo(oVtx.Point)
+
+				Dim vy As Double = DotVector(rel, yUnit.AsVector)
+
+				If Math.Abs(vy - midY) > halfWebCm + bandTolCm Then
+					inBand = False
+					Exit For
+				End If
+
+				Dim vz As Double = DotVector(rel, zUnit.AsVector)
+				If vz < zMinF Then zMinF = vz
+				If vz > zMaxF Then zMaxF = vz
+
+			Next
+
+			If Not inBand Then
+				Continue For
+			End If
+
+			If (zMaxF - zMinF) > bestExt Then
+				bestExt = zMaxF - zMinF
+				bestFace = oFace
+			End If
+
+		Next
+
+		If bestFace Is Nothing Then
+
+			If dbg IsNot Nothing Then
+				dbg.AppendLine("  [AK] v: geen lijf-vlak gevonden")
+			End If
+
+			Return result
+		End If
+
+		Dim modelPts As List(Of Point) = _
+			GetOuterLoopOrderedPoints(bestFace, dbg)
+
+		For Each p As Point In modelPts
+
+			Dim px As Double = GetDstvX(p, oRefPoint, xUnit, minX)
+			Dim pz As Double = GetDstvZ(p, oRefPoint, zUnit, minZ)
+
+			result.Add(ThisApplication.TransientGeometry.CreatePoint2d(px, pz))
+
+		Next
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] v: " + result.Count.ToString() + " contourpunten")
+		End If
+
+	Catch ex As Exception
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] v EXCEPTION: " + ex.Message)
+		End If
+
+	End Try
+
+	Return result
+
+End Function
+
+
+' ---------------------------------------------------------------------
+' o/u-plate: convex hull van flens-band vertices -> DSTV (X, Y) mm
+' ---------------------------------------------------------------------
+
+Function GetFlangePlateHull( _
+	ByVal oBody As SurfaceBody, _
+	ByVal xUnit As UnitVector, _
+	ByVal yUnit As UnitVector, _
+	ByVal zUnit As UnitVector, _
+	ByVal oRefPoint As Point, _
+	ByVal minX As Double, _
+	ByVal minY As Double, ByVal maxY As Double, _
+	ByVal bandEdgeZ As Double, _
+	ByVal flangeBandCm As Double, _
+	ByVal sPlate As String, _
+	ByVal dbg As System.Text.StringBuilder) As List(Of Point2d)
+
+	Dim result As New List(Of Point2d)
+
+	Try
+
+		Dim bandTolCm As Double = 0.08
+
+		' Band in Z: o (bandEdgeZ = maxZ): [maxZ - band - tol, maxZ + tol]
+		'             u (bandEdgeZ = minZ): [minZ - tol, minZ + band + tol]
+		Dim zLow As Double
+		Dim zHigh As Double
+
+		If sPlate = "o" Then
+			zLow = bandEdgeZ - flangeBandCm - bandTolCm
+			zHigh = bandEdgeZ + bandTolCm
+		Else
+			zLow = bandEdgeZ - bandTolCm
+			zHigh = bandEdgeZ + flangeBandCm + bandTolCm
+		End If
+
+		Dim hullPts As New List(Of Point2d)
+
+		For Each oFace As Face In oBody.Faces
+
+			If oFace.SurfaceType <> SurfaceTypeEnum.kPlaneSurface Then
+				Continue For
+			End If
+
+			Dim oPlane As Plane = Nothing
+			Try
+				oPlane = CType(oFace.Geometry, Plane)
+			Catch
+				oPlane = Nothing
+			End Try
+			If oPlane Is Nothing Then
+				Continue For
+			End If
+
+			Dim n As Vector = oPlane.Normal.AsVector.Copy
+			n.Normalize()
+
+			If Math.Abs(DotVector(n, zUnit.AsVector)) < 0.97 Then
+				Continue For
+			End If
+
+			Dim allInBand As Boolean = True
+			Dim relPts As New List(Of Point2d)
+
+			For Each oVtx As Vertex In oFace.Vertices
+
+				Dim rel As Vector = oRefPoint.VectorTo(oVtx.Point)
+
+				Dim vz As Double = DotVector(rel, zUnit.AsVector)
+
+				If vz < zLow OrElse vz > zHigh Then
+					allInBand = False
+					Exit For
+				End If
+
+				Dim vx As Double = (DotVector(rel, xUnit.AsVector) - minX) * 10.0
+				Dim vy As Double = (maxY - DotVector(rel, yUnit.AsVector)) * 10.0
+
+				relPts.Add(ThisApplication.TransientGeometry.CreatePoint2d(vx, vy))
+
+			Next
+
+			If Not allInBand Then
+				Continue For
+			End If
+
+			hullPts.AddRange(relPts)
+
+		Next
+
+		If hullPts.Count < 3 Then
+
+			If dbg IsNot Nothing Then
+				dbg.AppendLine("  [AK] " + sPlate + ": te weinig band-vertices (" + hullPts.Count.ToString() + ")")
+			End If
+
+			Return result
+		End If
+
+		result = ConvexHull2D(hullPts)
+
+		' Een punt dat exact OP een hull-rand ligt (fillet-tangent- of
+		' aanschuinings-vertex op de diagonaal) kan door een float-fout
+		' als "linksom" meetellen en overleeft de hull-pop -> schaal-
+		' onafhankelijke collineaire verwijdering toepassen.
+		RemoveCollinearPoints2d(result)
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] " + sPlate + ": hull " + result.Count.ToString() + " punten")
+		End If
+
+	Catch ex As Exception
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] " + sPlate + " EXCEPTION: " + ex.Message)
+		End If
+
+	End Try
+
+	Return result
+
+End Function
+
+
+' ---------------------------------------------------------------------
+' Outer loop van een vlak -> geordende modelpunten (cm)
+' ---------------------------------------------------------------------
+
+Function GetOuterLoopOrderedPoints( _
+	ByVal oFace As Face, _
+	ByVal dbg As System.Text.StringBuilder) As List(Of Point)
+
+	Dim pts As New List(Of Point)
+
+	Try
+
+		For Each oLoop As EdgeLoop In oFace.EdgeLoops
+
+			If Not oLoop.IsOuterEdgeLoop Then
+				Continue For
+			End If
+
+			Dim edges As New List(Of Edge)
+			For Each oEdge As Edge In oLoop.Edges
+				edges.Add(oEdge)
+			Next
+
+			If edges.Count = 0 Then
+				Continue For
+			End If
+
+			Dim chainTol As Double = 0.005
+			Dim used(edges.Count - 1) As Boolean
+
+			Dim startPt As Point = edges(0).StartVertex.Point
+			Dim cur As Point = startPt
+			pts.Add(cur)
+
+			Dim guard As Integer = 0
+			Dim closed As Boolean = False
+
+			Do
+				Dim found As Boolean = False
+
+				For i As Integer = 0 To edges.Count - 1
+
+					If used(i) Then
+						Continue For
+					End If
+
+					Dim ps As Point = edges(i).StartVertex.Point
+					Dim pe As Point = edges(i).StopVertex.Point
+
+					Dim dS As Double = cur.DistanceTo(ps)
+					Dim dE As Double = cur.DistanceTo(pe)
+
+					If dS <= chainTol AndAlso dE <= chainTol Then
+						used(i) = True
+						found = True
+						Exit For
+					End If
+
+					If dS <= chainTol Then
+						used(i) = True
+						cur = pe
+						pts.Add(cur)
+						found = True
+						Exit For
+					End If
+
+					If dE <= chainTol Then
+						used(i) = True
+						cur = ps
+						pts.Add(cur)
+						found = True
+						Exit For
+					End If
+
+				Next
+
+				If Not found Then
+					Exit Do
+				End If
+
+				guard += 1
+
+				If cur.DistanceTo(startPt) <= chainTol Then
+					closed = True
+					Exit Do
+				End If
+
+				If guard > edges.Count + 2 Then
+					Exit Do
+				End If
+
+			Loop
+
+			If Not closed AndAlso dbg IsNot Nothing Then
+				dbg.AppendLine("  [AK] loop: NIET gesloten (" + pts.Count.ToString() + " punten, " + edges.Count.ToString() + " randen)")
+			End If
+
+			' Sluitpunt verwijderen; de contour wordt bij emissie
+			' gesloten door het eerste punt te herhalen
+			If pts.Count > 1 AndAlso _
+				pts(pts.Count - 1).DistanceTo(pts(0)) <= chainTol Then
+
+				pts.RemoveAt(pts.Count - 1)
+			End If
+
+			RemoveCollinearPoints(pts)
+
+			Return pts
+
+		Next
+
+	Catch ex As Exception
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] loop EXCEPTION: " + ex.Message)
+		End If
+
+	End Try
+
+	Return pts
+
+End Function
+
+
+Private Sub RemoveCollinearPoints(ByVal pts As List(Of Point))
+
+	' sin(hoek) < 1e-6 => collineair
+	Dim eps As Double = 0.000001
+
+	For i As Integer = pts.Count - 2 To 1 Step -1
+
+		Dim ax As Double = pts(i - 1).X
+		Dim ay As Double = pts(i - 1).Y
+		Dim bx As Double = pts(i).X
+		Dim by As Double = pts(i).Y
+		Dim cx As Double = pts(i + 1).X
+		Dim cy As Double = pts(i + 1).Y
+
+		Dim cross As Double = _
+			(bx - ax) * (cy - by) - (by - ay) * (cx - bx)
+
+		Dim len1 As Double = Math.Sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay))
+		Dim len2 As Double = Math.Sqrt((cx - bx) * (cx - bx) + (cy - by) * (cy - by))
+
+		If len1 > 0.0 AndAlso len2 > 0.0 Then
+
+			Dim sinAngle As Double = Math.Abs(cross) / (len1 * len2)
+
+			If sinAngle < eps Then
+				pts.RemoveAt(i)
+			End If
+
+		End If
+
+	Next
+
+End Sub
+
+
+' ---------------------------------------------------------------------
+' Convex hull (Andrew monotone chain), CCW, geen collineaire punten
+' ---------------------------------------------------------------------
+
+Function ConvexHull2D(ByVal inputPts As List(Of Point2d)) As List(Of Point2d)
+
+	Dim pts As New List(Of Point2d)
+
+	' Dedupe (afgeronde coordinaten kunnen duplicaten geven)
+	For Each p As Point2d In inputPts
+
+		Dim dup As Boolean = False
+
+		For Each q As Point2d In pts
+			If Math.Abs(q.X - p.X) < 0.005 AndAlso _
+				Math.Abs(q.Y - p.Y) < 0.005 Then
+
+				dup = True
+				Exit For
+			End If
+		Next
+
+		If Not dup Then
+			pts.Add(p)
+		End If
+
+	Next
+
+	If pts.Count < 3 Then
+		Return pts
+	End If
+
+	' Sorteer op (X, Y)
+	pts.Sort(AddressOf ComparePoint2d)
+
+	Dim lower As New List(Of Point2d)
+	Dim upper As New List(Of Point2d)
+
+	For Each p As Point2d In pts
+
+		While lower.Count >= 2 AndAlso _
+			Cross2(lower(lower.Count - 2), lower(lower.Count - 1), p) <= 0.0
+
+			lower.RemoveAt(lower.Count - 1)
+		End While
+
+		lower.Add(p)
+
+	Next
+
+	For i As Integer = pts.Count - 1 To 0 Step -1
+
+		Dim p As Point2d = pts(i)
+
+		While upper.Count >= 2 AndAlso _
+			Cross2(upper(upper.Count - 2), upper(upper.Count - 1), p) <= 0.0
+
+			upper.RemoveAt(upper.Count - 1)
+		End While
+
+		upper.Add(p)
+
+	Next
+
+	lower.RemoveAt(lower.Count - 1)
+	upper.RemoveAt(upper.Count - 1)
+	lower.AddRange(upper)
+
+	Return lower
+
+End Function
+
+
+Private Function ComparePoint2d( _
+	ByVal pA As Point2d, _
+	ByVal pB As Point2d) As Integer
+
+	If pA.X < pB.X Then
+		Return -1
+	ElseIf pA.X > pB.X Then
+		Return 1
+	ElseIf pA.Y < pB.Y Then
+		Return -1
+	ElseIf pA.Y > pB.Y Then
+		Return 1
+	Else
+		Return 0
+	End If
+
+End Function
+
+
+Private Function Cross2( _
+	ByVal pO As Point2d, _
+	ByVal pA As Point2d, _
+	ByVal pB As Point2d) As Double
+
+	Return (pA.X - pO.X) * (pB.Y - pO.Y) - (pA.Y - pO.Y) * (pB.X - pO.X)
+
+End Function
+
+
+' ---------------------------------------------------------------------
+' AK-blok formatteren: "AK" + puntdatalijnen + sluitpunt
+' ---------------------------------------------------------------------
+
+Function FormatAkBlock( _
+	ByVal sFace As String, _
+	ByVal pts As List(Of Point2d), _
+	ByVal dbg As System.Text.StringBuilder) As String
+
+	If pts Is Nothing OrElse pts.Count < 3 Then
+		Return ""
+	End If
+
+	' CCW (mathematische orientatie) in de emissie-coordinaten
+	Dim area2 As Double = 0.0
+
+	For i As Integer = 0 To pts.Count - 1
+
+		Dim p1 As Point2d = pts(i)
+		Dim p2 As Point2d = pts((i + 1) Mod pts.Count)
+
+		area2 += p1.X * p2.Y - p2.X * p1.Y
+
+	Next
+
+	If area2 < 0.0 Then
+		pts.Reverse()
+	End If
+
+	Dim sb As New System.Text.StringBuilder
+	sb.AppendLine("AK")
+
+	For i As Integer = 0 To pts.Count - 1
+
+		Dim p As Point2d = pts(i)
+
+		sb.AppendLine("  " & _
+			sFace & " " & _
+			Fmt(p.X) & GetDstvXref(sFace) & " " & _
+			Fmt(p.Y) & " " & _
+			Fmt(0.0))
+
+	Next
+
+	' Contour sluiten: eerste punt herhalen
+	sb.AppendLine("  " & _
+		sFace & " " & _
+		Fmt(pts(0).X) & GetDstvXref(sFace) & " " & _
+		Fmt(pts(0).Y) & " " & _
+		Fmt(0.0))
+
+	Return sb.ToString()
 
 End Function
 

@@ -77,7 +77,7 @@ Sub Main()
 
 		If oAsmDoc.SelectSet.Count = 0 Then
 			MessageBox.Show( _
-				"Selecteer eerst Ã©Ã©n Frame Generator-lid in de assembly.", _
+				"Selecteer eerst een Frame Generator-lid in de assembly.", _
 				"Geen selectie")
 			Return
 		End If
@@ -887,6 +887,66 @@ Sub Main()
 			If oSketch Is Nothing Then
 				Continue For
 			End If
+
+
+			' -----------------------------------------------------
+			' DEBUG (CA-1): profielvorm-census per cut-pad.
+			'
+			' Vormen die geen enkele classificatie-branch halen
+			' (geen cirkel / geen 2+2-slot / geen 4-lijns vierhoek /
+			' geen 4+4-fillet) verdwijnen zonder enig spoor uit het
+			' NC-bestand. Een cope hoort volgens het DSTV
+			' plate-concept juist in de AK-buitencontour
+			' geabsorbeerd te worden; deze regel maakt zichtbaar
+			' WELKE vorm zo'n pad heeft (bijv. de cope Extrusion5).
+			' Alleen debug-output: de NC1-inhoud verandert niet.
+			' -----------------------------------------------------
+			If DebugMode Then
+
+				Dim sProfileFace As String = ""
+
+				Try
+
+					Dim pePlane As Object = oSketch.PlanarEntity
+
+					If TypeOf pePlane Is Face Then
+
+						Dim plSketch As Plane = _
+							CType(CType(pePlane, Face).Geometry, Plane)
+
+						Dim nSketch As Vector = plSketch.Normal.AsVector.Copy
+						nSketch.Normalize()
+
+						sProfileFace = _
+							GetFaceLetterFromNormal( _
+								nSketch, xUnit, yUnit, zUnit)
+
+					ElseIf TypeOf pePlane Is WorkPlane Then
+
+						Dim nWorkPlane As Vector = _
+							CType(pePlane, WorkPlane).Plane.Normal.AsVector.Copy
+						nWorkPlane.Normalize()
+
+						sProfileFace = _
+							GetFaceLetterFromNormal( _
+								nWorkPlane, xUnit, yUnit, zUnit)
+
+					End If
+
+				Catch
+
+					sProfileFace = "?"
+
+				End Try
+
+				debugSb.AppendLine( _
+					"  PROFILE (" + oFeature.Name + "): face=" + sProfileFace + _
+					" lines=" + lineCount.ToString() + _
+					" arcs=" + arcCount.ToString() + _
+					" circles=" + circleCount.ToString())
+
+			End If
+
 
 
 			' =====================================================

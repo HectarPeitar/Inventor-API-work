@@ -158,18 +158,48 @@ AK
   ...
 ```
 
-- both arc-endpoint radius lines disappear (AK-2 endpoint radii are for
-  <=180 deg contour arcs only — e.g. the p. 22 quarter-arc case);
+- the two boundary-arc endpoint radius lines are **not** emitted: a
+  >180 deg boundary arc cannot be emitted as a single contour arc (max
+  single angle +/-180, p. 13) and the current contour chain does not
+  contain the notch's true boundary vertices (see D1 below);
 - the duplicated hole edge (front/back circular edges of the drilled
   hole project identically) is deduped — the w-line is emitted once;
 - fallback: if the endpoints are not consecutive in the contour, the
   code logs `w-notch ... geen w-regel` and leaves the sharp contour
   (visible in debug, never silent).
 
+### D1 — OPEN: w-line vs the p. 21-22 worked example (2026-09-19)
+
+The p. 22 example keeps **both** boundary-arc endpoints, each with the
+signed radius, and places the `w` information line **between** them:
+
+```text
+v 190.00o 100.00 -10.00
+v 200.00o 100.00w -10.00
+v 200.00o 110.00 -10.00
+v 200.00o  90.00   0.00
+```
+
+Its notch boundary arc is a quarter arc (<=180 gr) and can therefore be
+emitted as a contour arc. The exporter's model has a **270 gr** boundary
+arc, and the contour chain used for the v plate (X-Z envelope sweep,
+`GetSideViewOutline`) never contains its true vertices. The current
+output therefore implements the p. 13-14 text ("this line is not part of
+the contour description") but is **not identical to the p. 22 example**:
+
+- the boundary arc is missing from the contour (the sharp corner
+  remains);
+- the w radius is emitted positive (`10.00`) where the reference uses
+  the contour-direction sign (`-10.00`).
+
+Do **not** mark the notch emission spec-conformant until D1 is resolved.
+The sub-phase that can resolve it (arc-capable cope chain) is CA-2/CA-3
+of the cope-absorption plan in `scratch/HE400B_Example_TestG.md`.
+
 Status: **RUNTIME-TESTED in Inventor 2026** (exporter output verified
 against independent geometry reasoning; debug line
 `w-notch R=10.00 op hoek (200.00,100.00)`). Target-viewer import of the
-`w` line: **PENDING**.
+`w` line: **PENDING**. D1 (boundary-arc endpoints + radius sign): **OPEN**.
 
 ### Verified viewer observation (2026-09)
 

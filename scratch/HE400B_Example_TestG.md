@@ -384,3 +384,96 @@ them), DSTV_Debug_Report.txt, test_sample.nc1, diagnostic/ variants,
 compile_check build artifacts (dll/harness). Kept: exporter, test
 evidence docs, golden files, compile_check.ps1, validate_nc1.ps1,
 check_ik.ps1 + expected ik nc1.
+
+## Stage 3 plan — cope absorption (2026-09-19)
+
+Goal: the cope (Extrusion5, 200 x 100 web cope with a notched corner)
+must be absorbed into the v-face external contour per the DSTV plate
+concept, instead of being misclassified as
+`h 1000.00u 362.50 0.00 0.00l 75.00 2000.00 0.00` (NOTE-3).
+
+### Where the cope stands today
+
+- BO pollution GONE: no cope BO/IK record is emitted any more
+  (the bogus h-record is gone from the NC1).
+- v-AK PARTIAL: `v 0.00u 100.00 0.00` -> `v 200.00u 100.00w 10.00` ->
+  `v 200.00u 0.00 0.00`, i.e. the tongue + step are present through the
+  X-Z envelope, the notch is only an information line.
+- Cope identity: NONE. `scratch/dstv_exporter.vb` contains no cope
+  symbol; the drafted `IsCopeCut` / `GetCopeInnerEdges` helpers were
+  never inserted (the one-off insertion scripts failed and were deleted
+  2026-09-19).
+- Debug visibility: NONE. Extrusion5/6/7 print `FEATURE (cut extrude)`
+  and then nothing at all — no OPENING, no SKIP line.
+
+### Gap list
+
+| ID | Missing | Evidence |
+|---|---|---|
+| G1 | Cope detection: nothing identifies a cope cut-extrude. Cope records are suppressed today only by falling through the classification branches (probe-less SKIP), not by design — a cope profile that happens to be 4 lines / 0 arcs would be emitted as an IK contour or a BO record. | debug `OPENING (rect): SKIP (geen snijranden op vlak h)`; no cope symbols in the exporter |
+| G2 | No diagnostic for unclassified profile paths: Extrusion5/6/7 leave no trace, so the report cannot distinguish "absorbed" from "silently dropped". | debug run 2026-09-19 |
+| G3 | No cope chain extraction: the cope's boundary on the plate face is never walked. The v contour is an X-Z envelope of edge endpoints (per-X min/max + vertical jumps), so the notch's true chain vertices never exist. | `[AK] boog R=10.00 niet in contour` (RUN 7) + the w rule having to fabricate the corner point instead of replacing an endpoint pair |
+| G4 | w-line deviates from p. 22: boundary-arc endpoints missing, radius emitted positive where the reference is negative. | `AK-IK.md` D1 (open) |
+| G5 | X-ref letters: AK/BO print `u` everywhere; reference v->`o`, u/o->`s` (AK-3 remainder). | reference p. 22 |
+| G6 | Welding-prep couples not emitted at all (AK-4). | reference `v 1952.00o 0.00 0.00 -18.430 13.50` and `o 159.50s 0.00 0.00 10.000 0.00` |
+| G7 | Model-vs-reference X deltas: 1952.25 vs 1952.00, bevel 164.00 vs 163.50, o-plate 159.52 vs 159.50 (accepted so far). | run 2026-09-19 vs extracted :1065-1101 |
+| G8 | Extrusion6/7 unidentified; "cope absorption complete" cannot be claimed before the CA-1 census names them. | debug run 2026-09-19 |
+
+### Sub-phases
+
+- **CA-1 (this commit):** profile-shape census debug line per closed
+  profile: `PROFILE (<feature>): face=<v|h|o|u|?> lines=<n> arcs=<n>
+  circles=<n>` (G2). Output-only change: the NC1 must stay byte-identical.
+  Exit: the cope's real face + geometry counts are known and recorded
+  here, and Extrusion6/7 are identified (G8).
+- **CA-2 (chain):** ordered edge walk of the cope's loop on the plate
+  face, projected into the plate frame, **lines and arcs preserved**,
+  and spliced into the plate contour so the cope region is represented
+  by real geometry instead of the envelope chord / vertical jumps (G3).
+  Draft design: `IsCopeCut` (web face + partial depth + inner loop with
+  step/notch) + `GetCopeInnerEdges` (chained walk, same pattern as
+  `GetOuterLoopOrderedPoints`). Validate loop closure + CCW orientation.
+- **CA-3 (arc-capable emission):** contour points must be able to carry
+  curve identity and arc direction so the boundary arc can be emitted
+  (and split when > 180 gr), resolving G4/D1 per the p. 22 example.
+- **CA-4 (AK-3 remainder):** per-face X-ref letters (G5) and the signed
+  w radius (G4/D1).
+- **CA-5 (AK-4):** welding-prep couples (G6).
+
+### Validation per sub-phase
+
+1. `powershell -ExecutionPolicy Bypass -File scratch\compile_check.ps1`
+   -> `COMPILE RESULT: PASS (BUILT)` after every edit.
+2. CA-1 specifically: NC1 byte-identical to the committed run
+   (debug-only change).
+3. Run in Inventor 2026; capture the `PROFILE` + `[AK]` lines and the
+   nc1; compare the `AK v` block line by line against the reference
+   (extracted :1065-1101) and record the diff here.
+4. Geometry conclusions must be reasoned independently per point
+   (expected arc centre/radius/endpoints/sign) — never read back from
+   the exporter's own output.
+5. Target-viewer import of the `w` line and of signed radii: PENDING.
+
+### Decision gates
+
+- **D1** w-line representation: (a) keep the single information line
+  (current, user-approved) or (b) p. 22-conformant (boundary arc
+  endpoints, split when > 180 gr, + the information line). Recommended:
+  (b) once CA-2/CA-3 provide the real chain; (a) stays the fallback when
+  the chain is unavailable.
+- **D2** per-face X-ref letters (v->o, u/o->s): changes existing BO lines
+  too — confirm before switching.
+- **D3** theoretical vs modelled X (1952.25/164.00): accept as model
+  deltas or snap to theoretical values.
+- **D4** what Extrusion6/7 actually cut (needs the CA-1 run output).
+
+### API note for CA-2
+
+The drafted helper used `ExtrudeFeature.Definition` +
+`ExtrudeDefinition.Distance` for the partial-depth test.
+`ExtrudeDefinition.Distance` is **not verified** for Inventor 2026, and
+late-bound iLogic compiles wrong member names silently (see the
+`Face.Loops` error above). Verify the member against
+`Autodesk.Inventor.Interop.dll` (reflection) before use, or avoid the
+feature history entirely and detect the cope from the B-REP (a cut whose
+resulting boundary reaches the plate's outer contour).

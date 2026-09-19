@@ -192,6 +192,22 @@ the contour description") but is **not identical to the p. 22 example**:
 - the w radius is emitted positive (`10.00`) where the reference uses
   the contour-direction sign (`-10.00`).
 
+Model facts behind D1 (CA-1 profile census + debug, run 2026-09-19):
+
+- the cope cut-extrude (`Extrusion5`) has a sketch on the **h** face
+  consisting of **5 lines + 1 full circle** — the notch is a *drilled
+  hole*, not a sketch arc, and its boundary exists only after the cut;
+- the resulting B-REP hole edge is `R=10`, `sweep=4.712` (270 gr),
+  `dot(arc normal, plate normal)=1.000`, endpoints `(190,100)` and
+  `(200,90)`;
+- the reference's boundary arc is 90 gr, `(190,100)` -> `(200,110)`, and
+  its `(200,90)` is an ordinary `0.00` vertex.
+
+So model and reference differ in *where* the hole boundary meets the cope
+outline (ours 270 gr ending at `(200,90)`; the reference 90 gr through
+`(200,110)`). D1 must therefore be decided for the drilled-hole case on
+its own merits; the reference geometry cannot simply be copied.
+
 Do **not** mark the notch emission spec-conformant until D1 is resolved.
 The sub-phase that can resolve it (arc-capable cope chain) is CA-2/CA-3
 of the cope-absorption plan in `scratch/HE400B_Example_TestG.md`.

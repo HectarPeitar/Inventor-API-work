@@ -403,8 +403,50 @@ concept, instead of being misclassified as
   symbol; the drafted `IsCopeCut` / `GetCopeInnerEdges` helpers were
   never inserted (the one-off insertion scripts failed and were deleted
   2026-09-19).
-- Debug visibility: NONE. Extrusion5/6/7 print `FEATURE (cut extrude)`
-  and then nothing at all — no OPENING, no SKIP line.
+- Debug visibility: FIXED by CA-1 (see the census below). Extrusion5/6/7
+  used to print `FEATURE (cut extrude)` and then nothing at all.
+
+### CA-1 gate result — profile census (run 2026-09-19, Inventor 2026)
+
+| Feature | face | lines | arcs | circles | Reading |
+|---|---|---|---|---|---|
+| Extrusion2 | o | 2 | 2 | 0 | flange slot (matched branch) |
+| Extrusion3 | v | 4 | 4 | 0 | rect-fillet BO |
+| Extrusion4 | h | 4 | 0 | 0 | through-cut (4-line quad, no cutting edges on the face -> SKIP) |
+| **Extrusion5** | **h** | **5** | **0** | **1** | **the cope: 5-line outline + 1 full circle = drilled notch** |
+| Extrusion6 | o | 3 | 0 | 0 | 3-line shape -> matches no branch, silently dropped |
+| Extrusion7 | o | 5 | 0 | 0 | 5-line shape -> matches no branch, silently dropped |
+
+NC1 byte-identical to the pre-CA-1 run (debug-only change confirmed).
+
+Consequences for the plan:
+
+1. **The cope sits on face `h`, not `v`, and its notch is a FULL CIRCLE in
+   the sketch** (`circles=1`) — it is a *drilled hole notch*, exactly the
+   "hole-like (`w`)" type of p. 13-14. There is no sketch arc to collect,
+   so CA-2 must not look for a cope arc in the profile; it must walk the
+   B-REP loop that the circle leaves behind.
+2. The B-REP hole edge is `R=10`, `sweep=4.712` (270 deg),
+   `dot(arc normal, plate normal)=1.000`, endpoints `(190,100)` and
+   `(200,90)` (debug line, verified twice per feature). The cope outline
+   removes the SW quadrant of the corner `(200,100)`, so the NE/NW/SE
+   quadrants survive — that is what makes the boundary a 270 deg arc.
+3. **The reference has different notch geometry**: its arc runs
+   `(190,100)` -> `(200,110)` (90 deg, NW quadrant only) and
+   `(200,90)` is an ordinary `0.00` vertex. Model and reference therefore
+   differ in where the hole boundary meets the cope outline; D1 must be
+   answered per case, not by copying the reference blindly.
+4. Extrusion6 (3 lines) and Extrusion7 (5 lines) are extra closed shapes
+   on the **flange (o)** face with no arc/circle. They are silent drops
+   today (G1 risk: a 4-line cope profile would become an IK contour or a
+   BO record). The first suspects for the flange-side reference deltas
+   (bevel top 164.00 vs 163.50) are Extrusion7/6; verify before claiming
+   D3.
+5. CA-2's cope test can be made **verified** instead of heuristic:
+   `ExtrudeDefinition.ExtentType` distinguishes an explicit-distance cut
+   (`kDistanceExtent`) from a through cut (`kThroughAllExtent`), and
+   `ExtrudeDefinition.Extent` -> `DistanceExtent.Distance` gives the
+   depth. `ExtrudeDefinition.Distance` does **not** exist (see below).
 
 ### Gap list
 
@@ -417,7 +459,7 @@ concept, instead of being misclassified as
 | G5 | X-ref letters: AK/BO print `u` everywhere; reference v->`o`, u/o->`s` (AK-3 remainder). | reference p. 22 |
 | G6 | Welding-prep couples not emitted at all (AK-4). | reference `v 1952.00o 0.00 0.00 -18.430 13.50` and `o 159.50s 0.00 0.00 10.000 0.00` |
 | G7 | Model-vs-reference X deltas: 1952.25 vs 1952.00, bevel 164.00 vs 163.50, o-plate 159.52 vs 159.50 (accepted so far). | run 2026-09-19 vs extracted :1065-1101 |
-| G8 | Extrusion6/7 unidentified; "cope absorption complete" cannot be claimed before the CA-1 census names them. | debug run 2026-09-19 |
+| G8 | ~~Extrusion6/7 unidentified~~ **ANSWERED by CA-1**: Extrusion6 = 3 lines / 0 arcs, Extrusion7 = 5 lines / 0 arcs, both on face **o**; Extrusion5 = 5 lines + 1 circle on face **h** (the cope). Neither Extrusion6 nor 7 matches a classification branch, so both drop silently and their cutting intent is still unknown (no BO record, no contour role). | CA-1 census run 2026-09-19 |
 
 ### Sub-phases
 
@@ -426,13 +468,21 @@ concept, instead of being misclassified as
   circles=<n>` (G2). Output-only change: the NC1 must stay byte-identical.
   Exit: the cope's real face + geometry counts are known and recorded
   here, and Extrusion6/7 are identified (G8).
-- **CA-2 (chain):** ordered edge walk of the cope's loop on the plate
-  face, projected into the plate frame, **lines and arcs preserved**,
-  and spliced into the plate contour so the cope region is represented
-  by real geometry instead of the envelope chord / vertical jumps (G3).
-  Draft design: `IsCopeCut` (web face + partial depth + inner loop with
-  step/notch) + `GetCopeInnerEdges` (chained walk, same pattern as
-  `GetOuterLoopOrderedPoints`). Validate loop closure + CCW orientation.
+- **CA-2 (chain):** ordered edge walk of the cope's **B-REP loop**
+  (not the sketch: the CA-1 census shows the notch is a full circle, so
+  the boundary exists only after the cut), projected into the plate
+  frame with **lines and arcs preserved**, and spliced into the plate
+  contour so the cope region is represented by real geometry instead of
+  the envelope chord / vertical jumps (G3). Design (post-census):
+  `IsCopeCut` = explicit-distance cut (`ExtentType = kDistanceExtent`)
+  on a web face, whose inner loop still carries the notch (R10 circle
+  boundary); `GetCopeInnerEdges` = chained walk of that loop in the same
+  pattern as `GetOuterLoopOrderedPoints`. Validate loop closure + CCW
+  orientation + that the walk does not disturb the through-cut case
+  (Extrusion4 must keep producing no BO record).
+  Reference geometry note: the reference's notch arc is 90 deg
+  (NW only) while this model's is 270 deg, so CA-2 must emit *this*
+  model's boundary and leave the reference alignment to D1.
 - **CA-3 (arc-capable emission):** contour points must be able to carry
   curve identity and arc direction so the boundary arc can be emitted
   (and split when > 180 gr), resolving G4/D1 per the p. 22 example.
@@ -464,16 +514,40 @@ concept, instead of being misclassified as
 - **D2** per-face X-ref letters (v->o, u/o->s): changes existing BO lines
   too — confirm before switching.
 - **D3** theoretical vs modelled X (1952.25/164.00): accept as model
-  deltas or snap to theoretical values.
-- **D4** what Extrusion6/7 actually cut (needs the CA-1 run output).
+  deltas or snap to theoretical values. CA-1 note: Extrusion7 (5-line
+  shape on face o) and Extrusion6 (3-line shape on face o) are the first
+  suspects for the flange-side deviations — verify before deciding.
+- **D4** ~~what Extrusion6/7 actually cut~~ **ANSWERED (CA-1)**: shapes
+  are known (o-face 3-line and 5-line profiles, no arcs/circles); what
+  remains is their *intent*: are they cuts that must reach the o-plate
+  contour, or are they absorbed already? Decide with CA-2's B-REP chain
+  evidence, not from the sketch.
 
-### API note for CA-2
+### API recipe for CA-2 (reflection-verified, Inventor 2026)
 
 The drafted helper used `ExtrudeFeature.Definition` +
 `ExtrudeDefinition.Distance` for the partial-depth test.
-`ExtrudeDefinition.Distance` is **not verified** for Inventor 2026, and
-late-bound iLogic compiles wrong member names silently (see the
-`Face.Loops` error above). Verify the member against
-`Autodesk.Inventor.Interop.dll` (reflection) before use, or avoid the
-feature history entirely and detect the cope from the B-REP (a cut whose
-resulting boundary reaches the plate's outer contour).
+`ExtrudeDefinition.Distance` **does not exist** — reflection on
+`Autodesk.Inventor.Interop.dll` (Inventor 2026) returned only
+`SetDistanceExtent`, `SetDistanceExtentTwo`,
+`SetDistanceFromFaceExtent` as distance-related members. Late-bound
+iLogic compiles wrong member names silently (see the `Face.Loops` error
+above), so this would have failed at runtime as
+"Public member 'Distance' on type 'ExtrudeDefinition' not found".
+Recorded in `knowledge/errors/ExtrudeDefinition-Distance-Not-A-Member.md`.
+
+Verified readable members instead:
+
+- `ExtrudeDefinition.ExtentType` -> `PartFeatureExtentEnum`
+  (`kDistanceExtent` = explicit distance cut, `kThroughAllExtent` =
+  through cut; both names confirmed in the enum);
+- `ExtrudeDefinition.Extent` -> `PartFeatureExtent`; cast to
+  `Inventor.DistanceExtent` for `.Distance` (cm) and `.Direction`;
+- `ExtrudeDefinition.Operation` -> `PartFeatureOperationEnum`.
+
+So the cope test can be `Operation = kCutOperation` +
+`ExtentType = kDistanceExtent` (partial depth) + web face, instead of the
+unverified `Distance` property or a hardcoded "0.9 x web height"
+comparison. Alternative that needs no feature history at all: detect the
+cope from the B-REP (a cut whose resulting boundary reaches the plate's
+outer contour).

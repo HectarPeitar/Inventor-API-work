@@ -206,12 +206,154 @@ Expected v block now (11 pts + closure):
 - remaining deltas vs reference are notation-level: R10 arc (AK-2),
   w/t notch line + x-ref letters (AK-3), prep couples (AK-4).
 
-Status: VERIFIED (RUN 6, 2026-09). v block = expected 11-pt chain
-exactly (web-clip active: lijf-X 0.00 .. 1952.25); u/o blocks match
-reference; h-record suppressed. AK-1 exit criteria met: u-AK matches
-reference; fictitious/future cope BO records suppressed. Remaining
-notation-level deltas deferred to AK-2 (arcs), AK-3 (w/t + x-ref),
-AK-4 (prep couples).
+## RUN 7 (2026-09): AK-2 arcs implemented (straal + teken)
+
+- New: PlateArc, MapToPlate, GetPlateArc, CollectPlateArcs,
+  AttachArcRadii; FormatAkBlock now emits the radius column.
+- Geometry source: Edge.Geometry -> Arc3d (runtime-verified pattern in
+  this file); arc must lie in the plate plane and be <= 180 deg.
+- Sign rule: cross(P-C, Q-C) > 0 => '+', else '-' — spec-confirmed
+  ("the sign + is the mathematical orientation", extracted :617) and
+  reference-confirmed (see below).
+- Both arc endpoints get the same signed radius (reference p. 22);
+  closure point keeps radius 0.00.
+- Debug per run:
+    [AK] boog R=.. teken .. op (..)-(..)        (attached)
+    [AK] boog R=.. niet in contour ((..)-(..))  (not a contour pair)
+    [AK] v (zijaanzicht): <n> punten, <m> randen, <k> bogen
+    [AK] o/u: hull <n> punten, <k> bogen
+
+### RUN 7a (first attempt) — FAIL / NRE, fixed
+
+Symptom: `[AK] v EXCEPTION: Object reference not set to an instance of
+an object.` and every emitted radius stayed 0.00.
+
+Cause: `arcRadii` was declared `ByRef` in GetSideViewOutline but only
+initialised inside GetFlangePlateHull, so the tail loop `arcRadii.Add`
+hit Nothing. The v points were already built, so the block still looked
+normal while all radii silently fell back to 0.00.
+
+Fix: initialise `arcRadii = New List(Of Double)` at the top of
+GetSideViewOutline (comment records why) + defensive count guard in
+AttachArcRadii. vbc PASS.
+
+Two other RUN 7a facts, both correct behaviour:
+- 2 arcs > 180 deg skipped for the v plate = the two v-face holes
+  (D29 @ 900/300 and D24 @ 450/280, full 360 deg circles) -> those are
+  BO records, not contour arcs. OK.
+- 8 x R12 arcs "niet in contour" per plate family = the flange slot
+  corner rounds (X 1415..1485, Y/z 239.50..263.50). The slot is given
+  by the plate BO record, so it must NOT enter the plate contour. OK.
+
+### Reference notch decoded (definitive, extracted :1074-1079)
+
+    v     0.00o   100.00      0.00
+    v 190.00o     100.00    -10.00
+    v 200.00o     100.00w   -10.00
+    v 200.00o     110.00    -10.00
+    v 200.00o      90.00      0.00
+    v 200.00o       0.00      0.00
+
+- arc = quarter circle centred on the theoretical corner (200,100),
+  from (190,100) to (200,110), R10, both endpoints -10.00;
+- cross((190,100)-(200,100), (200,110)-(200,100)) = -100 => '-10.00'
+  — the implemented rule reproduces the reference exactly;
+- the `w` corner line sits at the theoretical corner (200,100) and is
+  NOT part of the point sequence (AK-3);
+- (200,90) is an ordinary vertex (radius 0.00);
+- the reference o block `o 159.50s 0.00 0.00 10.000 0.00` has THREE
+  numbers after Y => radius 0.00 + welding-prep couple (10.000, 0.00)
+  (AK-4), i.e. the o plate corner is SHARP, confirming that our 4-point
+  o/u hulls are right and that no o/u contour arc is expected here.
+
+### RUN 7b (second attempt) — NRE gone, but the notch arc is still rejected
+
+Result: no exception; `v (zijaanzicht): 11 punten, 82 randen, 8 bogen`;
+NC1 unchanged (all radii 0.00).
+
+What the collector actually saw for the v plate:
+- 2 arcs > 180 gr skipped = the two v-face holes (360 gr circles, BO
+  records) -> correct;
+- 8 x R24 arcs = the rotated rect-fillet opening on face v
+  (`v 1558.03u 182.23 48.00 0.00l 148.00 108.00 9.96`, d = 2 x 24)
+  -> correctly rejected as "niet in contour";
+- o/u: 8 x R12 each = the flange slot corner rounds (BO record)
+  -> correctly rejected.
+
+CONCLUSION: zero false positives (good), but the notch's R10 arc is
+NOT reaching the collector, while NOTE-1 above (user-verified) says the
+model's notch IS an R10 arc (our diagonal is its chord). So the loss
+happens in a silent rejection path, not in the geometry.
+
+Silent paths found and instrumented (all three now report):
+1. `|dot(arc normal, plate normal)| < 0.99` -> was `Return Nothing`
+   with no message. Now logs when `dot >= 0.5` (nearly-in-plane arcs,
+   the dangerous case; perpendicular arcs stay silent to avoid noise):
+   `[AK] boog buiten plaatvlak genegeerd (R=.. dot=.. (..,..)-(..,..))`
+2. non-arc/non-line curve (spline, ellipse, or `Edge.Geometry` throw):
+   now counted -> `[AK] <n> randen met niet-boog krommetype genegeerd`
+3. `radii` count mismatch in AttachArcRadii: now a guarded return.
+
+Prime suspect: the notch belongs to the cope (Extrusion5, 200 x 100) and
+the rotated cut (angle 9.96 in the BO record) makes the arc's plane
+slightly non-parallel to the v plate: dot ~ 0.985 would fall in
+[0.5, 0.99) -> exactly what the new line 1 reports. vbc PASS.
+
+### RUN 7c — what to check (expected)
+
+Run the rule again and read only the [AK] lines. Three possible outcomes,
+each naming the next action:
+
+A. `[AK] boog buiten plaatvlak genegeerd (R=10.00 dot=0.9xx (190.00,100.00)-(200.00,90.00))`
+   -> the notch arc EXISTS but its plane is tilted (cope cut), so the
+   in-plane guard drops it. Fix = AK-2b: accept a documented tilt
+   tolerance (e.g. dot >= 0.90) and emit the projected arc, or keep the
+   chord and record the limitation. Needs a decision.
+B. `[AK] <n> randen met niet-boog krommetype genegeerd` with n > 0
+   -> the notch edge is not a circular arc (spline/ellipse or an
+   unreadable geometry) -> the model needs a real arc (sketch fillet)
+   for AK-2 to be exercised at all.
+C. neither line, but `K bogen` still 8 and nothing attached
+   -> the notch edge is a straight line in the model (the diagonal is
+   the true geometry, not a chord) -> then AK-2 must be exercised with a
+   model that really has a rounded corner.
+
+In all three cases the expected AK-1 behaviour is unchanged: v = 11
+points, u/o = 4-point hulls, all radii 0.00 except any attached arc.
+
+Status: BUILT (vbc PASS). Runtime validation of AK-2 PENDING (run 7c).
+
+### RUN 8 (2026-09) — rect-fillet regressie: 9.96 → -100.00 door 3D-fix + min-hoek-keuze
+
+Symptoom (debug): `OPENING (rect-fillet): face=v holeX=1558.03u facePos=182.23
+d=48.00 width=60.00 height=100.00 angle=-100.00 repr=BO` en NC1:
+`v 1558.03u 182.23 48.00 0.00l 60.00 100.00 -100.00`.
+Referentie p.21: `v 1512.00o 144.00 24.00 0.00l 100.00 60.00 10.00`
+(X/Y = centrum onderste-linker gat, breedte = LANGE zijde).
+
+Oorzaken (twee, samenvallend):
+1. `ComputeFaceFrameAngleFromVector` gebruikte een andere conventie dan
+   `GetDstvFaceFrameAngle`: generieke `cross(faceNormal, xUnit)`-Y-as en
+   bereik (-180, 180] i.p.v. de per-vlak conventie (v/h: Y=+Z; o/u: Y=-Y)
+   met bereik [0, 180). Op het v-vlak draait dat de hoek ~110° weg
+   (10.00 → -100.00-modulo-180-verwarring).
+2. Breedte-keuze `angleA <= angleB` (kleinste hoek) i.p.v. langste zijde;
+   referentie p.21 toont 100.00 x 60.00 @ 10.00 = lange zijde eerst.
+3. Positie = rechthoekcentrum i.p.v. onderste-linker boogmiddelpunt
+   (1512.00/144.00 vs 1558.03/182.23); maten = rechte randlengte i.p.v.
+   volle buitenmaten (100.00/60.00 zijn rond → volle maten, niet
+   centre-to-centre).
+
+Fix (alleen `scratch/dstv_exporter.vb`, vbc PASS):
+- helper herschreven naar exact de `GetDstvFaceFrameAngle`-conventie;
+- breedte = lange zijde (`lineLenA_Mm >= lineLenB_Mm`), hoek = richting
+  daarvan; zelfde voor `BO-3DFILLET` (`fullW0/fullW1` = rand + d);
+- positie = onderste-linker boogmiddelpunt (min X, dan min Y in DSTV-frame);
+- `l width/height` = rechte rand + d (volle buitenmaten, p.21).
+- Slot/stadium-conventie (centre-to-centre, `l 70.00 0.00 0.00`) ongewijzigd;
+  geldt alleen voor echte slots, niet voor afgeronde rechthoeken (BO.md).
+
+Status: BUILT (vbc PASS). Runtime-validatie RUN 8 PENDING (her-run in Inventor).
 
 ## AK PLAN (approved direction, 2026-09; v-row superseded by RUN 3 #3)
 

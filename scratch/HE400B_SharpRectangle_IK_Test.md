@@ -156,11 +156,13 @@ Expected:
 - The opening **appears** as a BO record — no IK block for it:
   `face X[ref] Y 10.00 0.00l width height 0.00` (r = 5 mm → corner diameter
   `d = 10.00`, matching the viewer-verified d = 10.00 PASS case).
-- For the 80×50 rectangle: `o 395.00u 230.00 10.00 0.00l 50.00 80.00 0.00`.
-- `l width` / `l height` are the true edge lengths in the DSTV face frame
-  (edge line length + 2 × fillet radius); the record center is the average of
-  the 4 arc centers.
-- Debug: `OPENING (rect-fillet): ... d=10.00 width=50.00 height=80.00 angle=0.00 repr=BO`.
+- For the 80×50 rectangle: `o 370.00u 190.00 10.00 0.00l 80.00 50.00 0.00`
+  (X/Y = the BOTTOM-LEFT corner-arc centre, i.e. centre 395/230 minus
+  half-size 40/25; width = LONG side).
+- `l width` / `l height` are the FULL outer dimensions in the DSTV face
+  frame (straight edge + 2 × corner radius); position = bottom-left
+  arc centre (reference p. 21).
+- Debug: `OPENING (rect-fillet): ... d=10.00 width=80.00 height=50.00 angle=0.00 repr=BO`.
 - Viewer: BO with non-zero corner diameter is already viewer-verified
   (d = 1.00 / 10.00 / 20.00 → PASS), so no new viewer risk is expected.
 
@@ -259,7 +261,7 @@ Export result (exact, from `cadfiles/EURONORM 53-62 - HE 400 B-525.nc1`):
 ```text
 BO
   o 150.00u 50.00 24.00 0.00l 70.00 0.00 0.00
-  o 395.00u 230.00 10.00 0.00l 50.00 80.00 0.00
+  o 370.00u 190.00 10.00 0.00l 80.00 50.00 0.00   (RUN 8 convention; was 395.00u 230.00 ...l 50.00 80.00)
 IK
   u 70.00u 215.00 0.00
   u 70.00u 275.00 0.00
@@ -274,9 +276,16 @@ Debug evidence (`scratch/DSTV_Debug_Report.txt`, 12:08):
 ```text
 OPENING (rect): face=u ... repr=IK probe=FACE probeLines=4 probeArcs=0
 OPENING (rect): face=o ... repr=BO-3DFILLET probe=FACE probeLines=4 probeArcs=4
-OPENING (rect-3dfillet): face=o holeX=395.00u facePos=230.00 d=10.00 width=50.00 height=80.00 angle=0.00 repr=BO
+OPENING (rect-3dfillet): face=o holeX=370.00u facePos=190.00 d=10.00 width=80.00 height=50.00 angle=0.00 repr=BO
 FEATURE (not extrude): Fillet2 type=kFilletFeatureObject
 ```
+
+NOTE (2026-09, RUN 8): the rect-fillet / rect-3dfillet convention changed
+to reference p. 21 — position = BOTTOM-LEFT corner-arc centre (not the
+centroid), width = LONG side, l width/height = FULL outer dimensions
+(straight edge + 2 × corner radius). The 12:08 evidence above predates
+that change (`holeX=395.00 ... width=50.00 height=80.00` = old centroid /
+min-angle convention) and is kept for history; re-run to refresh.
 
 Results:
 

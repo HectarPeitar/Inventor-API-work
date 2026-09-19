@@ -1614,10 +1614,12 @@ Sub Main()
 
 							If uniformOk Then
 
-								' Per rand: volledige lengte (mm) en hoek in
-								' het DSTV-vlakframe (zelfde transformatie als
-								' de IK-hoekpunten). Volledige randlengte =
-								' lijnlengte + 2 x straal.
+								' Per rand: rechte randlengte (mm) - de afstand
+								' tussen de boogmiddelpunten, dus centre-to-
+								' centre zoals de viewer-geverifieerde
+								' slotrecord (referentie p.22: d=24 met
+								' width/height 100.00/60.00) - en de hoek
+								' in het DSTV-vlakframe.
 								Dim pairOk As Boolean = True
 								Dim perpCount3 As Integer = 0
 
@@ -1631,37 +1633,12 @@ Sub Main()
 
 									Dim lenCm As Double = Math.Sqrt(vEx * vEx + vEy * vEy + vEz * vEz)
 
-									fullLenMm(i) = (lenCm + 2.0 * probeArcs(0).Radius) * 10.0
+									fullLenMm(i) = lenCm * 10.0
 
-									Dim axDstv As Double = GetDstvX(ln3d.StartPoint, oRefPoint, xUnit, minX)
-									Dim ayDstv As Double
-
-									If sFace = "v" OrElse sFace = "h" Then
-										ayDstv = GetDstvZ(ln3d.StartPoint, oRefPoint, zUnit, minZ)
-									Else
-										ayDstv = GetDstvY(ln3d.StartPoint, oRefPoint, yUnit, maxY)
-									End If
-
-									Dim bxDstv As Double = GetDstvX(ln3d.EndPoint, oRefPoint, xUnit, minX)
-									Dim byDstv As Double
-
-									If sFace = "v" OrElse sFace = "h" Then
-										byDstv = GetDstvZ(ln3d.EndPoint, oRefPoint, zUnit, minZ)
-									Else
-										byDstv = GetDstvY(ln3d.EndPoint, oRefPoint, yUnit, maxY)
-									End If
-
-									Dim aDeg As Double = Math.Atan2(byDstv - ayDstv, bxDstv - axDstv) * 180.0 / Math.PI
-
-									If aDeg < 0 Then
-										aDeg = aDeg + 180.0
-									End If
-
-									If aDeg >= 180.0 Then
-										aDeg = aDeg - 180.0
-									End If
-
-									edgeAngleDeg(i) = aDeg
+									edgeAngleDeg(i) = _
+										ComputeFaceFrameAngleFromVector( _
+											ln3d.StartPoint.VectorTo(ln3d.EndPoint), _
+											sFace, xUnit, yUnit, zUnit)
 
 								Next
 
@@ -1845,28 +1822,32 @@ Sub Main()
 						' ---------------------------------------------
 						' BO-record vanaf de werkelijke gatrandloop
 						' (3D-fillet op de gatranden). d = 2 x boogstraal;
-						' width/height = volledige randlengten uit de loop;
-						' hoek in het DSTV-vlakframe. Toewijzing: de rand
-						' met de kleinste hoek t.o.v. stuk-X is de breedte
-						' (viewer-geverifieerde conventie bij hoek 0).
+						' width/height = VOLLEDIGE buitenmaten (rechte
+						' randlengte + 2x hoekstraal, referentie p.21:
+						' d=24 met 100.00/60.00 = volle maten). Toewijzing:
+						' de LANGE zijde is de breedte; de hoek is de
+						' richting van die zijde, genormaliseerd [0, 180).
 						' Alle validatie is al gedaan in de probe-fase;
 						' hier is geen faalpad meer.
 						' ---------------------------------------------
 
 						Dim fillet3dDiamMm As Double = probeFilletCm * 20.0
 
+						Dim fullW0 As Double = fullLenMm(0) + fillet3dDiamMm
+						Dim fullW1 As Double = fullLenMm(perpIdx3) + fillet3dDiamMm
+
 						Dim filletAngleDeg As Double
 						Dim filletWidthMm As Double
 						Dim filletHeightMm As Double
 
-						If edgeAngleDeg(0) <= edgeAngleDeg(perpIdx3) Then
+						If fullW0 >= fullW1 Then
 							filletAngleDeg = edgeAngleDeg(0)
-							filletWidthMm = fullLenMm(0)
-							filletHeightMm = fullLenMm(perpIdx3)
+							filletWidthMm = fullW0
+							filletHeightMm = fullW1
 						Else
 							filletAngleDeg = edgeAngleDeg(perpIdx3)
-							filletWidthMm = fullLenMm(perpIdx3)
-							filletHeightMm = fullLenMm(0)
+							filletWidthMm = fullW1
+							filletHeightMm = fullW0
 						End If
 
 						If DebugMode Then
@@ -2087,6 +2068,8 @@ Sub Main()
 					Dim edgeDx(3) As Double
 					Dim edgeDy(3) As Double
 					Dim edgeLenCm(3) As Double
+					' 3D model-space unit directions for the face-frame angle fix
+					Dim edgeDir3d(3) As Vector
 
 					If filletSkipReason = "" Then
 
@@ -2103,6 +2086,16 @@ Sub Main()
 							Else
 								filletSkipReason = "degenerate (zero-length) edge"
 							End If
+							' Project the 2D sketch direction into 3D model space
+							Dim dirSketchP As Point2d = _
+								ThisApplication.TransientGeometry.CreatePoint2d(vEx, vEy)
+							Dim dirPoint3d As Point = oSketch.SketchToModelSpace(dirSketchP)
+							Dim originSketchP As Point2d = _
+								ThisApplication.TransientGeometry.CreatePoint2d(0.0, 0.0)
+							Dim originPt As Point = oSketch.SketchToModelSpace(originSketchP)
+							edgeDir3d(i) = originPt.VectorTo(dirPoint3d)
+							edgeDir3d(i).Normalize()
+
 
 						Next
 
@@ -2177,10 +2170,12 @@ Sub Main()
 						' Hoekdiameter d = 2 x filletraadius (sketch cm -> mm).
 						Dim filletDiamMm As Double = cornerRadiusCm * 20.0
 
-						' Volledige randlengte = lijnlengte + 2 x straal
-						' (de fillet kortt elk randeinde met r in).
-						Dim fullLenA_Mm As Double = (edgeLenCm(0) + 2.0 * cornerRadiusCm) * 10.0
-						Dim fullLenB_Mm As Double = (edgeLenCm(perpIdx) + 2.0 * cornerRadiusCm) * 10.0
+						' l width/height = VOLLEDIGE buitenmaten (referentie p.21:
+						' d=24 met 100.00/60.00 zijn ronde getallen, dus de
+						' volle maten, NIET centre-to-centre). Rechte randlengte
+						' + 2x hoekstraal (diameter), in mm.
+						Dim lineLenA_Mm As Double = edgeLenCm(0) * 10.0 + filletDiamMm
+						Dim lineLenB_Mm As Double = edgeLenCm(perpIdx) * 10.0 + filletDiamMm
 
 						' Rechthoekcentrum = gemiddelde van de vier
 						' boogmiddelpunten (exact voor een gejilletteerde
@@ -2217,23 +2212,56 @@ Sub Main()
 						Dim facePos As Double = _
 							GetFacePosition(sFace, holeY, holeZ)
 
+						' BO-positie = het ONDERSTE-LINKER boogmiddelpunt (DSTV: X/Y is het
+						' centrum van het onderste-linker gat, referentie p.21:
+						' v 1512.00o 144.00 ..., NIET het rechthoekcentrum).
+						Dim blX As Double = holeX
+						Dim blY As Double = facePos
+						Dim blInit As Boolean = False
+
+						For Each faC As Arc2d In filletArcs
+							Dim acModel As Point = oSketch.SketchToModelSpace(faC.Center)
+							Dim acX As Double = GetDstvX(acModel, oRefPoint, xUnit, minX)
+							Dim acY As Double
+
+							If sFace = "v" OrElse sFace = "h" Then
+								acY = GetDstvZ(acModel, oRefPoint, zUnit, minZ)
+							Else
+								acY = GetDstvY(acModel, oRefPoint, yUnit, maxY)
+							End If
+
+							If Not blInit OrElse acX < blX - 0.01 OrElse (Math.Abs(acX - blX) <= 0.01 AndAlso acY < blY) Then
+								blX = acX
+								blY = acY
+								blInit = True
+							End If
+						Next
+
+						holeX = blX
+						facePos = blY
+
 						' Randrichtingen naar het DSTV-vlakframe
-						' (zelfde transformatie als de IK-hoekpunten).
-						Dim angleA As Double = GetDstvFaceFrameAngle(oSketch, centerSketchF, edgeDx(0), edgeDy(0), sFace, oRefPoint, xUnit, yUnit, zUnit, minX, maxY, minZ)
-						Dim angleB As Double = GetDstvFaceFrameAngle(oSketch, centerSketchF, edgeDx(perpIdx), edgeDy(perpIdx), sFace, oRefPoint, xUnit, yUnit, zUnit, minX, maxY, minZ)
+						' (3D model-space richting; de 2D sketch-projectie vertekent de hoek
+						'  bij een geroteerde opening, zie AK-IK.md).
+						Dim angleA As Double = ComputeFaceFrameAngleFromVector( _
+							edgeDir3d(0), sFace, xUnit, yUnit, zUnit)
+						Dim angleB As Double = ComputeFaceFrameAngleFromVector( _
+							edgeDir3d(perpIdx), sFace, xUnit, yUnit, zUnit)
 
 						Dim filletAngleDeg As Double
 						Dim filletWidthMm As Double
 						Dim filletHeightMm As Double
 
-						If angleA <= angleB Then
+						' Breedte = de LANGE zijde (referentie p.21: 100.00 x 60.00 @ 10.00);
+						' de hoek is de richting van die zijde, genormaliseerd [0, 180).
+						If lineLenA_Mm >= lineLenB_Mm Then
 							filletAngleDeg = angleA
-							filletWidthMm = fullLenA_Mm
-							filletHeightMm = fullLenB_Mm
+							filletWidthMm = lineLenA_Mm
+							filletHeightMm = lineLenB_Mm
 						Else
 							filletAngleDeg = angleB
-							filletWidthMm = fullLenB_Mm
-							filletHeightMm = fullLenA_Mm
+							filletWidthMm = lineLenB_Mm
+							filletHeightMm = lineLenA_Mm
 						End If
 
 						If DebugMode Then
@@ -3513,6 +3541,426 @@ End Function
 ' Referentieletters en w/t-notaties volgen in AK-3.
 ' =====================================================================
 
+' ---------------------------------------------------------------------
+' AK-2: bogen in de externe contouren (straal + teken)
+'
+' Bron-formaat (DSTV 7e ed. p. 13-14): de straal staat achter Y; het
+' teken + betekent dat de boog in de contourtrichting mathematisch
+' (linksom) loopt. Het HEB400-voorbeeld (p. 21) markeert BEIDE
+' eindpunten van de boog met dezelfde straal (v: -10.00 op (190,100)
+' en (200,110); o: 10.000 op (159.50,0)).
+'
+' Geometrie-bron: Edge.Geometry levert een Arc3d voor cirkelboog-
+' randen (runtime-verified patroon in dit bestand, zie
+' ProbeHoleBoundaryLoop). Een boog wordt alleen als straal
+' weergegeven als hij in het plaatvlak ligt (|dot(n, plaatnormaal)|
+' >= 0.99) en de koershoek <= 180 gr is (p. 13: max +/-180).
+' ---------------------------------------------------------------------
+
+Public Class PlateArc
+	Public Cx As Double
+	Public Cy As Double
+	Public P1x As Double
+	Public P1y As Double
+	Public P2x As Double
+	Public P2y As Double
+	Public RadiusMm As Double
+	' AK-3: True voor de boog van een geboorde hoeknotch (w-notch).
+	' De contour volgt de gatrand > 180 graden rond de notch-hoek
+	' (Inventor parametrisert die boog met SweepAngle > 180 gr).
+	' Zo'n boog mag niet als contourboog of contourstraal geemiteerd
+	' worden (DSTV p. 13: max enkelvoudige hoek +/-180); in de plaats
+	' komt de w-informatieregel op de notch-hoek (zie FormatAkBlock).
+	Public IsWNotch As Boolean = False
+End Class
+
+
+' Projecteer een modelpunt naar plaatcoordinaten (mm).
+' axis2/off2/sgn2 leggen de tweede plaatas vast:
+'   v-plaat  : axis2 = zUnit, off2 = minZ, sgn2 = +1
+'   o/u-plaat: axis2 = yUnit, off2 = maxY, sgn2 = -1
+Function MapToPlate( _
+	ByVal oPt As Point, _
+	ByVal oRefPoint As Point, _
+	ByVal xUnit As UnitVector, _
+	ByVal axis2 As UnitVector, _
+	ByVal minX As Double, _
+	ByVal off2 As Double, _
+	ByVal sgn2 As Double) As Point2d
+
+	Dim rel As Vector = oRefPoint.VectorTo(oPt)
+
+	Dim dX As Double = (DotVector(rel, xUnit.AsVector) - minX) * 10.0
+	Dim dY As Double = (DotVector(rel, axis2.AsVector) - off2) * 10.0 * sgn2
+
+	Return ThisApplication.TransientGeometry.CreatePoint2d(dX, dY)
+
+End Function
+
+
+' Lees een cirkelboog-rand als plaatboog; Nothing als de rand geen
+' in-vlak cirkelboog (<= 180 gr) is.
+Function GetPlateArc( _
+	ByVal oEdge As Edge, _
+	ByVal xUnit As UnitVector, _
+	ByVal axis2 As UnitVector, _
+	ByVal plateNormal As UnitVector, _
+	ByVal oRefPoint As Point, _
+	ByVal minX As Double, _
+	ByVal off2 As Double, _
+	ByVal sgn2 As Double, _
+	ByRef otherCurves As List(Of String), _
+	ByVal dbg As System.Text.StringBuilder) As PlateArc
+
+	Dim result As PlateArc = Nothing
+
+	Try
+
+		Dim oGeom As Object = Nothing
+
+		Try
+			oGeom = oEdge.Geometry
+		Catch
+			oGeom = Nothing
+		End Try
+
+		If Not (TypeOf oGeom Is Arc3d) Then
+
+			' Randen zijn normaal lijnen of bogen. Een ander krommetype
+			' (spline, ellips ... of een mislukte Geometry-aanroep) kan
+			' geen AK-straal krijgen en zou stilzwijgend als koorde
+			' verdwijnen. Daarom registreren we krommetype en
+			' geprojecteerde eindpunten, zodat zo'n verlies zichtbaar is.
+			If Not (TypeOf oGeom Is LineSegment) Then
+				otherCurves.Add(DescribeOddEdge(oEdge, oGeom, xUnit, axis2, oRefPoint, minX, off2, sgn2))
+			End If
+
+			Return Nothing
+		End If
+
+		Dim oArc As Arc3d = CType(oGeom, Arc3d)
+
+		Dim n As Vector = oArc.Normal.AsVector.Copy
+		n.Normalize()
+
+		Dim dotN As Double = Math.Abs(DotVector(n, plateNormal.AsVector))
+
+		' AK-2: debug — log elke boog met dotN, ook bij uitschrijving
+		If dbg IsNot Nothing Then
+			Dim _ea As Point2d = MapToPlate(oArc.StartPoint, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+			Dim _eb As Point2d = MapToPlate(oArc.EndPoint, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+			dbg.AppendLine("  [AK] boog gecontroleerd: R=" + Fmt(oArc.Radius * 10.0) + " dot=" + Fmt3(dotN) + " sweep=" + Fmt3(oArc.SweepAngle) + " start=(" + Fmt(_ea.X) + "," + Fmt(_ea.Y) + ") eind=(" + Fmt(_eb.X) + "," + Fmt(_eb.Y) + ")")
+		End If
+
+		If dotN < 0.99 Then
+
+			' Bijna-in-vlak maar niet parallel: gevaarlijke categorie.
+			' Een uitsparing die onder een kleine hoek is gemaakt levert
+			' hier een boog die stilzwijgend als koorde zou verdwijnen.
+			' Alleen loggen als de boog min of meer in het plaatvlak
+			' ligt; loodrecht op het vlak is normaal en zou het rapport
+			' overspoelen.
+			If dotN >= 0.05 AndAlso dbg IsNot Nothing Then
+
+				Dim ea As Point2d = MapToPlate(oArc.StartPoint, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+				Dim eb As Point2d = MapToPlate(oArc.EndPoint, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+
+				dbg.AppendLine( _
+					"  [AK] boog buiten plaatvlak genegeerd (R=" + Fmt(oArc.Radius * 10.0) + _
+					" dot=" + Fmt3(dotN) + _
+					" (" + Fmt(ea.X) + "," + Fmt(ea.Y) + ")-(" + _
+					Fmt(eb.X) + "," + Fmt(eb.Y) + "))")
+			ElseIf dbg IsNot Nothing Then
+				dbg.AppendLine( _
+					"  [AK] boog loodrecht op plaatvlak genegeerd (R=" + Fmt(oArc.Radius * 10.0) + _
+					" dot=" + Fmt3(dotN) + ")")
+			End If
+
+			Return Nothing
+		End If
+
+		Dim c2 As Point2d = MapToPlate(oArc.Center, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+		Dim a2 As Point2d = MapToPlate(oArc.StartPoint, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+		Dim b2 As Point2d = MapToPlate(oArc.EndPoint, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+
+		Dim radiusMm As Double = oArc.Radius * 10.0
+
+		' AK-2: SweepAngle-controle.
+		' Inventor kan de gatrand van een geboorde hoeknotch als Arc3d
+		' met een sweep van 270 graden exporteren: de contour volgt de
+		' boog de "lange weg" om de cirkel. De geometrische hoek tussen
+		' de eindpunten is dan kleiner dan 180 graden, maar de boog
+		' loopt zelf > 180 graden rond — dat is precies de w-notch
+		' (gat-notch): te groot voor een contourboog (DSTV p. 13: max
+		' +/-180), dus markeren voor de w-informatieregel i.p.v. een
+		' contourstraal.
+		Dim sv As Double = Math.Abs(oArc.SweepAngle)
+		Dim dxA As Double = a2.X - c2.X
+		Dim dyA As Double = a2.Y - c2.Y
+		Dim dxB As Double = b2.X - c2.X
+		Dim dyB As Double = b2.Y - c2.Y
+		Dim geomAngle As Double = Math.Acos( _
+			Math.Max(-1.0, Math.Min(1.0, _
+				(dxA * dxB + dyA * dyB) / (radiusMm * radiusMm))))
+
+		Dim isLongNotchArc As Boolean = False
+
+		If sv > Math.PI * 1.0006 AndAlso geomAngle < Math.PI * 0.999 Then
+			' Lange parametrisatie, korte koorde: gat-notch-boog (w).
+			isLongNotchArc = True
+		ElseIf sv > Math.PI * 1.0006 Then
+			If dbg IsNot Nothing Then
+				dbg.AppendLine("  [AK] boog > 180 gr overgeslagen (splitsen: AK-2b)")
+			End If
+			Return Nothing
+		End If
+
+		' Consistentie: een in-vlak boog houdt in het plaatframe zijn
+		' straal (orthonormale projectie).
+		Dim dA As Double = Math.Sqrt((a2.X - c2.X) * (a2.X - c2.X) + (a2.Y - c2.Y) * (a2.Y - c2.Y))
+		Dim dB As Double = Math.Sqrt((b2.X - c2.X) * (b2.X - c2.X) + (b2.Y - c2.Y) * (b2.Y - c2.Y))
+
+		If Math.Abs(dA - radiusMm) > 0.05 OrElse Math.Abs(dB - radiusMm) > 0.05 Then
+
+			If dbg IsNot Nothing Then
+				dbg.AppendLine("  [AK] boog-projectie inconsistent (R=" + Fmt(radiusMm) + ")")
+			End If
+
+			Return Nothing
+		End If
+
+		result = New PlateArc()
+		result.IsWNotch = isLongNotchArc
+
+		result.Cx = c2.X
+		result.Cy = c2.Y
+		result.P1x = a2.X
+		result.P1y = a2.Y
+		result.P2x = b2.X
+		result.P2y = b2.Y
+		result.RadiusMm = radiusMm
+
+	Catch ex As Exception
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] boog-lezen EXCEPTION: " + ex.Message)
+		End If
+
+	End Try
+
+	Return result
+
+End Function
+
+
+' Korte omschrijving van een rand die geen lijn of boog is, met het
+' krommetype en de geprojecteerde eindpunten. Maakt in het AK-rapport
+' zichtbaar WELKE rand geen straal kan krijgen (bijv. een schetsboog
+' die als spline in de B-Rep staat, of een rand waarvoor
+' Edge.Geometry een uitzondering geeft).
+Function DescribeOddEdge( _
+	ByVal oEdge As Edge, _
+	ByVal oGeom As Object, _
+	ByVal xUnit As UnitVector, _
+	ByVal axis2 As UnitVector, _
+	ByVal oRefPoint As Point, _
+	ByVal minX As Double, _
+	ByVal off2 As Double, _
+	ByVal sgn2 As Double) As String
+
+	Dim sKind As String = "geen-geometrie"
+
+	If oGeom IsNot Nothing Then
+
+		Try
+			sKind = oEdge.CurveType.ToString()
+		Catch
+			sKind = "curveType-onleesbaar"
+		End Try
+
+	End If
+
+	Dim sCoords As String
+
+	Try
+
+		Dim pa As Point2d = MapToPlate(oEdge.StartVertex.Point, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+		Dim pb As Point2d = MapToPlate(oEdge.StopVertex.Point, oRefPoint, xUnit, axis2, minX, off2, sgn2)
+
+		sCoords = " (" + Fmt(pa.X) + "," + Fmt(pa.Y) + ")-(" + Fmt(pb.X) + "," + Fmt(pb.Y) + ")"
+
+	Catch
+		sCoords = " (eindpunten onleesbaar)"
+	End Try
+
+	Return sKind + sCoords
+
+End Function
+
+
+Function CollectPlateArcs( _
+	ByVal oBody As SurfaceBody, _
+	ByVal xUnit As UnitVector, _
+	ByVal axis2 As UnitVector, _
+	ByVal plateNormal As UnitVector, _
+	ByVal oRefPoint As Point, _
+	ByVal minX As Double, _
+	ByVal off2 As Double, _
+	ByVal sgn2 As Double, _
+	ByVal dbg As System.Text.StringBuilder) As List(Of PlateArc)
+
+	Dim arcs As New List(Of PlateArc)
+	Dim otherCurves As New List(Of String)
+
+	Try
+
+		For Each oEdge As Edge In oBody.Edges
+
+			Dim oArc As PlateArc = _
+				GetPlateArc(oEdge, xUnit, axis2, plateNormal, oRefPoint, minX, off2, sgn2, otherCurves, dbg)
+
+			If oArc IsNot Nothing Then
+				arcs.Add(oArc)
+			End If
+
+		Next
+
+		If otherCurves.Count > 0 AndAlso dbg IsNot Nothing Then
+
+			dbg.AppendLine( _
+				"  [AK] " + otherCurves.Count.ToString() + _
+				" randen zonder lijn/boog-geometrie (geen AK-straal mogelijk):")
+
+			Dim shown As Integer = 0
+
+			For Each sOdd As String In otherCurves
+
+				If shown >= 4 Then
+					Exit For
+				End If
+
+				dbg.AppendLine("      " + sOdd)
+
+				shown += 1
+
+			Next
+
+			If otherCurves.Count > shown Then
+				dbg.AppendLine("      ... (" + (otherCurves.Count - shown).ToString() + " meer)")
+			End If
+
+		End If
+
+	Catch ex As Exception
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [AK] boog-verzamelen EXCEPTION: " + ex.Message)
+		End If
+
+	End Try
+
+	Return arcs
+
+End Function
+
+
+' Zet de straal (met teken) op beide eindpunten van een boog die als
+' opeenvolgend paar in de contourketen staat. Het teken volgt de
+' contourtrichting: cross(P-C, Q-C) > 0 => mathematisch (linksom) => +.
+' Dit reproduceert het teken -10.00 van de referentie-notchnaad.
+' AK-3: w-notch-bogen worden hier OVERGESLAGEN — hun eindpunten
+' krijgen geen contourstraal; FormatAkBlock vervangt ze door de
+' w-informatieregel op de notch-hoek.
+Sub AttachArcRadii( _
+	ByVal pts As List(Of Point2d), _
+	ByVal arcs As List(Of PlateArc), _
+	ByVal radii As List(Of Double), _
+	ByVal dbg As System.Text.StringBuilder)
+
+	If pts Is Nothing OrElse arcs Is Nothing OrElse radii Is Nothing Then
+		Return
+	End If
+
+	Dim tolMm As Double = 0.05
+	Dim count As Integer = pts.Count
+
+	' Veiligheidscheck: de straallijst hoort 1-op-1 bij de ketenpunten.
+	If count = 0 OrElse radii.Count <> count Then
+		Return
+	End If
+
+	For Each oArc As PlateArc In arcs
+
+		' AK-3: w-notch: geen contourstraal op de eindpunten.
+		If oArc.IsWNotch Then
+			Continue For
+		End If
+
+		Dim found As Boolean = False
+
+		For i As Integer = 0 To count - 1
+
+			Dim j As Integer = (i + 1) Mod count
+
+			Dim p As Point2d = pts(i)
+			Dim q As Point2d = pts(j)
+
+			Dim forward As Boolean = _
+				Math.Abs(p.X - oArc.P1x) <= tolMm AndAlso _
+				Math.Abs(p.Y - oArc.P1y) <= tolMm AndAlso _
+				Math.Abs(q.X - oArc.P2x) <= tolMm AndAlso _
+				Math.Abs(q.Y - oArc.P2y) <= tolMm
+
+			Dim backward As Boolean = _
+				Math.Abs(p.X - oArc.P2x) <= tolMm AndAlso _
+				Math.Abs(p.Y - oArc.P2y) <= tolMm AndAlso _
+				Math.Abs(q.X - oArc.P1x) <= tolMm AndAlso _
+				Math.Abs(q.Y - oArc.P1y) <= tolMm
+
+			If forward OrElse backward Then
+
+				Dim cross As Double = _
+					(p.X - oArc.Cx) * (q.Y - oArc.Cy) - _
+					(p.Y - oArc.Cy) * (q.X - oArc.Cx)
+
+				Dim sgn As Double = 1.0
+
+				If cross < 0.0 Then
+					sgn = -1.0
+				End If
+
+				radii(i) = sgn * oArc.RadiusMm
+				radii(j) = sgn * oArc.RadiusMm
+
+				found = True
+
+				If dbg IsNot Nothing Then
+					dbg.AppendLine( _
+						"  [AK] boog R=" + Fmt(oArc.RadiusMm) + _
+						" teken " + Fmt(sgn * oArc.RadiusMm) + _
+						" op (" + Fmt(p.X) + "," + Fmt(p.Y) + ")-(" + _
+						Fmt(q.X) + "," + Fmt(q.Y) + ")")
+				End If
+
+				Exit For
+
+			End If
+
+		Next
+
+		If Not found AndAlso dbg IsNot Nothing Then
+			dbg.AppendLine( _
+				"  [AK] boog R=" + Fmt(oArc.RadiusMm) + _
+				" niet in contour (p1=(" + Fmt(oArc.P1x) + "," + Fmt(oArc.P1y) + _
+				") p2=(" + Fmt(oArc.P2x) + "," + Fmt(oArc.P2y) + _
+				") C=(" + Fmt(oArc.Cx) + "," + Fmt(oArc.Cy) + "))")
+		End If
+
+	Next
+
+End Sub
+
+
 Function BuildAkBlocks( _
 	ByVal oBody As SurfaceBody, _
 	ByVal xUnit As UnitVector, _
@@ -3532,6 +3980,13 @@ Function BuildAkBlocks( _
 
 		Dim flangeBandCm As Double = dFlangeThickMm / 10.0
 
+		Dim vRadii As List(Of Double) = Nothing
+		Dim oRadii As List(Of Double) = Nothing
+		Dim uRadii As List(Of Double) = Nothing
+		Dim vArcs As List(Of PlateArc) = Nothing
+		Dim oArcs As List(Of PlateArc) = Nothing
+		Dim uArcs As List(Of PlateArc) = Nothing
+
 		' v = zijplaat-snijprofiel (X-Z enveloppe, geknipt op het
 		' lijf-X-bereik: doorgaande uiteindesnedes verschijnen als
 		' verticale lijn op de kruising met het lijf, zoals in het
@@ -3539,21 +3994,21 @@ Function BuildAkBlocks( _
 		Dim vPoints As List(Of Point2d) = _
 			GetSideViewOutline( _
 				oBody, xUnit, yUnit, zUnit, oRefPoint, _
-				minX, minZ, minY, maxY, dWebThickMm, dbg)
+				minX, minZ, minY, maxY, dWebThickMm, vRadii, vArcs, dbg)
 
 		Dim oPoints As List(Of Point2d) = _
 			GetFlangePlateHull( _
 				oBody, xUnit, yUnit, zUnit, oRefPoint, _
-				minX, minY, maxY, maxZ, flangeBandCm, "o", dbg)
+				minX, minY, maxY, maxZ, flangeBandCm, "o", oRadii, oArcs, dbg)
 
 		Dim uPoints As List(Of Point2d) = _
 			GetFlangePlateHull( _
 				oBody, xUnit, yUnit, zUnit, oRefPoint, _
-				minX, minY, maxY, minZ, flangeBandCm, "u", dbg)
+				minX, minY, maxY, minZ, flangeBandCm, "u", uRadii, uArcs, dbg)
 
-		blocks.Add(FormatAkBlock("v", vPoints, dbg))
-		blocks.Add(FormatAkBlock("u", uPoints, dbg))
-		blocks.Add(FormatAkBlock("o", oPoints, dbg))
+		blocks.Add(FormatAkBlock("v", vPoints, vRadii, vArcs, dbg))
+		blocks.Add(FormatAkBlock("u", uPoints, uRadii, uArcs, dbg))
+		blocks.Add(FormatAkBlock("o", oPoints, oRadii, oArcs, dbg))
 
 		' Lege blokken (vlak niet gevonden) verwijderen
 		For i As Integer = blocks.Count - 1 To 0 Step -1
@@ -3637,9 +4092,16 @@ Function GetSideViewOutline( _
 	ByVal minY As Double, _
 	ByVal maxY As Double, _
 	ByVal dWebThickMm As Double, _
+	ByRef arcRadii As List(Of Double), _
+	ByRef arcsOut As List(Of PlateArc), _
 	ByVal dbg As System.Text.StringBuilder) As List(Of Point2d)
 
 	Dim result As New List(Of Point2d)
+
+	' ByRef-lijsten: altijd initialiseren, ook als de contour later
+	' leeg blijft (anders gooit de straal-toekenning een NRE).
+	arcRadii = New List(Of Double)
+	arcsOut = New List(Of PlateArc)
 
 	Try
 
@@ -3722,6 +4184,13 @@ Function GetSideViewOutline( _
 		Dim segX2 As New List(Of Double)
 		Dim segZ2 As New List(Of Double)
 		Dim breakXs As New List(Of Double)
+
+		' AK-2: bogen in het plaatvlak (notchnaad e.d.)
+		Dim plateArcs As List(Of PlateArc) = _
+			CollectPlateArcs(oBody, xUnit, zUnit, yUnit, oRefPoint, minX, minZ, 1.0, dbg)
+
+		' AK-3: bogen beschikbaar stellen voor de w-verwerking in FormatAkBlock
+		arcsOut = plateArcs
 
 		For Each oEdge As Edge In oBody.Edges
 
@@ -3907,8 +4376,15 @@ Function GetSideViewOutline( _
 
 		RemoveCollinearPoints2d(result)
 
+		' AK-2: straal + teken op de boogeindpunten
+		For i As Integer = 1 To result.Count
+			arcRadii.Add(0.0)
+		Next
+
+		AttachArcRadii(result, plateArcs, arcRadii, dbg)
+
 		If dbg IsNot Nothing Then
-			dbg.AppendLine("  [AK] v (zijaanzicht): " + result.Count.ToString() + " punten, " + segX1.Count.ToString() + " randen")
+			dbg.AppendLine("  [AK] v (zijaanzicht): " + result.Count.ToString() + " punten, " + segX1.Count.ToString() + " randen, " + plateArcs.Count.ToString() + " bogen")
 		End If
 
 	Catch ex As Exception
@@ -4069,9 +4545,15 @@ Function GetFlangePlateHull( _
 	ByVal bandEdgeZ As Double, _
 	ByVal flangeBandCm As Double, _
 	ByVal sPlate As String, _
+	ByRef arcRadii As List(Of Double), _
+	ByRef arcsOut As List(Of PlateArc), _
 	ByVal dbg As System.Text.StringBuilder) As List(Of Point2d)
 
 	Dim result As New List(Of Point2d)
+
+	' ByRef-lijsten: altijd initialiseren (zie GetSideViewOutline).
+	arcRadii = New List(Of Double)
+	arcsOut = New List(Of PlateArc)
 
 	Try
 
@@ -4089,6 +4571,13 @@ Function GetFlangePlateHull( _
 			zLow = bandEdgeZ - bandTolCm
 			zHigh = bandEdgeZ + flangeBandCm + bandTolCm
 		End If
+
+		' AK-2: bogen in het flensvlak (o/u-plaat)
+		Dim plateArcs As List(Of PlateArc) = _
+			CollectPlateArcs(oBody, xUnit, yUnit, zUnit, oRefPoint, minX, maxY, -1.0, dbg)
+
+		' AK-3: bogen beschikbaar stellen voor de w-verwerking in FormatAkBlock
+		arcsOut = plateArcs
 
 		Dim hullPts As New List(Of Point2d)
 
@@ -4161,8 +4650,15 @@ Function GetFlangePlateHull( _
 		' onafhankelijke collineaire verwijdering toepassen.
 		RemoveCollinearPoints2d(result)
 
+		' AK-2: straal + teken op de boogeindpunten
+		For i As Integer = 1 To result.Count
+			arcRadii.Add(0.0)
+		Next
+
+		AttachArcRadii(result, plateArcs, arcRadii, dbg)
+
 		If dbg IsNot Nothing Then
-			dbg.AppendLine("  [AK] " + sPlate + ": hull " + result.Count.ToString() + " punten")
+			dbg.AppendLine("  [AK] " + sPlate + ": hull " + result.Count.ToString() + " punten, " + plateArcs.Count.ToString() + " bogen")
 		End If
 
 	Catch ex As Exception
@@ -4446,6 +4942,8 @@ End Function
 Function FormatAkBlock( _
 	ByVal sFace As String, _
 	ByVal pts As List(Of Point2d), _
+	ByVal radii As List(Of Double), _
+	ByVal arcs As List(Of PlateArc), _
 	ByVal dbg As System.Text.StringBuilder) As String
 
 	If pts Is Nothing OrElse pts.Count < 3 Then
@@ -4465,7 +4963,142 @@ Function FormatAkBlock( _
 	Next
 
 	If area2 < 0.0 Then
+
 		pts.Reverse()
+
+		If radii IsNot Nothing AndAlso radii.Count = pts.Count Then
+			radii.Reverse()
+		End If
+
+	End If
+
+	' -------------------------------------------------------------
+	' AK-3: gat-notches (w) verwerken.
+	'
+	' DSTV p. 13-14: een w-notch staat als INFORMATIEREGEL op de hoek:
+	'   {face} {X}{ref} {Y}w {radius}
+	' De regel bevat de hoekcoordinaten + het notchart + de straal en
+	' is geen contourpunt met boogstraal. Een gat-notch-boog loopt
+	' > 180 graden rond de hoek (IsWNotch) en mag daarom ook niet als
+	' contourboog geemiteerd worden (max enkelvoudige hoek +/-180).
+	'
+	' Verwerking: de twee opeenvolgende contourpunten die de boog-
+	' eindpunten zijn, worden vervangen door EEN punt op de hoek
+	' (boog-centrum), gemarkeerd met 'w' en met de notch-straal.
+	' -------------------------------------------------------------
+	Dim letters As New List(Of String)
+
+	For i As Integer = 1 To pts.Count
+		letters.Add("")
+	Next
+
+	If arcs IsNot Nothing AndAlso radii IsNot Nothing AndAlso radii.Count = pts.Count Then
+
+		For Each oArc As PlateArc In arcs
+
+			If Not oArc.IsWNotch Then
+				Continue For
+			End If
+
+			' Dezelfde fysieke gatrand levert 2 PlateArcs (voor- en
+			' achterrand van het geboorde gat, identieke projectie).
+			' Slechts eenmaal verwerken.
+			Dim alreadyDone As Boolean = False
+
+			For i As Integer = 0 To letters.Count - 1
+				If letters(i) = "w" AndAlso _
+					Math.Abs(pts(i).X - oArc.Cx) < 0.05 AndAlso _
+					Math.Abs(pts(i).Y - oArc.Cy) < 0.05 Then
+
+					alreadyDone = True
+					Exit For
+				End If
+			Next
+
+			If alreadyDone Then
+				Continue For
+			End If
+
+			Dim count As Integer = pts.Count
+			Dim matchIdx As Integer = -1
+
+			For i As Integer = 0 To count - 1
+
+				Dim j As Integer = (i + 1) Mod count
+
+				Dim p As Point2d = pts(i)
+				Dim q As Point2d = pts(j)
+
+				Dim forward As Boolean = _
+					Math.Abs(p.X - oArc.P1x) <= 0.05 AndAlso _
+					Math.Abs(p.Y - oArc.P1y) <= 0.05 AndAlso _
+					Math.Abs(q.X - oArc.P2x) <= 0.05 AndAlso _
+					Math.Abs(q.Y - oArc.P2y) <= 0.05
+
+				Dim backward As Boolean = _
+					Math.Abs(p.X - oArc.P2x) <= 0.05 AndAlso _
+					Math.Abs(p.Y - oArc.P2y) <= 0.05 AndAlso _
+					Math.Abs(q.X - oArc.P1x) <= 0.05 AndAlso _
+					Math.Abs(q.Y - oArc.P1y) <= 0.05
+
+				If forward OrElse backward Then
+					matchIdx = i
+					Exit For
+				End If
+
+			Next
+
+			If matchIdx < 0 Then
+
+				If dbg IsNot Nothing Then
+					dbg.AppendLine( _
+						"  [AK] w-notch R=" + Fmt(oArc.RadiusMm) + _
+						" eindpunten niet opeenvolgend in contour - geen w-regel" & _
+						" (hoek " + Fmt(oArc.Cx) + "," + Fmt(oArc.Cy) + ")")
+				End If
+
+				Continue For
+			End If
+
+			Dim jIdx As Integer = (matchIdx + 1) Mod pts.Count
+
+			' Twee eindpunten vervangen door het hoekpunt (boog-centrum).
+			' Wrap-geval (matchIdx = laatste punt, jIdx = 0): verwijder
+			' matchIdx en 0, voeg de hoek op positie 0 in.
+			Dim corner As Point2d = _
+				ThisApplication.TransientGeometry.CreatePoint2d(oArc.Cx, oArc.Cy)
+
+			If jIdx = 0 Then
+				pts.RemoveAt(matchIdx)
+				pts.RemoveAt(0)
+				radii.RemoveAt(matchIdx)
+				radii.RemoveAt(0)
+				letters.RemoveAt(matchIdx)
+				letters.RemoveAt(0)
+				pts.Insert(0, corner)
+				radii.Insert(0, oArc.RadiusMm)
+				letters.Insert(0, "w")
+			Else
+				pts.RemoveAt(jIdx)
+				pts.RemoveAt(matchIdx)
+				radii.RemoveAt(jIdx)
+				radii.RemoveAt(matchIdx)
+				letters.RemoveAt(jIdx)
+				letters.RemoveAt(matchIdx)
+				pts.Insert(matchIdx, corner)
+				radii.Insert(matchIdx, oArc.RadiusMm)
+				letters.Insert(matchIdx, "w")
+			End If
+
+			If dbg IsNot Nothing Then
+				dbg.AppendLine( _
+					"  [AK] w-notch R=" + Fmt(oArc.RadiusMm) + _
+					" op hoek (" + Fmt(oArc.Cx) + "," + Fmt(oArc.Cy) + ")" & _
+					" (boogeindpunten vervangen door w-informatieregel)")
+			End If
+
+		Next
+
 	End If
 
 	Dim sb As New System.Text.StringBuilder
@@ -4475,15 +5108,22 @@ Function FormatAkBlock( _
 
 		Dim p As Point2d = pts(i)
 
+		Dim dRadius As Double = 0.0
+
+		If radii IsNot Nothing AndAlso radii.Count = pts.Count Then
+			dRadius = radii(i)
+		End If
+
 		sb.AppendLine("  " & _
 			sFace & " " & _
 			Fmt(p.X) & GetDstvXref(sFace) & " " & _
-			Fmt(p.Y) & " " & _
-			Fmt(0.0))
+			Fmt(p.Y) & letters(i) & " " & _
+			Fmt(dRadius))
 
 	Next
 
-	' Contour sluiten: eerste punt herhalen
+	' Contour sluiten: eerste punt herhalen. De referentie (p. 21)
+	' herhaalt hier alleen de coordinaten (straalkolom 0.00).
 	sb.AppendLine("  " & _
 		sFace & " " & _
 		Fmt(pts(0).X) & GetDstvXref(sFace) & " " & _
@@ -4896,25 +5536,83 @@ Function GetDstvFaceFrameAngle( _
 			oCenterSketch.X + dDirX, _
 			oCenterSketch.Y + dDirY))
 
-	Dim axDstv As Double = GetDstvX(ptA, oRefPoint, xUnit, dMinX)
-	Dim ayDstv As Double
+	' Richting van ptA naar ptB in het DSTV-vlakframe, ONafgerond.
+	' GetDstvX/Y/Z ronden op 2 decimalen af (bedoeld voor de uitvoer).
+	' Op een richtingsstap van ~10 mm geeft dat tot ~0.06 gr hoekfout;
+	' dat verklaarde een gemeten 9.96 op een in de schets op 10.00 gr
+	' gezette uitsparing. De offsets (minX/minZ/maxY) vallen weg in het
+	' verschil en zijn daarom hier niet nodig.
+	Dim dirModel As Vector = ptA.VectorTo(ptB)
+
+	Dim dDx As Double = DotVector(dirModel, xUnit.AsVector) * 10.0
+	Dim dDy As Double
 
 	If sFace = "v" OrElse sFace = "h" Then
-		ayDstv = GetDstvZ(ptA, oRefPoint, zUnit, dMinZ)
+		dDy = DotVector(dirModel, zUnit.AsVector) * 10.0
 	Else
-		ayDstv = GetDstvY(ptA, oRefPoint, yUnit, dMaxY)
+		' GetDstvY meet vanaf de bovenrand: (maxY - y), dus het teken
+		' van de richting klapt om.
+		dDy = -DotVector(dirModel, yUnit.AsVector) * 10.0
 	End If
 
-	Dim bxDstv As Double = GetDstvX(ptB, oRefPoint, xUnit, dMinX)
-	Dim byDstv As Double
+	Dim dAng As Double = Math.Atan2(dDy, dDx) * 180.0 / Math.PI
+
+	If dAng < 0 Then
+		dAng = dAng + 180.0
+	End If
+
+	If dAng >= 180.0 Then
+		dAng = dAng - 180.0
+	End If
+
+	Return dAng
+
+End Function
+
+
+' =====================================================================
+' FACE-FRAME ANGLE FROM 3D DIRECTION VECTOR
+' =====================================================================
+' Zelfde vlakframe-conventie als GetDstvFaceFrameAngle (v/h: Y-as = +Z;
+' o/u: Y-as = -Y; bereik [0, 180)), maar de richting is al een
+' model-space vector (geen sketch-transformatie) — voor randen waarvan
+' de 3D-richting al bekend is (rect-fillet, 3D-fillet-probe).
+' =====================================================================
+
+Function ComputeFaceFrameAngleFromVector( _
+	ByVal dirVector As Vector, _
+	ByVal sFace As String, _
+	ByVal xUnit As UnitVector, _
+	ByVal yUnit As UnitVector, _
+	ByVal zUnit As UnitVector) As Double
+
+	' Zelfde vlakframe-conventie als GetDstvFaceFrameAngle, maar de
+	' richting is al een model-space vector (geen sketch-transformatie).
+	' v/h-vlakken: Y-as = +Z; o/u-vlakken: Y-as = -Y (GetDstvY meet
+	' vanaf de bovenrand). Bereik [0, 180), zoals GetDstvFaceFrameAngle.
+
+	' Projecteer de richting op het plaatvlak (normaalcomponent weg)
+	Dim faceNormal As Vector = GetFaceNormal(sFace, xUnit, yUnit, zUnit)
+
+	Dim dot As Double = DotVector(dirVector, faceNormal)
+	Dim projected As Vector = dirVector.Copy
+	Dim normalComponent As Vector = faceNormal.Copy
+	normalComponent.ScaleBy(dot)
+	projected = ThisApplication.TransientGeometry.CreateVector( _
+		projected.X - normalComponent.X, _
+		projected.Y - normalComponent.Y, _
+		projected.Z - normalComponent.Z)
+
+	Dim dDx As Double = DotVector(projected, xUnit.AsVector) * 10.0
+	Dim dDy As Double
 
 	If sFace = "v" OrElse sFace = "h" Then
-		byDstv = GetDstvZ(ptB, oRefPoint, zUnit, dMinZ)
+		dDy = DotVector(projected, zUnit.AsVector) * 10.0
 	Else
-		byDstv = GetDstvY(ptB, oRefPoint, yUnit, dMaxY)
+		dDy = -DotVector(projected, yUnit.AsVector) * 10.0
 	End If
 
-	Dim dAng As Double = Math.Atan2(byDstv - ayDstv, bxDstv - axDstv) * 180.0 / Math.PI
+	Dim dAng As Double = Math.Atan2(dDy, dDx) * 180.0 / Math.PI
 
 	If dAng < 0 Then
 		dAng = dAng + 180.0

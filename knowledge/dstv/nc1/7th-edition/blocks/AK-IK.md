@@ -49,7 +49,129 @@ Per DSTV pp. 13–14 and the HEB400 worked example (p. 22):
 
 The exporter's `IK` output for sharp-corner rectangles uses exactly this format with radius `0.00` (implemented 2026-09 in `scratch/dstv_exporter.vb`).
 
-## Verified viewer observation (2026-09)
+## Arcs (AK) — verified rules (2026-09, AK-2)
+
+From DSTV 7th ed. p. 13 (extracted :616-624) and the p. 21 example:
+
+- the radius follows the Y value: `{face} {X}{ref} {Y} {radius}`;
+- the sign belongs to the arc's orientation **in the contour's own plate
+  coordinates**: `+` = mathematical (CCW) arc, `-` = CW arc;
+- **both endpoints** of an arc carry the same signed radius in the
+  worked example (v: `-10.00` on `(190,100)` and `(200,110)`);
+- the closing point repeats only X/Y — its radius column stays `0.00`;
+- maximum single angle `+/-180°` — a larger arc must be split
+  (exporter: larger arcs are skipped with a debug note = AK-2b);
+- sharp corners: radius `0.00` (AK-1 behaviour, unchanged).
+
+Exporter sign test (implemented): for the chain pair `P -> Q` and the
+projected centre `C`, `cross(P-C, Q-C) > 0` => `+`, else `-`. This
+reproduces the `-10.00` notch radius of the HEB400 example.
+
+## API: reading circular edges (Inventor 2026)
+
+- `Edge.Geometry` returns an **`Arc3d`** for `kCircularArcCurve` edges
+  and a `LineSegment` for lines — runtime-verified in this project's
+  exporter (`ProbeHoleBoundaryLoop`) and used for AK-2;
+- `Arc3d` members: `Center`, `Normal`, `Radius`, `StartAngle`,
+  `SweepAngle`, `StartPoint`, `EndPoint`, `Evaluator` (all verified by
+  reflection on `Autodesk.Inventor.Interop.dll`, Inventor 2026);
+- alternative (Autodesk SDK sample `Analyze_CM_Analysis.vb:534`):
+  `Edge.CurveType` + `Edge.Curve(CurveTypeEnum.kCircleCurve)` returns
+  the full `Circle` (`Center`/`Radius`/`Normal`);
+- there is **no 3D `Arc` type** in the API — only `Arc2d`/`Arc3d`;
+- an arc is only emitted as a radius when its plane is parallel to the
+  plate plane (`|dot(Normal, plateNormal)| >= 0.99`) and the projected
+  endpoints keep the same radius as the model arc (orthonormal check).
+
+## Reference notch decoded (p. 22 v block, 2026-09)
+
+The worked example's v contour is emitted starting at `(200,0)`; the
+notch region reads (extracted :1074-1079):
+
+```text
+  v     0.00o   100.00      0.00
+  v 190.00o     100.00    -10.00
+  v 200.00o     100.00w   -10.00
+  v 200.00o     110.00    -10.00
+  v 200.00o      90.00      0.00
+  v 200.00o       0.00      0.00
+```
+
+So the corner relief is a corner-centred quarter arc:
+
+- theoretical sharp corner = `(200,100)`; the `w` line carries that
+  corner's coordinates plus the notch tool/radius (`-10.00`);
+- the contour arc runs `(190,100) -> (200,110)`, centre `(200,100)`,
+  `R = 10`; both endpoints print `-10.00`;
+- `(200,90)` is an ordinary vertex on the `X = 200` line (radius
+  `0.00`) — it is *not* an arc endpoint even though it lies on the
+  same circle;
+- the notch line is not part of the point sequence (p. 14), so the
+  contour is `... (190,100) -> (200,110) -> (200,90) -> (200,0)`.
+
+Sign check with the implemented rule
+`cross(P-C, Q-C) > 0 => '+'`: `P=(190,100)`, `Q=(200,110)`,
+`C=(200,100)` gives `cross = -100 < 0` => `-10.00` — the reference
+value. The same rule applied to the (wrong) pair
+`(190,100) -> (200,90)` would print `+10.00`, i.e. the rule
+discriminates the two.
+
+## w-notch information line (AK-3, implemented + runtime-verified 2026-09-18)
+
+DSTV p. 13-14: an AK notch corner carries an **information line** that is
+not a contour point with a radius:
+
+```text
+{face} {X}{ref} {Y}w {radius}
+```
+
+- the `w` marker is appended **directly to the Y value** (no space):
+  `v 200.00u 100.00w 10.00` (p. 22 reference style: `v 200.00o 100.00w -10.00`);
+- the line carries the **theoretical sharp-corner coordinates** (200,100)
+  plus the notch type (`w` = hole-like, `t` = tangential) and the radius;
+- it sits **inside the contour point sequence** at the notch location,
+  between the adjacent contour segments — the contour stays closed
+  (first point repeated, radius 0.00 on the closing line).
+
+### Exporter representation (verified run, HE 400 B test beam)
+
+A **drilled hole-notch** at the tongue corner produces, in the B-REP, a
+contour arc of **270 degrees** around the hole (the fourth quadrant lies
+inside the already-removed notch region). Two facts drive the emission:
+
+1. A 270-degree arc **cannot** be emitted as contour arc(s) without
+   splitting (max single angle +/-180, p. 13).
+2. Inventor parameterises that hole-boundary edge with
+   `Arc3d.SweepAngle = 4.712` (270 deg) while the chord endpoints are
+   only 90 deg apart — detected via the geometric-angle check in
+   `GetPlateArc` and flagged `PlateArc.IsWNotch`.
+
+Emission (`FormatAkBlock`, after CCW orientation): the two consecutive
+contour points that are the arc endpoints are **replaced by one point at
+the notch centre**, marked `w`, radius = hole radius:
+
+```text
+AK
+  v 0.00u 100.00 0.00
+  v 200.00u 100.00w 10.00
+  v 200.00u 0.00 0.00
+  ...
+```
+
+- both arc-endpoint radius lines disappear (AK-2 endpoint radii are for
+  <=180 deg contour arcs only — e.g. the p. 22 quarter-arc case);
+- the duplicated hole edge (front/back circular edges of the drilled
+  hole project identically) is deduped — the w-line is emitted once;
+- fallback: if the endpoints are not consecutive in the contour, the
+  code logs `w-notch ... geen w-regel` and leaves the sharp contour
+  (visible in debug, never silent).
+
+Status: **RUNTIME-TESTED in Inventor 2026** (exporter output verified
+against independent geometry reasoning; debug line
+`w-notch R=10.00 op hoek (200.00,100.00)`). Target-viewer import of the
+`w` line: **PENDING**.
+
+### Verified viewer observation (2026-09)
 
 Manual testing in the target NC1 viewer confirmed that a sharp-corner rectangular internal opening (50 × 80 mm) represented as an `IK` closed clockwise contour with radius = 0.0 at all corners **passes validation with no warning**, while the same geometry as a `BO` record with `d = 0.00` **fails with 1 validation warning**.
 

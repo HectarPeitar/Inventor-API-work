@@ -123,8 +123,10 @@ This is a **verified viewer/exporter compatibility rule**, not a universal DSTV 
 The exporter (`scratch/dstv_exporter.vb`) implements:
 
 - **sharp rectangle** (4-line closed profile, 4 right angles from actual sketch geometry) → **IK** closed clockwise contour, radius 0.0;
-- **rounded rectangle** with **equal corner fillets** → **BO** with `d` = 2 × fillet radius, `l width/height` = full edge lengths (line + 2r) in the DSTV face frame. Two detection paths:
+- **rounded rectangle** with **equal corner fillets** → **BO** with `d` = 2 × fillet radius, `l width/height` = FULL outer dimensions (straight edge + 2 × corner radius), anchored at the **bottom-left corner-arc centre** (reference p. 21: `v 1512.00o 144.00 24.00 0.00l 100.00 60.00 10.00` — X/Y is the bottom-left arc centre, width = LONG side). Two detection paths:
   - fillets drawn **in the sketch** → profile is 4 lines + 4 arcs;
   - fillets applied **with the 3D Fillet tool** after the cut → the sketch stays a 4-line rectangle; the exporter probes the hole's **actual boundary edge loop** on the face (`ProbeHoleBoundaryLoop`: inner `EdgeLoop` nearest the rectangle center) and detects 4 lines + 4 uniform arcs there.
+
+NOTE (2026-09, RUN 8): this full-outer convention applies to **rounded rectangles** (4 straight edges + 4 corner arcs). A true **slot/stadium** (2 round ends, no straight-sided corners) keeps the viewer-verified **centre-to-centre** convention: `l Width` = centre distance (e.g. `u 1415.00s 251.50 24.00 0.00l 70.00 0.00 0.00`), `l Height` = 0.00. Do not mix the two.
 
 Confirmed 2026-09-09 (Inventor 2026 + target NC1 viewer): sharp→IK and both fillet paths→BO all validate **without any viewer warning** for the tested HE 400 B part (r = 5 mm → `d=10.00`).

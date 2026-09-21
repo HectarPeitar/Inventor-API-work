@@ -116,7 +116,7 @@ value. The same rule applied to the (wrong) pair
 `(190,100) -> (200,90)` would print `+10.00`, i.e. the rule
 discriminates the two.
 
-## w-notch information line (AK-3, implemented + runtime-verified 2026-09-18)
+## w-notch information line (AK-3, VERIFIED 2026-09)
 
 DSTV p. 13-14: an AK notch corner carries an **information line** that is
 not a contour point with a radius:
@@ -146,14 +146,18 @@ inside the already-removed notch region). Two facts drive the emission:
    only 90 deg apart — detected via the geometric-angle check in
    `GetPlateArc` and flagged `PlateArc.IsWNotch`.
 
-Emission (`FormatAkBlock`, after CCW orientation): the two consecutive
-contour points that are the arc endpoints are **replaced by one point at
-the notch centre**, marked `w`, radius = hole radius:
+Emission (`FormatAkBlock`, after CCW orientation): the **first** of the two
+consecutive arc endpoints is replaced by the notch-corner point (the
+notch centre = theoretical sharp corner), marked `w`, radius = tool
+radius. The **second** endpoint remains in the contour as an ordinary
+vertex (radius `0.00`, no marker) — that is where the 270 deg drill
+boundary re-enters the contour. Format: `{face} {X}{ref} {Y}w {radius}`.
 
 ```text
 AK
   v 0.00u 100.00 0.00
   v 200.00u 100.00w 10.00
+  v 200.00u 90.00 0.00
   v 200.00u 0.00 0.00
   ...
 ```
@@ -168,7 +172,7 @@ AK
   code logs `w-notch ... geen w-regel` and leaves the sharp contour
   (visible in debug, never silent).
 
-### D1 — OPEN: w-line vs the p. 21-22 worked example (2026-09-19)
+### D1 — RESOLVED 2026-09: single information line (option a), viewer-verified
 
 The p. 22 example keeps **both** boundary-arc endpoints, each with the
 signed radius, and places the `w` information line **between** them:
@@ -192,6 +196,13 @@ the contour description") but is **not identical to the p. 22 example**:
 - the w radius is emitted positive (`10.00`) where the reference uses
   the contour-direction sign (`-10.00`).
 
+**Viewer decision (2026-09, user evidence):** the target viewer **accepts**
+the exporter's single-line form `v 200.00u 100.00w 10.00` — the notch is
+drawn correctly, no error, no warning. Option (b) (p. 22-conformant:
+boundary-arc endpoints, split when > 180 gr, + the information line) is
+**NOT needed for this exporter/viewer combination**. Keep option (a) as
+the production behavior.
+
 Model facts behind D1 (CA-1 profile census + debug, run 2026-09-19):
 
 - the cope cut-extrude (`Extrusion5`) has a sketch on the **h** face
@@ -212,10 +223,11 @@ Do **not** mark the notch emission spec-conformant until D1 is resolved.
 The sub-phase that can resolve it (arc-capable cope chain) is CA-2/CA-3
 of the cope-absorption plan in `scratch/HE400B_Example_TestG.md`.
 
-Status: **RUNTIME-TESTED in Inventor 2026** (exporter output verified
-against independent geometry reasoning; debug line
-`w-notch R=10.00 op hoek (200.00,100.00)`). Target-viewer import of the
-`w` line: **PENDING**. D1 (boundary-arc endpoints + radius sign): **OPEN**.
+Status: **VERIFIED in Inventor 2026 + target NC1 viewer 2026-09** (runtime output
+verified against independent geometry reasoning; debug line
+`w-notch R=10.00 op hoek (200.00,100.00)`; NC1 line
+`v 200.00u 100.00w 10.00` imported by the user — notch drawn correctly, no
+error, no warning). D1: **RESOLVED** (single information line, option a).
 
 ### Verified viewer observation (2026-09)
 

@@ -455,7 +455,7 @@ Consequences for the plan:
 | G1 | Cope detection: nothing identifies a cope cut-extrude. Cope records are suppressed today only by falling through the classification branches (probe-less SKIP), not by design — a cope profile that happens to be 4 lines / 0 arcs would be emitted as an IK contour or a BO record. | debug `OPENING (rect): SKIP (geen snijranden op vlak h)`; no cope symbols in the exporter |
 | G2 | No diagnostic for unclassified profile paths: Extrusion5/6/7 leave no trace, so the report cannot distinguish "absorbed" from "silently dropped". | debug run 2026-09-19 |
 | G3 | No cope chain extraction: the cope's boundary on the plate face is never walked. The v contour is an X-Z envelope of edge endpoints (per-X min/max + vertical jumps), so the notch's true chain vertices never exist. | `[AK] boog R=10.00 niet in contour` (RUN 7) + the w rule having to fabricate the corner point instead of replacing an endpoint pair |
-| G4 | w-line deviates from p. 22: boundary-arc endpoints missing, radius emitted positive where the reference is negative. | `AK-IK.md` D1 (open) |
+| G4 | ~~w-line deviates from p. 22: boundary-arc endpoints missing, radius emitted positive where the reference is negative.~~ **RESOLVED 2026-09**: viewer accepts the single-line form `v 200.00u 100.00w 10.00` (notch drawn correctly, no error/warning); the p. 22-conformant variant is NOT needed for this viewer. See `AK-IK.md` D1. |
 | G5 | X-ref letters: AK/BO print `u` everywhere; reference v->`o`, u/o->`s` (AK-3 remainder). | reference p. 22 |
 | G6 | Welding-prep couples not emitted at all (AK-4). | reference `v 1952.00o 0.00 0.00 -18.430 13.50` and `o 159.50s 0.00 0.00 10.000 0.00` |
 | G7 | Model-vs-reference X deltas: 1952.25 vs 1952.00, bevel 164.00 vs 163.50, o-plate 159.52 vs 159.50 (accepted so far). | run 2026-09-19 vs extracted :1065-1101 |
@@ -502,15 +502,17 @@ Consequences for the plan:
 4. Geometry conclusions must be reasoned independently per point
    (expected arc centre/radius/endpoints/sign) — never read back from
    the exporter's own output.
-5. Target-viewer import of the `w` line and of signed radii: PENDING.
+5. Target-viewer import of the `w` line: **DONE 2026-09** — accepted, notch
+   drawn correctly, no error/warning (Stage B, AK-2/AK-3 viewer test).
+   Signed contour radii import: still pending (no ≤180° in-plane contour arc
+   in this geometry; separate minimal test needed).
 
 ### Decision gates
 
-- **D1** w-line representation: (a) keep the single information line
-  (current, user-approved) or (b) p. 22-conformant (boundary arc
-  endpoints, split when > 180 gr, + the information line). Recommended:
-  (b) once CA-2/CA-3 provide the real chain; (a) stays the fallback when
-  the chain is unavailable.
+- **D1** w-line representation: **RESOLVED 2026-09** — option (a) (single
+  information line) confirmed by viewer acceptance (`v 200.00u 100.00w 10.00`,
+  notch drawn correctly, no error/warning). Option (b) is NOT needed; CA-2/CA-3
+  are no longer required for the w-line decision.
 - **D2** per-face X-ref letters (v->o, u/o->s): changes existing BO lines
   too — confirm before switching.
 - **D3** theoretical vs modelled X (1952.25/164.00): accept as model

@@ -306,6 +306,9 @@ Sub Main()
 			0.0)
 
 
+	
+
+
 	' =============================================================
 	' DSTV COORDINATENSYSTEEM
 	' =============================================================
@@ -446,8 +449,8 @@ Sub Main()
 	End If
 
 
-	' =============================================================
-	' DSTV X-AS
+' =============================================================
+	' DSTV ASSEN (module-level, accessible everywhere)
 	' =============================================================
 
 	Dim xUnit As UnitVector = _
@@ -457,52 +460,20 @@ Sub Main()
 			ThisApplication.TransientGeometry.CreateUnitVector(0, 1, 0), _
 			ThisApplication.TransientGeometry.CreateUnitVector(0, 0, 1))
 
-
-	' =============================================================
-	' DSTV Z-AS
-	' =============================================================
+	Dim yUnit As UnitVector = _
+		GetOrientedAxis( _
+			crossVecA, _
+			ThisApplication.TransientGeometry.CreateUnitVector(0, 1, 0), _
+			ThisApplication.TransientGeometry.CreateUnitVector(0, 0, 1), _
+			ThisApplication.TransientGeometry.CreateUnitVector(1, 0, 0))
 
 	Dim zUnit As UnitVector = _
 		GetOrientedAxis( _
-			heightVec, _
+			crossVecB, _
 			ThisApplication.TransientGeometry.CreateUnitVector(0, 0, 1), _
-			ThisApplication.TransientGeometry.CreateUnitVector(0, 1, 0), _
-			ThisApplication.TransientGeometry.CreateUnitVector(1, 0, 0))
-
-
+			ThisApplication.TransientGeometry.CreateUnitVector(1, 0, 0), _
+			ThisApplication.TransientGeometry.CreateUnitVector(0, 1, 0))
 	' =============================================================
-	' Y-AS = Z x X
-	' =============================================================
-
-	Dim yVector As Vector = _
-		zUnit.AsVector.CrossProduct( _
-			xUnit.AsVector)
-
-
-	yVector.Normalize()
-
-
-	Dim yUnit As UnitVector = _
-		yVector.AsUnitVector
-
-
-	' =============================================================
-	' RECHTSDRAAIEND STELSEL
-	' =============================================================
-
-	Dim checkVector As Vector = _
-		xUnit.AsVector.CrossProduct( _
-			yUnit.AsVector)
-
-
-	If DotVector( _
-		checkVector, _
-		zUnit.AsVector) < 0.0 Then
-
-		yVector.ScaleBy(-1.0)
-		yUnit = yVector.AsUnitVector
-
-	End If
 
 
 	' =============================================================
@@ -669,6 +640,26 @@ Sub Main()
 	Dim ikBlocks As New List(Of String)
 
 	Dim holeToleranceMm As Double = 0.05
+
+
+	' =============================================================
+	' FALLBACK FOR PLAIN PARTS - DERIVE PROFILE DIMENSIONS FROM GEOMETRY
+	' This must come AFTER the coordinate system is established
+	' =============================================================
+	If dFlangeThickMm <= 0.0 OrElse dWebThickMm <= 0.0 Then
+		Dim geoFlange, geoWeb, geoRadius As Double
+		If GetProfileDimensionsFromGeometry( _
+			oBody, oRefPoint, xUnit, yUnit, zUnit, _
+			minX, maxX, minY, maxY, minZ, maxZ, _
+			dHeightMm, dWidthMm, _
+			debugSb, _
+			geoFlange, geoWeb, geoRadius) Then
+
+			If dFlangeThickMm <= 0.0 Then dFlangeThickMm = geoFlange
+			If dWebThickMm <= 0.0 Then dWebThickMm = geoWeb
+			If dRadiusMm <= 0.0 Then dRadiusMm = geoRadius
+		End If
+	End If
 
 
 	Dim oFeatures As PartFeatures = _
@@ -5122,39 +5113,36 @@ Function FormatAkBlock( _
 
 			Dim jIdx As Integer = (matchIdx + 1) Mod pts.Count
 
-			' Twee eindpunten vervangen door het hoekpunt (boog-centrum).
-			' Wrap-geval (matchIdx = laatste punt, jIdx = 0): verwijder
-			' matchIdx en 0, voeg de hoek op positie 0 in.
+			' AK-3: w-notch - vervang ALLEEN het eerste eindpunt (flenszijde,
+			' incoming edge) door de w-informatieregel op de hoek (boog-
+			' centrum). Het tweede eindpunt (lijfzijde, outgoing edge, bv.
+			' (200,90) op de webrand) is tegelijkertijd een contourpunt en
+			' blijft als gewone vertex met straal 0.00.
+			'
+			' Veilig omdat een w-notch alleen ontstaat bij een gatrand > 180
+			' gr op een hoek: in CCW-volgorde (garant door de orientatie-
+			' test hierboven) ligt p (matchIdx) op de aankomende rand en
+			' q (jIdx) op de vertrekkende rand - ook bij de wrap case
+			' (jIdx = 0), want de ketting is al CCW vooor deze verwerking.
 			Dim corner As Point2d = _
 				ThisApplication.TransientGeometry.CreatePoint2d(oArc.Cx, oArc.Cy)
 
-			If jIdx = 0 Then
-				pts.RemoveAt(matchIdx)
-				pts.RemoveAt(0)
-				radii.RemoveAt(matchIdx)
-				radii.RemoveAt(0)
-				letters.RemoveAt(matchIdx)
-				letters.RemoveAt(0)
-				pts.Insert(0, corner)
-				radii.Insert(0, oArc.RadiusMm)
-				letters.Insert(0, "w")
-			Else
-				pts.RemoveAt(jIdx)
-				pts.RemoveAt(matchIdx)
-				radii.RemoveAt(jIdx)
-				radii.RemoveAt(matchIdx)
-				letters.RemoveAt(jIdx)
-				letters.RemoveAt(matchIdx)
-				pts.Insert(matchIdx, corner)
-				radii.Insert(matchIdx, oArc.RadiusMm)
-				letters.Insert(matchIdx, "w")
+			pts(matchIdx) = corner
+				radii(matchIdx) = oArc.RadiusMm
+				letters(matchIdx) = "w"
+
+			' Tweede eindpunt: geen contourstraal (w-notch-bogen worden
+			' in AttachArcRadii overgeslagen), geen marker.
+			If jIdx <> matchIdx Then
+				radii(jIdx) = 0.0
+				letters(jIdx) = ""
 			End If
 
 			If dbg IsNot Nothing Then
 				dbg.AppendLine( _
 					"  [AK] w-notch R=" + Fmt(oArc.RadiusMm) + _
 					" op hoek (" + Fmt(oArc.Cx) + "," + Fmt(oArc.Cy) + ")" & _
-					" (boogeindpunten vervangen door w-informatieregel)")
+					" (eerste eindpunt -> w-regel, tweede bewaard als contourpunt)")
 			End If
 
 		Next
@@ -6363,8 +6351,9 @@ Function GetDstvProfileCode( _
 		sFamilyOrDesc.ToUpper()
 
 
+	' HE profiles: HE + digits + A/B/M (e.g., HE400B, HE 300 A, HEM200)
 	Dim reHE As New System.Text.RegularExpressions.Regex( _
-		"^HE\s*\d+\s*[ABM]\b")
+		"^HE\s*\d+\s*[ABM]\b|HE\d+[ABM]")
 
 
 	Dim reL As New System.Text.RegularExpressions.Regex( _
@@ -6453,6 +6442,279 @@ Function GetDstvProfileCode( _
 	End If
 
 End Function
+
+' =====================================================================
+' PROFILE DIMENSIONS FROM GEOMETRY
+' =====================================================================
+' Derives flange thickness, web thickness, and root radius from the
+' start face cross-section geometry. Works for any I-profile orientation
+' because it uses the DSTV frame (xUnit, yUnit, zUnit) from the OBB.
+Function GetProfileDimensionsFromGeometry( _
+	ByVal oBody As SurfaceBody, _
+	ByVal oRefPoint As Point, _
+	ByVal xUnit As UnitVector, _
+	ByVal yUnit As UnitVector, _
+	ByVal zUnit As UnitVector, _
+	ByVal minX As Double, ByVal maxX As Double, _
+	ByVal minY As Double, ByVal maxY As Double, _
+	ByVal minZ As Double, ByVal maxZ As Double, _
+	ByVal dHeightMm As Double, ByVal dWidthMm As Double, _
+	ByVal dbg As System.Text.StringBuilder, _
+	ByRef dFlangeThickMm As Double, _
+	ByRef dWebThickMm As Double, _
+	ByRef dRadiusMm As Double) As Boolean
+
+	Try
+		dFlangeThickMm = 0.0
+		dWebThickMm = 0.0
+		dRadiusMm = 0.0
+
+		' ---------------------------------------------------------
+		' Find the start face: the cross-section face at the Np/minX end
+		'
+		' NB: Plane.Normal is NIET de outward vlaknormaal — parallelle
+		' vlakken kunnen dezelfde normaalrichting bewaren (dit test-
+		' deel: beide eindvlakken dot = +1.0, debug bestDot=0.000).
+		' De start-face wordt daarom op POSITIE bepaald (vertex X-
+		' extent, zoals de end-cut-detectie hierboven) plus de eis
+		' dat het vlak loodrecht op de lengte-as staat (|dot| >= 0.9).
+		' ---------------------------------------------------------
+		Dim startFace As Face = Nothing
+		Dim startFaceTolCm As Double = 0.05
+
+		For Each f As Face In oBody.Faces
+			If f.SurfaceType <> SurfaceTypeEnum.kPlaneSurface Then
+				Continue For
+			End If
+
+			Dim oPlane As Plane = CType(f.Geometry, Plane)
+
+			' Alleen eindvlakken: vlaknormaal (teken-onafhankelijk)
+			' langs de lengte-as
+			Dim absDot As Double = _
+				Math.Abs(DotVector(oPlane.Normal.AsVector, xUnit.AsVector))
+			If absDot < 0.9 Then
+				Continue For
+			End If
+
+			' X-extent van het vlak (DSTV-frame, cm)
+			Dim fMinX As Double = Double.MaxValue
+			Dim fMaxX As Double = Double.MinValue
+
+			For Each oVtx As Vertex In f.Vertices
+				Dim vx As Double = _
+					DotVector(oRefPoint.VectorTo(oVtx.Point), xUnit.AsVector)
+				If vx < fMinX Then
+					fMinX = vx
+				End If
+				If vx > fMaxX Then
+					fMaxX = vx
+				End If
+			Next
+
+			' De start-face ligt plat op de Np-zijde: de hele extent
+			' zit op minX (zowel fMinX als fMaxX)
+			If fMinX <= minX + startFaceTolCm AndAlso _
+				fMaxX <= minX + startFaceTolCm Then
+
+				startFace = f
+				Exit For
+			End If
+		Next
+
+		If startFace Is Nothing Then
+			If dbg IsNot Nothing Then
+				dbg.AppendLine("  [PROFILE] fallback: start face niet gevonden (geen eindvlak op minX)")
+			End If
+			Return False
+		End If
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [PROFILE] fallback: start face ok (eindvlak op minX, " + startFace.Edges.Count.ToString() + " randen)")
+		End If
+
+		' ---------------------------------------------------------
+		' Get the outer edge loop of the start face (largest area)
+		' ---------------------------------------------------------
+		Dim outerLoop As EdgeLoop = Nothing
+		For Each oLoop As EdgeLoop In startFace.EdgeLoops
+			If oLoop.Edges.Count > 0 Then
+				If outerLoop Is Nothing OrElse _
+				   oLoop.Edges.Count > outerLoop.Edges.Count Then
+					outerLoop = oLoop
+				End If
+			End If
+		Next
+
+		If outerLoop Is Nothing Then
+			Return False
+		End If
+
+		' ---------------------------------------------------------
+		' Classify edges by direction in section frame
+		' Flange edges: direction ≈ ±yUnit
+		' Web edges: direction ≈ ±zUnit
+		' ---------------------------------------------------------
+		Dim flangeEdges As New List(Of Edge)
+		Dim webEdges As New List(Of Edge)
+		Dim cornerArcs As New List(Of Edge)
+
+		For Each oEdge As Edge In outerLoop.Edges
+			Dim oGeom As Object = oEdge.Geometry
+			If TypeOf oGeom Is LineSegment Then
+				Dim ls As LineSegment = CType(oGeom, LineSegment)
+				Dim dotY As Double = Math.Abs(DotVector(ls.Direction.AsVector, yUnit.AsVector))
+				Dim dotZ As Double = Math.Abs(DotVector(ls.Direction.AsVector, zUnit.AsVector))
+
+				If dotY > 0.9 Then
+					flangeEdges.Add(oEdge)
+				ElseIf dotZ > 0.9 Then
+					webEdges.Add(oEdge)
+				End If
+			ElseIf TypeOf oGeom Is Arc3d Then
+				cornerArcs.Add(oEdge)
+			End If
+		Next
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [PROFILE] fallback: loop " + outerLoop.Edges.Count.ToString() + " randen -> flange=" + flangeEdges.Count.ToString() + " web=" + webEdges.Count.ToString() + " arcs=" + cornerArcs.Count.ToString())
+		End If
+
+		' ---------------------------------------------------------
+		' Flange thickness: distance between parallel flange edge pairs
+		' ---------------------------------------------------------
+		If flangeEdges.Count >= 4 Then
+			Dim topFlangeCenters As New List(Of Point)
+			Dim botFlangeCenters As New List(Of Point)
+
+			' Splitsgrens = het MIDDEN van de sectie (DSTV-frame), niet
+			' de nul van het referentiepunt: oRefPoint is een willekeurige
+			' body-vertex (test-deel: precies op de bovenflens), dus de
+			' boven/onder-verdeling mag niet tegen zPos=0 lopen.
+			Dim zMidCm As Double = (minZ + maxZ) / 2.0
+
+			For Each oEdge As Edge In flangeEdges
+				Dim ls As LineSegment = CType(oEdge.Geometry, LineSegment)
+				' Midpoint = (StartPoint + EndPoint) / 2
+				' NB: CreatePoint hoort op ThisApplication.TransientGeometry,
+				' NIET op een Point-object (Point heeft die property niet).
+				Dim mid As Point = ThisApplication.TransientGeometry.CreatePoint( _
+					(ls.StartPoint.X + ls.EndPoint.X) / 2.0, _
+					(ls.StartPoint.Y + ls.EndPoint.Y) / 2.0, _
+					(ls.StartPoint.Z + ls.EndPoint.Z) / 2.0)
+				' NB: Vector-ondersteunt geen '-' operator; gebruik
+				' VectorTo (verifieerd patroon uit dit bestand).
+				Dim zPos As Double = DotVector(oRefPoint.VectorTo(mid), zUnit.AsVector)
+				If zPos > zMidCm Then
+					topFlangeCenters.Add(mid)
+				Else
+					botFlangeCenters.Add(mid)
+				End If
+			Next
+
+			If topFlangeCenters.Count >= 2 AndAlso botFlangeCenters.Count >= 2 Then
+				Dim topDist As Double = MinDistanceBetweenEdgeGroups(topFlangeCenters, zUnit)
+				Dim botDist As Double = MinDistanceBetweenEdgeGroups(botFlangeCenters, zUnit)
+				dFlangeThickMm = (topDist + botDist) / 2.0
+			End If
+		End If
+
+		' ---------------------------------------------------------
+		' Web thickness: distance between the two web edges
+		' ---------------------------------------------------------
+		If webEdges.Count >= 2 Then
+			Dim webCenters As New List(Of Point)
+			For Each oEdge As Edge In webEdges
+				Dim ls As LineSegment = CType(oEdge.Geometry, LineSegment)
+				Dim mid As Point = ThisApplication.TransientGeometry.CreatePoint( _
+					(ls.StartPoint.X + ls.EndPoint.X) / 2.0, _
+					(ls.StartPoint.Y + ls.EndPoint.Y) / 2.0, _
+					(ls.StartPoint.Z + ls.EndPoint.Z) / 2.0)
+				webCenters.Add(mid)
+			Next
+
+			If webCenters.Count >= 2 Then
+				dWebThickMm = MinDistanceBetweenEdgeGroups(webCenters, yUnit)
+			End If
+		End If
+
+		' ---------------------------------------------------------
+		' Root radius: from corner arcs at flange-web junctions
+		' ---------------------------------------------------------
+		If cornerArcs.Count > 0 Then
+			Dim radii As New List(Of Double)
+			For Each oEdge As Edge In cornerArcs
+				Dim oArc As Arc3d = CType(oEdge.Geometry, Arc3d)
+				Dim dotX As Double = Math.Abs(DotVector(oArc.Normal.AsVector, xUnit.AsVector))
+				If dotX > 0.9 Then
+					radii.Add(oArc.Radius * 10.0)
+				End If
+			Next
+			If radii.Count > 0 Then
+				' NB: LINQ Average() is niet betrouwbaar beschikbaar in
+				' iLogic (late-bound, faalt runtime). Handmatige som.
+				Dim radiusSum As Double = 0.0
+				For Each dR As Double In radii
+					radiusSum = radiusSum + dR
+				Next
+				dRadiusMm = radiusSum / radii.Count
+			End If
+		End If
+
+		If dFlangeThickMm > 1.0 AndAlso dFlangeThickMm < dHeightMm AndAlso _
+		   dWebThickMm > 1.0 AndAlso dWebThickMm < dWidthMm Then
+			If dbg IsNot Nothing Then
+				dbg.AppendLine("  [PROFILE] fallback: OK flange=" + Fmt(dFlangeThickMm) + " web=" + Fmt(dWebThickMm) + " radius=" + Fmt(dRadiusMm))
+			End If
+			Return True
+		End If
+
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [PROFILE] fallback: SANITY FAIL flange=" + Fmt(dFlangeThickMm) + " web=" + Fmt(dWebThickMm) + " (H=" + Fmt(dHeightMm) + " B=" + Fmt(dWidthMm) + ")")
+		End If
+
+		Return False
+
+	Catch ex As Exception
+		If dbg IsNot Nothing Then
+			dbg.AppendLine("  [PROFILE] fallback EXCEPTION: " + ex.Message)
+		End If
+		Return False
+	End Try
+
+End Function
+
+' ---------------------------------------------------------
+' Helper: Min significant distance between edge-center pairs projected onto axis
+' ---------------------------------------------------------
+Function MinDistanceBetweenEdgeGroups( _
+	ByVal centers As List(Of Point), _
+	ByVal axis As UnitVector) As Double
+
+	Dim dists As New List(Of Double)
+	For i As Integer = 0 To centers.Count - 1
+		For j As Integer = i + 1 To centers.Count - 1
+			' NB: DotVector + VectorTo (Inventor Vector heeft geen
+			' Dot-member en geen '-' operator).
+			Dim projDist As Double = _
+				Math.Abs(DotVector(centers(i).VectorTo(centers(j)), axis.AsVector)) * 10.0
+			' Ignore near-zero (same edge pair)
+			If projDist > 0.1 Then
+				dists.Add(projDist)
+			End If
+		Next
+	Next
+
+	' The flange thickness is the smaller distance (the larger would be the flange width)
+	If dists.Count >= 1 Then
+		dists.Sort()
+		Return dists(0)
+	End If
+
+	Return 0.0
+
+End Function
+
 ' =====================================================================
 ' WEBZIJDE V/H BEPALEN
 '
